@@ -160,14 +160,32 @@ function writeEnv(ai) {
   }
 }
 
+/**
+ * The environment for what setup starts, with this Node's folder on PATH: right after Node.js was installed,
+ * the setup window doesn't know where "node" is yet (Windows: '"node"' is not recognized).
+ */
+function withNodeOnPath() {
+  const env = { ...process.env };
+  const key = Object.keys(env).find((k) => k.toUpperCase() === "PATH") ?? "PATH"; // "Path" on Windows
+  env[key] = [path.dirname(process.execPath), env[key]].filter(Boolean).join(path.delimiter);
+  return env;
+}
+
 /** npm that comes with this Node (works even when a fresh install isn't on PATH yet). */
 function npm(argv) {
   const dir = path.dirname(process.execPath);
   const cli = [path.join(dir, "node_modules", "npm", "bin", "npm-cli.js"), path.join(dir, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js")].find(existsSync);
+  const env = withNodeOnPath();
   const r = cli
-    ? spawnSync(process.execPath, [cli, ...argv], { cwd: root, stdio: "inherit" })
-    : spawnSync(win ? "npm.cmd" : "npm", argv, { cwd: root, stdio: "inherit", shell: win });
+    ? spawnSync(process.execPath, [cli, ...argv], { cwd: root, stdio: "inherit", env })
+    : spawnSync(win ? "npm.cmd" : "npm", argv, { cwd: root, stdio: "inherit", shell: win, env });
   return r.status === 0;
+}
+
+/** Builds Nova with this Node directly (no npm script, so nothing depends on PATH). */
+function build() {
+  const next = path.join(root, "node_modules", "next", "dist", "bin", "next");
+  return spawnSync(process.execPath, [next, "build"], { cwd: root, stdio: "inherit", env: withNodeOnPath() }).status === 0;
 }
 
 function openUrl(url) {
@@ -237,7 +255,7 @@ async function main() {
   step(3, "Installing Nova (a few minutes the first time)…");
   if (!npm(["ci", "--no-audit", "--no-fund", "--loglevel=error"])) fail("Installing failed. Check your internet connection and run the setup again.");
   say("Building Nova…");
-  if (!npm(["run", "build"])) fail("Building Nova failed. Run the setup again; if it keeps failing, send the error above to whoever gave you Nova.");
+  if (!build()) fail("Building Nova failed. Run the setup again; if it keeps failing, send the error above to whoever gave you Nova.");
 
   step(4, "Finishing");
   const auto = (await ask("Start Nova by itself when you log in? (Y/n): ")).toLowerCase();
