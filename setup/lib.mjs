@@ -17,8 +17,12 @@ export const GEMINI = process.env.NOVA_SETUP_GEMINI_BASE || "https://generativel
 export const testing = !!process.env.NOVA_SETUP_GEMINI_BASE || process.env.NOVA_APP_TEST === "1";
 export const LMSTUDIO = process.env.NOVA_SETUP_LMSTUDIO_BASE || "http://127.0.0.1:1234/v1";
 export const REPO = "ben10-games/Nova-AI";
-export const UPDATE_ZIP = process.env.NOVA_UPDATE_ZIP || `https://github.com/${REPO}/archive/refs/heads/main.zip`;
-export const UPDATE_VERSION_URL = process.env.NOVA_UPDATE_VERSION_URL || `https://raw.githubusercontent.com/${REPO}/main/package.json`;
+// Updates come from GitHub Releases: each release has one download per system (see scripts/make-release.mjs),
+// so a Mac update never brings Windows files and the other way round.
+export const RELEASE_ASSET = mac ? "Nova-for-Mac.zip" : win ? "Nova-for-Windows.zip" : "Nova-for-Linux.zip";
+const RELEASES_API = `https://api.github.com/repos/${REPO}/releases/latest`;
+const UPDATE_ZIP = process.env.NOVA_UPDATE_ZIP || null; // tests
+const UPDATE_VERSION_URL = process.env.NOVA_UPDATE_VERSION_URL || null; // tests
 export const NOVA_PORT = Number(process.env.NOVA_APP_NOVA_PORT || 3000);
 // Tried in this order; the first one this key may use becomes Nova's model. Measured October 2026:
 // Flash-Lite does every Nova benchmark task and its free tier allows hundreds of requests a day, while
@@ -193,9 +197,20 @@ export function newer(a, b) {
   return false;
 }
 
+/** The newest release: { version, zip } (zip = this system's download), or null if none can be found. */
+export async function latestRelease() {
+  if (UPDATE_VERSION_URL) {
+    const r = await http(UPDATE_VERSION_URL, { timeoutMs: 10_000 });
+    return r.status === 200 && typeof r.json?.version === "string" ? { version: r.json.version, zip: UPDATE_ZIP } : null;
+  }
+  const r = await http(RELEASES_API, { timeoutMs: 10_000 });
+  const tag = typeof r.json?.tag_name === "string" ? r.json.tag_name.replace(/^v/i, "") : null;
+  const asset = Array.isArray(r.json?.assets) ? r.json.assets.find((a) => a && a.name === RELEASE_ASSET) : null;
+  return r.status === 200 && tag && /^\d+\.\d+\.\d+$/.test(tag) && asset?.browser_download_url ? { version: tag, zip: asset.browser_download_url } : null;
+}
+
 export async function latestVersion() {
-  const r = await http(UPDATE_VERSION_URL, { timeoutMs: 10_000 });
-  return r.status === 200 && r.json && typeof r.json.version === "string" ? r.json.version : null;
+  return (await latestRelease())?.version ?? null;
 }
 
 // ---------------------------------------------------------------------------
@@ -308,9 +323,11 @@ const KEEP = new Set([".env.local", ".env.local.before-setup", ".nova", "node_mo
 export async function downloadUpdate(onLine = () => {}) {
   if (isDevCopy()) return { ok: false, error: "This Nova folder is a developer copy (it has .git): update it with git pull instead." };
   onLine("Downloading the newest Nova…");
+  const release = await latestRelease();
+  if (!release?.zip) return { ok: false, error: "Couldn't find the newest Nova on GitHub. Try again later." };
   let res;
   try {
-    res = await fetch(UPDATE_ZIP, { signal: AbortSignal.timeout(120_000) });
+    res = await fetch(release.zip, { signal: AbortSignal.timeout(180_000) });
   } catch {
     return { ok: false, error: "Can't download the update. Check your internet connection." };
   }

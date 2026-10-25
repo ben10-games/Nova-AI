@@ -16,3 +16,6 @@ __pycache__/
 
 # Nova window runtime files (process id, log, window profile)
 .nova/
+
+# Release downloads (scripts/make-release.py)
+dist/

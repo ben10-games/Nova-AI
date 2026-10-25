@@ -6,7 +6,11 @@
 
 You need **Google Chrome** and a **Google account**.
 
-1. **Download:** on this GitHub page click the green **Code** button → **Download ZIP**, and unzip it (Windows: right-click → *Extract All*; Mac: double-click). Put the folder where you'll keep it, e.g. *Documents* — Nova runs from there.
+1. **Download** the version for your computer:
+   - **Windows:** [Nova-for-Windows.zip](https://github.com/ben10-games/Nova-AI/releases/latest/download/Nova-for-Windows.zip)
+   - **Mac:** [Nova-for-Mac.zip](https://github.com/ben10-games/Nova-AI/releases/latest/download/Nova-for-Mac.zip)
+
+   Unzip it (Windows: right-click → *Extract All*; Mac: double-click) and put the **Nova AI** folder where you'll keep it, e.g. *Documents* — Nova runs from there.
 2. **Open Nova Setup** in that folder:
    - **Windows:** double-click **`Nova Setup (Windows).bat`**. If Windows warns, click *More info* → *Run anyway*. The first time it installs Node.js (what Nova runs on) — click *Yes* if Windows asks.
    - **Mac:** double-click **`Nova Setup`**. The first time, macOS says it can't check the app: open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** (Nova isn't from the App Store, so Apple hasn't checked it). If Nova needs Node.js, it tells you and opens the download page.
@@ -188,6 +192,14 @@ Clicking the Nova icon opens a side panel that stays open while you switch tabs.
 - **🙌 Hands-off mode** (the 🙌 button under the message box, or ⚙ → *Hands-off mode*, until Chrome closes): Nova does the whole task without approval cards for ordinary steps (each still shows "Allowed automatically", with a stop link) and keeps going until every part is done — e.g. "search these 3 things and open each one" or "fill in both pages of this form with …". It gets up to 25 steps and checks once, before finishing, that every part of the request really was done. Unless you allow it (below), submitting, sending, buying, deleting, going to the next question, Enter that submits, sites Nova can't read yet and non-browser tools still wait for you, and the page checks (no CAPTCHAs, no password/payment fields, no invented elements) still apply. The **🙌 Hands-off on** badge above the message box turns it off. It works best with **Let Nova see the page** (or sites you allowed).
   - **Hands-off may also submit, send and go to the next page when my request says so** (⚙, off by default): then "fill this out and submit it", "send it" or "go to the next page" happen without a card too (the note says *your request said to submit/send*). Buying, paying, deleting, cancelling and logging out still always ask, and so does anything on school homework/quiz sites (DeltaMath, IXL, Khan Academy, Canvas, Quizizz, Google Forms and similar) — Nova doesn't hand in schoolwork by itself. A small model can misread a page, so look at what it did.
 - **What a video says** ("what did he just say?", "summarize this video", "what are the lyrics?"): on a YouTube video Nova opens YouTube's **Show transcript** panel and reads the lines with their timestamps (or, without a transcript, the caption on screen), plus where the video is playing. In chat this is added automatically (the message shows **🎧 what the video says**); in Actions the `video_transcript` tool does it. Nova reads the *words* — it can't hear music or other sounds, and videos without a transcript or captions can't be "heard". The words are treated as untrusted page content.
+
+### Publishing a release (for the downloads above)
+
+1. Raise `"version"` in `package.json` (e.g. 1.0.0 → 1.0.1), commit and push.
+2. `npm run release` — makes `dist/Nova-for-Windows.zip`, `dist/Nova-for-Mac.zip` and `dist/Nova-for-Linux.zip` from the committed project (Windows gets only the Windows setup, Mac only the Mac app).
+3. On GitHub: **Releases → Draft a new release** → tag `v1.0.1` (the same number) → drag in the three ZIPs → **Publish release**.
+
+The README links (`releases/latest/download/...`) always give the newest release, and the **Update** button in friends' Nova window finds it by the same names.
 
 ### Comparing models (benchmark)
 
