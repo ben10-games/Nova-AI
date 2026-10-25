@@ -113,7 +113,7 @@ function onMessage(ws, data) {
       state.mismatch =
         typeof msg.protocol === "number" && msg.protocol < p.version
           ? `Nova's browser server is older than this extension (protocol ${msg.protocol} vs ${p.version}): stop Nova (Ctrl+C) and start it again.`
-          : `This extension is older than Nova (protocol ${p.version} vs ${msg.protocol}): reload it in chrome://extensions (Nova Browser Bridge → ↻).`;
+          : `This extension is older than Nova (protocol ${p.version} vs ${msg.protocol}): reload it in chrome://extensions (Nova AI → ↻).`;
     });
   } else if (msg.type === "welcome") {
     state.retry = 0;

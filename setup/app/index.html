@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova AI</title>
+<link rel="icon" href="/nova.png">
+<style>
+  :root {
+    --bg: #0f0f14; --card: #17171f; --raise: #20202a; --line: #2a2a35; --text: #ececf1; --muted: #a1a1b0; --faint: #6e6e7e;
+    --accent: #7c3aed; --accent2: #a78bfa; --ok: #22c55e; --warn: #f59e0b; --bad: #ef4444;
+    --grad: linear-gradient(135deg, #8b9cff, #d946ef);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 28px 20px 40px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  header img { width: 52px; height: 52px; }
+  header h1 { margin: 0; font-size: 22px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 6px; font-size: 15px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12.5px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .spread { justify-content: space-between; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--raise); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--accent2); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:hover:not(:disabled) { background: #6d28d9; }
+  button.big { padding: 12px 22px; font-size: 15px; }
+  button.danger { color: #fca5a5; }
+  button.link { background: none; border: 0; padding: 0; color: var(--accent2); text-decoration: underline; }
+  .choice { display: block; border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
+  .choice:has(input:checked) { border-color: var(--accent2); background: #1c1830; }
+  .choice input { margin-right: 8px; accent-color: var(--accent); }
+  .tag { font-size: 11px; background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
+  input[type=password], input[type=text] { width: 100%; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+  .msg { margin-top: 8px; font-size: 13px; }
+  .msg.ok { color: var(--ok); } .msg.bad { color: #fca5a5; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--faint); margin-right: 6px; }
+  .dot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  ol.steps { list-style: none; padding: 0; margin: 8px 0 0; }
+  ol.steps li { padding: 6px 0; color: var(--faint); display: flex; gap: 10px; align-items: center; }
+  ol.steps li.done { color: var(--text); } ol.steps li.now { color: var(--text); font-weight: 600; }
+  ol.steps li .i { width: 18px; text-align: center; }
+  .bar { height: 8px; background: var(--raise); border-radius: 999px; overflow: hidden; margin: 12px 0; }
+  .bar div { height: 100%; width: 0; background: var(--grad); transition: width .4s; }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--accent2); border-right-color: transparent; border-radius: 50%; animation: s 0.8s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 180px; overflow: auto; font-size: 11.5px; white-space: pre-wrap; color: var(--muted); }
+  ol.how { margin: 8px 0; padding-left: 20px; } ol.how li { margin: 4px 0; }
+  code { background: var(--raise); padding: 1px 6px; border-radius: 6px; font-size: 12.5px; word-break: break-all; }
+  .center { text-align: center; }
+  .hero { width: 96px; height: 96px; margin: 10px auto 6px; display: block; }
+  footer { margin-top: 18px; display: flex; justify-content: space-between; color: var(--faint); font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <header><img src="/nova.png" alt=""><div><h1>Nova AI</h1><div class="sub" id="sub">Your AI helper in Chrome</div></div></header>
+
+  <section id="loading" class="card center muted"><span class="spin"></span> Loading…</section>
+
+  <!-- Not installed yet -->
+  <section id="welcome" hidden>
+    <div class="card center">
+      <img class="hero" src="/nova.png" alt="">
+      <h2 style="font-size:20px">Welcome to Nova</h2>
+      <p class="muted">Nova lives in Chrome's side panel. Ask about the page you're on, or tell it what to do: “open remix beatbox on YouTube”, “summarize this”, “fill this out”.</p>
+      <p class="muted small">Setting it up takes about 5 minutes.</p>
+      <button class="primary big" id="startSetup">Set up Nova</button>
+    </div>
+  </section>
+
+  <!-- Choose the AI (install or change) -->
+  <section id="choose" hidden>
+    <div class="card">
+      <h2 id="chooseTitle">Which AI should Nova use?</h2>
+      <label class="choice"><input type="radio" name="ai" value="gemini" checked><b>Google Gemini</b><span class="tag">Free · recommended</span>
+        <div class="muted small" style="margin:4px 0 0 26px">Fast on any computer. Needs internet and a free key from Google (2 minutes). What you ask, and the page you're on, go to Google's AI.</div></label>
+      <label class="choice"><input type="radio" name="ai" value="lmstudio"><b>LM Studio on this computer</b>
+        <div class="muted small" style="margin:4px 0 0 26px">Private and offline, but needs a strong graphics card and LM Studio running with a model loaded.</div></label>
+      <div id="keyBox">
+        <p class="small muted" style="margin:12px 0 6px">1. Get your free key: click the button, sign in with Google, click <b>Create API key</b> and copy it.</p>
+        <button id="getKey">Get a free key from Google</button>
+        <p class="small muted" style="margin:12px 0 6px">2. Paste it here:</p>
+        <input type="password" id="key" placeholder="Paste your Gemini API key" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="row" style="margin-top:12px"><button id="check">Check</button><span id="checkMsg" class="msg"></span></div>
+    </div>
+    <div class="card" id="optCard">
+      <label class="row"><input type="checkbox" id="autostart" checked style="accent-color:var(--accent)"> Start Nova by itself when I turn on my computer</label>
+    </div>
+    <div class="row spread">
+      <button id="chooseBack">Back</button>
+      <button class="primary big" id="install" disabled>Install Nova</button>
+    </div>
+  </section>
+
+  <!-- Working (install / update) -->
+  <section id="working" hidden>
+    <div class="card">
+      <h2 id="workTitle">Installing Nova…</h2>
+      <p class="muted small" id="workHint">This takes a few minutes. You can keep using your computer.</p>
+      <div class="bar"><div id="bar"></div></div>
+      <ol class="steps" id="steps"></ol>
+      <div id="workError" class="msg bad" hidden></div>
+      <details style="margin-top:10px"><summary class="small muted">Details</summary><pre id="log"></pre></details>
+      <div class="row" style="margin-top:12px" id="workDone" hidden><button class="primary" id="workContinue">Continue</button></div>
+    </div>
+  </section>
+
+  <!-- Installed -->
+  <section id="home" hidden>
+    <div class="card">
+      <div class="row spread">
+        <div><span class="dot" id="dot"></span><b id="runText">…</b><div class="muted small" id="runHint"></div></div>
+        <button id="startStop" class="primary">Start Nova</button>
+      </div>
+    </div>
+    <div class="card" id="chromeCard">
+      <h2>Add Nova to Chrome <span class="muted small">(once)</span></h2>
+      <ol class="how">
+        <li>Open Chrome's extensions page: <button class="link" id="openExt">open it</button> (or type <code>chrome://extensions</code>)</li>
+        <li>Turn on <b>Developer mode</b> (top right).</li>
+        <li>Click <b>Load unpacked</b> and choose this folder: <br><code id="extFolder"></code> <button class="link" id="openFolder">show it</button></li>
+        <li>Click the puzzle icon → pin <b>Nova AI</b>. Then click the Nova icon: it connects by itself.</li>
+      </ol>
+      <p class="muted small" style="margin:0">Tip: in Nova's panel, ⚙ → turn on <b>Let Nova see the page</b> so it works on every site. After an update, press ↻ on Nova in <code>chrome://extensions</code>.</p>
+    </div>
+    <div class="card">
+      <div class="row spread"><div><h2>Your AI</h2><div class="muted small" id="aiText"></div></div><button id="changeAi">Change</button></div>
+    </div>
+    <div class="card">
+      <div class="row spread"><div><h2>Updates</h2><div class="muted small" id="updText"></div></div><button id="update" hidden class="primary">Update now</button></div>
+    </div>
+    <footer><span id="ver"></span><button class="link danger" id="toUninstall">Uninstall Nova</button></footer>
+  </section>
+
+  <!-- Uninstall -->
+  <section id="uninstall" hidden>
+    <div class="card">
+      <h2>Uninstall Nova?</h2>
+      <p class="muted">This stops Nova and removes its shortcuts and startup entry from this computer.</p>
+      <label class="row" id="removeFilesRow"><input type="checkbox" id="removeFiles" checked style="accent-color:var(--accent)"> Also delete Nova's files (the Nova folder and your saved key)</label>
+      <p class="muted small" id="devNote" hidden>This is a developer copy, so its files are never deleted from here.</p>
+      <div class="row spread" style="margin-top:14px"><button id="uninstallBack">Cancel</button><button class="primary" id="doUninstall" style="background:var(--bad);border-color:var(--bad)">Uninstall</button></div>
+    </div>
+  </section>
+
+  <section id="removed" hidden>
+    <div class="card center">
+      <h2 style="font-size:18px">Nova was removed</h2>
+      <p class="muted">Last step: in Chrome, open <code>chrome://extensions</code> and click <b>Remove</b> on Nova.</p>
+      <button id="removedExt">Open Chrome's extensions</button>
+      <p class="muted small">You can close this window.</p>
+    </div>
+  </section>
+</main>
+<script>
+const secret = location.hash.slice(1);
+const $ = (id) => document.getElementById(id);
+const SCREENS = ["loading", "welcome", "choose", "working", "home", "uninstall", "removed"];
+const show = (name) => SCREENS.forEach((s) => ($(s).hidden = s !== name));
+async function call(route, body = {}) {
+  const res = await fetch(`/api/${route}`, { method: "POST", headers: { "Content-Type": "application/json", "X-Nova-Secret": secret }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+let st = null;
+let mode = "install"; // or "change"
+let screen = "loading";
+const go = (s) => { screen = s; show(s); };
+
+function render() {
+  $("ver").textContent = `Version ${st.version}`;
+  if (st.job && st.job.status === "running") return renderJob();
+  if (screen === "working" && st.job) return renderJob();
+  if (["choose", "uninstall", "removed"].includes(screen)) return;
+  if (st.page === "uninstall" && screen === "loading") return openUninstall();
+  if (!st.installed) return go("welcome");
+  go("home");
+  $("dot").className = `dot ${st.running ? "on" : ""}`;
+  $("runText").textContent = st.running ? "Nova is running" : "Nova is stopped";
+  $("runHint").textContent = st.running ? "Click the Nova icon in Chrome to use it." : "Start it to use Nova in Chrome.";
+  $("startStop").textContent = st.running ? "Stop Nova" : "Start Nova";
+  $("startStop").className = st.running ? "" : "primary";
+  $("extFolder").textContent = st.extensionFolder;
+  $("aiText").textContent = st.settings ? `${st.settings.provider}${st.settings.model ? ` · ${st.settings.model}` : ""}` : "Not set";
+  if (st.devCopy) $("updText").textContent = `Version ${st.version} (developer copy: update with git pull)`;
+  else if (st.updateAvailable) $("updText").textContent = `A new version is ready: ${st.latest} (you have ${st.version}).`;
+  else $("updText").textContent = st.latest ? `You have the newest version (${st.version}).` : `Version ${st.version}. Couldn't check for updates right now.`;
+  $("update").hidden = !st.updateAvailable;
+}
+
+function renderJob() {
+  const j = st.job;
+  go("working");
+  $("workTitle").textContent = j.status === "done" ? (j.kind === "update" ? "Nova is up to date ✓" : "Nova is installed ✓") : j.status === "failed" ? "That didn't work" : j.kind === "update" ? "Updating Nova…" : "Installing Nova…";
+  $("workHint").hidden = j.status !== "running";
+  $("bar").style.width = `${Math.round((j.step / j.steps.length) * 100)}%`;
+  $("steps").replaceChildren(...j.steps.map((name, i) => {
+    const li = document.createElement("li");
+    const done = i < j.step;
+    const now = i === j.step && j.status === "running";
+    li.className = done ? "done" : now ? "now" : "";
+    const icon = document.createElement("span");
+    icon.className = "i";
+    if (now) icon.innerHTML = '<span class="spin"></span>'; else icon.textContent = done ? "✓" : i === j.step && j.status === "failed" ? "✕" : "•";
+    li.append(icon, name);
+    return li;
+  }));
+  $("log").textContent = j.log.join("\n");
+  $("workError").hidden = j.status !== "failed";
+  $("workError").textContent = j.error;
+  $("workDone").hidden = j.status === "running";
+  $("workContinue").textContent = j.status === "failed" ? "Back" : "Continue";
+}
+
+async function refresh() {
+  try {
+    st = await call("state");
+    render();
+  } catch {
+    /* the program closed */
+  }
+}
+
+function openChoose(m) {
+  mode = m;
+  $("chooseTitle").textContent = m === "change" ? "Change Nova's AI" : "Which AI should Nova use?";
+  $("optCard").hidden = m === "change";
+  $("install").textContent = m === "change" ? "Save" : "Install Nova";
+  $("install").disabled = true;
+  $("checkMsg").textContent = "";
+  $("key").value = "";
+  go("choose");
+  updateChoice();
+}
+function updateChoice() {
+  const gem = document.querySelector("input[name=ai]:checked").value === "gemini";
+  $("keyBox").hidden = !gem;
+  $("check").textContent = gem ? "Check the key" : "Check LM Studio";
+  $("install").disabled = true;
+  $("checkMsg").textContent = "";
+}
+function openUninstall() {
+  go("uninstall");
+  $("removeFilesRow").hidden = st.devCopy;
+  $("devNote").hidden = !st.devCopy;
+}
+
+document.querySelectorAll("input[name=ai]").forEach((r) => (r.onchange = updateChoice));
+$("key").oninput = () => { $("install").disabled = true; $("checkMsg").textContent = ""; };
+$("startSetup").onclick = () => openChoose("install");
+$("chooseBack").onclick = () => { go("loading"); refresh(); };
+$("getKey").onclick = () => call("open", { what: "key" });
+$("check").onclick = async () => {
+  const provider = document.querySelector("input[name=ai]:checked").value;
+  $("check").disabled = true;
+  $("checkMsg").className = "msg";
+  $("checkMsg").innerHTML = '<span class="spin"></span> Checking…';
+  try {
+    const r = await call("check", { provider, key: $("key").value });
+    $("checkMsg").className = `msg ${r.ok ? "ok" : "bad"}`;
+    $("checkMsg").textContent = r.ok ? (provider === "gemini" ? `✓ The key works. Nova will use ${r.model}.` : "✓ LM Studio is running.") : r.error;
+    $("install").disabled = !r.ok;
+  } finally {
+    $("check").disabled = false;
+  }
+};
+$("install").onclick = async () => {
+  $("install").disabled = true;
+  if (mode === "change") {
+    await call("change-ai");
+    go("loading");
+    return refresh();
+  }
+  const r = await call("install", { autostart: $("autostart").checked });
+  if (r.ok) { go("working"); refresh(); } else { $("checkMsg").className = "msg bad"; $("checkMsg").textContent = r.error; }
+};
+$("workContinue").onclick = () => { st.job = null; go("loading"); refresh(); };
+$("startStop").onclick = async () => {
+  $("startStop").disabled = true;
+  $("runText").textContent = st.running ? "Stopping…" : "Starting…";
+  try { await call(st.running ? "stop" : "start"); } finally { $("startStop").disabled = false; refresh(); }
+};
+$("openExt").onclick = () => call("open", { what: "extensions" });
+$("removedExt").onclick = () => call("open", { what: "extensions" });
+$("openFolder").onclick = () => call("open", { what: "folder" });
+$("changeAi").onclick = () => openChoose("change");
+$("update").onclick = async () => { const r = await call("update"); if (r.ok) { go("working"); refresh(); } };
+$("toUninstall").onclick = openUninstall;
+$("uninstallBack").onclick = () => { go("loading"); refresh(); };
+$("doUninstall").onclick = async () => {
+  $("doUninstall").disabled = true;
+  await call("uninstall", { removeFiles: !st.devCopy && $("removeFiles").checked });
+  go("removed");
+};
+addEventListener("pagehide", () => fetch("/api/bye", { method: "POST", keepalive: true, headers: { "X-Nova-Secret": secret } }));
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

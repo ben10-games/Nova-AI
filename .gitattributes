@@ -3,3 +3,5 @@
 *.command text eol=lf
 *.sh text eol=lf
 *.mjs text eol=lf
+*.ps1 text eol=crlf
+Nova[[:space:]]Setup.app/Contents/MacOS/* text eol=lf

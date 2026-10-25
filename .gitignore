@@ -13,3 +13,6 @@ next-env.d.ts
 # Python bytecode (Blender add-on, test fixtures)
 __pycache__/
 *.pyc
+
+# Nova window runtime files (process id, log, window profile)
+.nova/

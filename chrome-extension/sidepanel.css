@@ -41,7 +41,7 @@ code { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 12px; 
 /* Header: one compact row */
 .top { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 10px; border-bottom: 1px solid var(--line); background: var(--panel); }
 .brand { display: flex; align-items: center; gap: 6px; font-weight: 600; flex: 0 0 auto; }
-.logo { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; font-size: 11px; }
+.logo { width: 20px; height: 20px; display: block; }
 .stats { flex: 1; min-width: 0; display: flex; gap: 10px; justify-content: flex-end; font-size: 11.5px; color: var(--muted); overflow: hidden; }
 .stat { display: inline-flex; align-items: center; white-space: nowrap; min-width: 0; }
 .stat > span:last-of-type { overflow: hidden; text-overflow: ellipsis; }

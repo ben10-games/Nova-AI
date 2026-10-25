@@ -2,21 +2,22 @@
 
 **An AI helper that lives in Chrome's side panel.** Ask about the page you're on, or tell it what to do — "open remix beatbox on YouTube", "fill this out", "summarize this video" — and it does it in your browser. Works on slow computers too (with Google's free Gemini AI).
 
-## Get Nova (Windows or Mac) — about 10 minutes, once
+## Get Nova (Windows or Mac) — about 5 minutes, once
 
 You need **Google Chrome** and a **Google account**.
 
-1. **Download:** on this GitHub page click the green **Code** button → **Download ZIP**. Unzip it (Windows: right-click → *Extract All*; Mac: double-click). Put the folder somewhere you'll keep it, e.g. *Documents*.
-2. **Install:** open the folder and double-click
-   - Windows: **`Install Nova (Windows).bat`** (if Windows warns, click *More info* → *Run anyway*)
-   - Mac: **`Install Nova (Mac).command`** (the first time: right-click it → *Open* → *Open*)
+1. **Download:** on this GitHub page click the green **Code** button → **Download ZIP**, and unzip it (Windows: right-click → *Extract All*; Mac: double-click). Put the folder where you'll keep it, e.g. *Documents* — Nova runs from there.
+2. **Open Nova Setup** in that folder:
+   - **Windows:** double-click **`Nova Setup (Windows).bat`**. If Windows warns, click *More info* → *Run anyway*. The first time it installs Node.js (what Nova runs on) — click *Yes* if Windows asks.
+   - **Mac:** double-click **`Nova Setup`**. The first time, macOS says it can't check the app: open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** (Nova isn't from the App Store, so Apple hasn't checked it). If Nova needs Node.js, it tells you and opens the download page.
+3. **The Nova window opens:** click **Set up Nova** → **Get a free key from Google** (sign in, click *Create API key*, copy it) → paste it → **Check the key** → **Install Nova**. It takes a few minutes; a progress bar shows each step.
+4. **Add Nova to Chrome** (the window shows these steps with buttons): open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and choose the **`chrome-extension`** folder inside the Nova folder. Click the puzzle icon → pin **Nova AI**.
 
-   It installs Node.js if needed, opens Google's page for a **free Gemini API key** (click *Create API key*, copy it, paste it into the setup window), then installs Nova and puts a **Nova AI** shortcut on your desktop. Say *Y* to start Nova by itself when you log in.
-3. **Add Nova to Chrome:** go to `chrome://extensions`, switch on **Developer mode** (top right), click **Load unpacked**, and pick the **`chrome-extension`** folder inside the Nova folder. Click the puzzle icon → pin **Nova**.
+**Use it:** click the Nova icon in Chrome → the panel opens on the right and connects by itself. Type what you want, or tap **✨ Do it for me**. In the panel's ⚙, turn on **Let Nova see the page** so it works on every site.
 
-**Use it:** click the Nova icon → the panel opens on the right and connects by itself. Type what you want, or tap **✨ Do it for me**. In the panel's ⚙, turn on **Let Nova see the page** so it can work on every site.
+**The Nova AI app** (desktop, Start menu / Applications — with the Nova logo) shows whether Nova is running (**Start / Stop**), lets you **change the AI or key**, **update** Nova when a new version is out, and **uninstall** it. Nova starts by itself when your computer starts (you can turn that off during setup). On Windows you can also uninstall from *Settings → Apps → Nova AI*.
 
-**If something's wrong:** "Nova isn't running" → double-click the **Nova AI** shortcut on your desktop (keep its window open, minimized). "Daily limit used up" → Google's free tier allows a limited number of requests per day (with the model setup picks, Gemini 3.1 Flash-Lite, roughly 100 tasks a day; one task uses about 3–6 requests); it resets the next day. If Nova seems to pause for up to a minute, it is waiting for Google's per-minute limit (about 15 requests a minute) and then carries on. To change the key, run the install file again.
+**If something's wrong:** "Nova isn't running" → open the **Nova AI** app and click **Start Nova**. "Daily limit used up" → Google's free tier allows a limited number of requests per day (with the model setup picks, Gemini 3.1 Flash-Lite, roughly 100 tasks a day; one task uses about 3–6 requests); it resets the next day. If Nova seems to pause for up to a minute, it is waiting for Google's per-minute limit (about 15 requests a minute) and then carries on. After an update, press ↻ on Nova AI in `chrome://extensions`.
 
 **Privacy:** with Gemini, what you ask and the page you're on (text, and screenshots when Nova looks at the page) go to Google's AI. Nova never reads passwords or payment fields. Don't use it on pages with private information you don't want to share with Google. Your key is saved only on your computer (in `.env.local`).
 
@@ -106,7 +107,7 @@ Setup: Blender → Edit → Preferences → Add-ons → ⌄ → Install from Dis
 
 ## Chrome browser control (optional)
 
-Nova can inspect and, with your approval, operate tabs in your own Chrome through the **Nova Browser Bridge** extension (`chrome-extension/`, Manifest V3). It uses Chrome's extension APIs, not the remote-debugging port (which would let any local program control your browser).
+Nova can inspect and, with your approval, operate tabs in your own Chrome through the **Nova AI** Chrome extension (`chrome-extension/`, Manifest V3). It uses Chrome's extension APIs, not the remote-debugging port (which would let any local program control your browser).
 
 **Tools:** `browser_status`, `list_tabs`, `get_page`, `list_elements`, `read_field`, `scroll`, `look_at_page`, `video_transcript` (read-only, no approval) and `search_web`, `site_search`, `open_tab`, `navigate`, `switch_tab`, `click` (by element id or by its visible label), `type_text`, `fill_field`, `select_option`, `press_key`, `screenshot` (each needs your approval).
 
@@ -124,7 +125,7 @@ Nova can inspect and, with your approval, operate tabs in your own Chrome throug
 
 1. In `.env.local` add `browser` to `MCP_SERVERS` (e.g. `MCP_SERVERS=nova-test,blender,browser`), then run `npm run dev`.
 2. In Chrome open `chrome://extensions`, switch on **Developer mode** (top right), click **Load unpacked**, and choose the `chrome-extension` folder of this project. The extension id should be `njhcnnbpmgoojpeomkogbkikggecmacm`.
-3. Click the puzzle-piece icon → pin **Nova Browser Bridge**, then click the Nova icon: the **Nova side panel** opens on the right. **That's it:** the panel gets the pairing code from Nova by itself and connects the browser (the badge shows **ON**). Nova gives the code only to this extension, and only at `127.0.0.1`/`localhost`; it is never shown. After **Disconnect** the panel stays disconnected until you press **Connect** (or Chrome restarts). If automatic pairing can't work (e.g. basic auth is on), paste the code from `npm run browser:token` in ⚙ and press **Connect**.
+3. Click the puzzle-piece icon → pin **Nova AI**, then click the Nova icon: the **Nova side panel** opens on the right. **That's it:** the panel gets the pairing code from Nova by itself and connects the browser (the badge shows **ON**). Nova gives the code only to this extension, and only at `127.0.0.1`/`localhost`; it is never shown. After **Disconnect** the panel stays disconnected until you press **Connect** (or Chrome restarts). If automatic pairing can't work (e.g. basic auth is on), paste the code from `npm run browser:token` in ⚙ and press **Connect**.
 4. On a site you want Nova to read, press **Allow** next to "Nova can't read …" above the message box (or **Allow on this site** in ⚙ Settings). Chrome asks you to confirm. Press **Allow tab access** in ⚙ if Nova should list and switch tabs.
 
 ### The Nova side panel
@@ -207,7 +208,7 @@ To measure, start Nova with `NOVA_DEBUG_LLM=true` and watch for lines like `[age
 
 1. Make sure LM Studio's server is running (LM Studio → Developer → **Start Server**, or `~/.lmstudio/bin/lms server start`).
 2. Stop Nova (`Ctrl+C` in its terminal) and start it again: `npm run dev` (or `npm run build && npm run start:local`).
-3. Open `chrome://extensions` → **Nova Browser Bridge** → click the **↻ reload** arrow. Your pairing code and site permissions are kept.
+3. Open `chrome://extensions` → **Nova AI** → click the **↻ reload** arrow. Your pairing code and site permissions are kept.
 4. Close and reopen the side panel (click the Nova icon). If the header says **Browser off**, click **Connect** next to it.
 
 If the side panel shows *Nova isn't running*, start it (`npm run dev`) and press **Retry**. The panel pairs again by itself; only if that fails (e.g. basic auth is on), paste the code from `npm run browser:token` under ⚙.

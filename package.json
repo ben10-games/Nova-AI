@@ -1,6 +1,6 @@
 {
   "name": "nova-ai",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 3000",
@@ -12,7 +12,9 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "blender:check": "node scripts/blender-check.mjs",
     "browser:token": "node scripts/browser-token.mjs",
-    "benchmark": "node scripts/benchmark.mjs"
+    "benchmark": "node scripts/benchmark.mjs",
+    "test:installer": "node --test test/nova-app.test.mjs",
+    "nova": "node setup/nova-app.mjs"
   },
   "engines": {
     "node": ">=18.18.0"

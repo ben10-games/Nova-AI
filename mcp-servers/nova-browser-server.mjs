@@ -75,7 +75,7 @@ let client = null; // the single authenticated extension socket
 let clientCommands = null;
 let clientVersion = "";
 const OUTDATED = (command) =>
-  `The Nova Chrome extension that is connected (version ${clientVersion || "unknown"}) is out of date and cannot do "${command}". Reload it: open chrome://extensions, find Nova Browser Bridge, click the reload arrow, then press Connect in Nova's side panel. Nothing was done in the page.`;
+  `The Nova Chrome extension that is connected (version ${clientVersion || "unknown"}) is out of date and cannot do "${command}". Reload it: open chrome://extensions, find Nova AI, click the reload arrow, then press Connect in Nova's side panel. Nothing was done in the page.`;
 const pending = new Map();
 let nextId = 1;
 
@@ -144,7 +144,7 @@ class BrowserError extends Error {
 }
 
 const NOT_CONNECTED =
-  "Chrome is not connected. Open Chrome, click the Nova Browser Bridge extension icon, paste the pairing code (npm run browser:token) and press Connect.";
+  "Chrome is not connected. Open Chrome, click the Nova icon in the toolbar (the side panel connects by itself).";
 
 /** Sends one command to the extension and waits for its answer. */
 function request(command, params, { timeoutMs = 20_000, signal } = {}) {

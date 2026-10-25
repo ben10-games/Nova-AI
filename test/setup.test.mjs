@@ -53,7 +53,7 @@ test("setup with a free Gemini key: checks the key, picks a model that answers, 
   const dir = mkdtempSync(path.join(os.tmpdir(), "nova-setup-"));
   try {
     mkdirSync(path.join(dir, "setup"));
-    copyFileSync(path.join(root, "setup", "setup.mjs"), path.join(dir, "setup", "setup.mjs"));
+    for (const f of ["setup.mjs", "lib.mjs"]) copyFileSync(path.join(root, "setup", f), path.join(dir, "setup", f));
     writeFileSync(path.join(dir, ".env.local"), "AI_BASE_URL=http://127.0.0.1:1234/v1\n");
     // Choice 1 (Gemini) → not a key → a wrong key → the right key.
     const { code, out } = await runSetup(dir, `1\nhello there\nAIzaWrongKey_0000000000000000000000\n${GOOD}\n`, { NOVA_SETUP_GEMINI_BASE: g.base });
@@ -80,7 +80,7 @@ test("setup without internet says so plainly and writes nothing", async () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), "nova-setup-"));
   try {
     mkdirSync(path.join(dir, "setup"));
-    copyFileSync(path.join(root, "setup", "setup.mjs"), path.join(dir, "setup", "setup.mjs"));
+    for (const f of ["setup.mjs", "lib.mjs"]) copyFileSync(path.join(root, "setup", f), path.join(dir, "setup", f));
     const { code, out } = await runSetup(dir, `1\n${GOOD}\n`, { NOVA_SETUP_GEMINI_BASE: "http://127.0.0.1:9" });
     assert.equal(code, 1);
     assert.match(out, /Can't reach Google\. Check your internet connection/);

@@ -1,14 +1,15 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Nova AI setup
+title Nova Setup
 set "NODE="
 where node >nul 2>nul && set "NODE=node"
 if not defined NODE if exist "%ProgramFiles%\nodejs\node.exe" set "NODE=%ProgramFiles%\nodejs\node.exe"
 if defined NODE goto run
-echo Nova needs Node.js. Installing it now with winget, Windows' own app installer...
+echo Getting Nova ready: installing Node.js, which Nova runs on.
+echo This takes a minute. Click Yes if Windows asks.
 where winget >nul 2>nul || goto manual
-winget install -e --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements
+winget install -e --id OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements >nul 2>nul
 if exist "%ProgramFiles%\nodejs\node.exe" set "NODE=%ProgramFiles%\nodejs\node.exe"
 if defined NODE goto run
 :manual
@@ -19,6 +20,5 @@ start "" "https://nodejs.org/en/download"
 pause
 exit /b 1
 :run
-"%NODE%" setup\setup.mjs
-echo.
-pause
+start "" powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0setup\windows\launch.ps1"
+exit /b 0
