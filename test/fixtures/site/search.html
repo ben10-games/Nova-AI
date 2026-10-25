@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Test Search</title></head>
+<body>
+  <h1>Results</h1>
+  <div id="links"></div>
+  <script>
+    // Same markup as DuckDuckGo's HTML results (wrapped links + snippets).
+    const q = new URLSearchParams(location.search).get("q") || "";
+    const base = location.origin;
+    const results = [
+      ["Linux Mint - Wikipedia article", base + "/article.html", "Linux Mint is a community-driven Linux distribution."],
+      ["About Nova Test Shop", base + "/about.html", "About page of the shop."],
+    ];
+    document.title = "Test Search: " + q;
+    if (/robots/.test(q)) {
+      // A text-only bot check, like DuckDuckGo shows to automated browsers.
+      document.body.innerHTML = "<p>Please complete the following challenge to confirm this search was made by a human.</p>";
+      throw new Error("challenge");
+    }
+    for (const [t, u, s] of results) {
+      const div = document.createElement("div");
+      div.className = "result";
+      const a = document.createElement("a");
+      a.className = "result__a";
+      a.href = "/l/?uddg=" + encodeURIComponent(u) + "&rut=abc";
+      a.textContent = t;
+      const sn = document.createElement("a");
+      sn.className = "result__snippet";
+      sn.textContent = s;
+      div.append(a, sn);
+      document.getElementById("links").append(div);
+    }
+  </script>
+</body>
+</html>

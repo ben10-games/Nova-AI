@@ -1,0 +1,7 @@
+[
+ {
+  "page": "graph.html",
+  "goal": "Solve problem 1 and enter the answer",
+  "check": "document.getElementById('ans').value.replace(/\\s+/g,'').replace(/^y=/,'')==='7'"
+ }
+]

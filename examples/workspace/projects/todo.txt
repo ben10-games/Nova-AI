@@ -1,0 +1,5 @@
+TODO
+[x] Design the action timeline
+[ ] Write the user guide (Sam)
+[ ] Test approval flow (everyone)
+[ ] Prepare launch announcement

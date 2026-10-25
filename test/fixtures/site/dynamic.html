@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Live Board</title></head>
+<body>
+  <h1>Live Board</h1>
+  <p id="clock">tick 0</p>
+  <div id="feed"><p>First item: welcome.</p></div>
+  <div contenteditable="true" id="draft">My private draft says pineapple-secret-42</div>
+  <label for="pw">Password</label><input id="pw" type="password" value="hunter2" />
+  <script>
+    // A clock that changes every 200 ms without changing the text length (must not cause re-reads).
+    let n = 0;
+    setInterval(() => (document.getElementById("clock").textContent = "tick " + (n = (n + 1) % 10)), 200);
+    // Called by the test: new content without a page load, like a single-page app.
+    window.addItem = (text) => {
+      const p = document.createElement("p");
+      p.textContent = text;
+      document.getElementById("feed").append(p);
+    };
+    window.goView = (view, title) => {
+      history.pushState({}, "", "?view=" + view);
+      document.title = title;
+      document.getElementById("feed").innerHTML = "<p>Now showing view " + view + ".</p>";
+    };
+  </script>
+</body>
+</html>

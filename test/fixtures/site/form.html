@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Nova Form Test</title></head>
+<body>
+  <main>
+    <h1>Form test</h1>
+    <p><label for="name">Username</label> <input id="name" type="text"></p>
+    <p><label for="notes">Notes</label><br><textarea id="notes" rows="3"></textarea></p>
+    <p><label for="locked">Locked code</label> <input id="locked" type="text" disabled></p>
+    <p><span>Fancy editor:</span> <div id="fancy" role="textbox" aria-label="Fancy editor" tabindex="0" style="border:1px solid #888;min-height:20px"></div></p>
+    <p><label for="pw">Password</label> <input id="pw" type="password" value="hunter2"></p>
+    <p><a id="next" href="/form2.html">Go to page 2</a></p>
+    <button id="save" type="submit">Save</button>
+    <p id="status">Not saved</p>
+  </main>
+  <script>document.getElementById("save").onclick = () => (document.getElementById("status").textContent = "SAVED");</script>
+</body>
+</html>

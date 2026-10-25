@@ -1,0 +1,42 @@
+[
+ {
+  "page": "math.html",
+  "goal": "Solve problem 1 and enter the answer",
+  "check": "document.getElementById('a1').value.replace(/\\s+/g,'').replace(/^x=/,'')==='8'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 2 and enter the answer",
+  "check": "document.getElementById('a2').value.replace(/\\s+/g,'').replace(/^x=/,'')==='36'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 3 and enter the answer",
+  "check": "document.getElementById('a3').value.replace(/\\s+/g,'').replace(/^x=/,'')==='3/4'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 4 and enter the answer",
+  "check": "document.getElementById('a4').value.replace(/\\s+/g,'').replace(/^x=/,'')==='8'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 5 and enter the answer",
+  "check": "document.getElementById('a5').value.replace(/\\s+/g,'').replace(/^x=/,'')==='84'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 6 and enter the answer",
+  "check": "document.getElementById('a6').value.replace(/\\s+/g,'').replace(/^x=/,'')==='71'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 7 and enter the answer",
+  "check": "document.getElementById('a7').value.replace(/\\s+/g,'').replace(/^x=/,'')==='32'"
+ },
+ {
+  "page": "math.html",
+  "goal": "Solve problem 8 and enter the answer",
+  "check": "document.getElementById('a8').value.replace(/\\s+/g,'').replace(/^x=/,'')==='2'"
+ }
+]

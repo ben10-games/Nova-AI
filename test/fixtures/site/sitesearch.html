@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Site search (test)</title></head>
+<body>
+  <main id="content"></main>
+  <script>
+    // Stands in for a site's results page (YouTube's markup when site=youtube).
+    const p = new URLSearchParams(location.search);
+    const q = p.get("q") || "";
+    document.title = `${q} - ${p.get("site")} (test)`;
+    const main = document.getElementById("content");
+    for (const [id, t] of [["vid001", q + " – official video"], ["vid002", q + " live"]]) {
+      const row = document.createElement("div");
+      // Thumbnail and title both link to the same video (as on YouTube).
+      row.innerHTML = `<a id="thumbnail" href="/video.html?v=${id}">▶</a> <a id="video-title" title="${t}" href="/video.html?v=${id}">${t}</a>`;
+      main.append(row);
+    }
+  </script>
+</body>
+</html>

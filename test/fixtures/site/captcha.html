@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Sign up (CAPTCHA demo)</title></head>
+<body>
+  <h1>Sign up</h1>
+  <p>Please confirm you are not a robot.</p>
+  <!-- Stand-in for a reCAPTCHA widget: the checkbox lives in its own frame, as with the real one. -->
+  <div class="g-recaptcha" data-sitekey="demo"><iframe id="rc" src="/captcha-frame.html" title="reCAPTCHA" width="300" height="80"></iframe></div>
+  <button id="continue" type="button" onclick="document.getElementById('st').textContent='continued'">Continue</button>
+  <p id="st">-</p>
+</body>
+</html>

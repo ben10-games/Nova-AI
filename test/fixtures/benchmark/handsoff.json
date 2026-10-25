@@ -1,0 +1,26 @@
+[
+ {
+  "page": "cursor.html",
+  "goal": "Click Show details, check the Remember me box, choose Large in the Size list, type blue mug in the search box and hello in the message box",
+  "handsOff": true,
+  "check": "document.getElementById('status').textContent==='Details shown' && document.getElementById('remember').checked && document.getElementById('size').value==='L' && document.getElementById('search').value==='blue mug' && document.getElementById('message').value==='hello'"
+ },
+ {
+  "page": "form.html",
+  "goal": "Fill in Username with nova and Notes with hello there, then go to page 2 and type Bangkok as the city and Great service as the comment",
+  "handsOff": true,
+  "check": "location.pathname==='/form2.html' && document.getElementById('city').value==='Bangkok' && document.getElementById('comment').value==='Great service'"
+ },
+ {
+  "page": "quiz.html",
+  "goal": "do it for me",
+  "handsOff": true,
+  "check": "document.getElementById('ans').value.replace(/[$\\s]/g,'')==='29' && document.getElementById('st').textContent==='-'"
+ },
+ {
+  "page": "form.html",
+  "goal": "Fill in Username with nova and Notes with see you soon, then save it",
+  "handsOff": true,
+  "check": "document.getElementById('name').value==='nova' && document.getElementById('notes').value==='see you soon' && document.getElementById('status').textContent==='SAVED'"
+ }
+]

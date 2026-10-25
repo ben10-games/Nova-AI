@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nova</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="logo" aria-hidden="true">✦</span><span>Nova</span></div>
+    <div class="stats" role="status">
+      <span class="stat" id="novaStat"><span id="novaDot" class="dot"></span><span id="novaStatus">Checking…</span></span>
+      <span class="stat"><span id="bridgeDot" class="dot"></span><span id="bridgeStatus">Browser…</span><button id="bridgeConnect" class="link" hidden>Connect</button><button id="bridgePause" class="link" hidden title="Pause or resume Nova's actions in the browser">Pause</button><button id="bridgeDisconnect" class="link" hidden title="Stop everything and disconnect the browser bridge">Disconnect</button></span>
+    </div>
+    <button id="historyBtn" class="icon" title="Saved chats" aria-label="Saved chats" aria-expanded="false" aria-controls="historyDrawer">🕘</button>
+    <button id="newChat" class="icon" title="New chat" aria-label="New chat">＋</button>
+    <button id="toggleSettings" class="icon" title="Settings and browser bridge" aria-label="Settings" aria-expanded="false" aria-controls="settings">⚙</button>
+  </header>
+
+  <div id="banner" class="banner" role="alert" hidden><span id="bannerText"></span><button id="bannerAction" class="link"></button></div>
+
+  <div class="stage">
+    <main id="messages" class="messages" aria-live="polite" tabindex="0" aria-label="Conversation">
+      <div id="empty" class="welcome">
+        <p class="hi">Hi! What should Nova do?</p>
+        <p>Tap <b>✨ Do it for me</b> and Nova does what this page needs. It asks you before it submits anything.</p>
+        <p>Or just type it, like <em>“open remix beatbox on youtube”</em> or <em>“what does this page say?”</em></p>
+      </div>
+    </main>
+
+    <section id="settings" class="drawer" hidden aria-label="Settings">
+      <div class="drawer-head"><strong>Settings</strong><button id="closeSettings" class="icon" aria-label="Close settings">✕</button></div>
+      <label for="novaUrl">Nova address (this computer only)</label>
+      <div class="row"><input id="novaUrl" type="url" placeholder="http://127.0.0.1:3000" /><button id="saveNovaUrl">Save</button></div>
+      <p id="novaUrlError" class="error small"></p>
+      <label for="modelSelect">Model (from LM Studio)</label>
+      <select id="modelSelect"><option value="">Nova's choice (the loaded model)</option></select>
+      <p class="muted small">In use: <span id="model">—</span></p>
+
+      <h2>Page awareness</h2>
+      <label class="check"><input id="autoContext" type="checkbox" checked /> Share the current page with my messages</label>
+      <p class="muted small">Nova reads the tab you're looking at only on sites you allowed, and sends it to your model only with the message you send.</p>
+
+      <label class="check"><input id="cursorToggle" type="checkbox" checked /> Show Nova's cursor on the page while it acts</label>
+      <label class="check"><input id="seeToggle" type="checkbox" /> Let Nova see the page (screenshots) on every tab</label>
+      <p class="muted small">Without this, Nova can see a tab right after you click the Nova icon on it. Turning it on asks Chrome for access to all sites — which also lets Nova <em>read</em> every page you visit (still only sent to your own model with your messages; actions still need your approval).</p>
+
+      <h2>Chats</h2>
+      <label class="check"><input id="saveChats" type="checkbox" /> Save my chats on this computer</label>
+      <p class="muted small">Off by default. Saved chats stay in this browser only (never sent anywhere); page text and screenshots are not saved. Open them with 🕘.</p>
+
+      <h2>Shortcuts</h2>
+      <p class="muted small">Type <code>/</code> in the message box: /summarize, /explain, /solve, /keypoints, /translate, /look — or add your own:</p>
+      <ul id="shortcutList" class="history"></ul>
+      <div class="row"><input id="shortcutName" placeholder="name (e.g. quiz)" maxlength="20" class="port" /><input id="shortcutPrompt" placeholder="what Nova should do" maxlength="500" /></div>
+      <div class="row"><button id="addShortcut">Add shortcut</button></div>
+      <p id="shortcutError" class="error small"></p>
+
+      <h2>Hands-off mode 🙌</h2>
+      <label class="check"><input id="actFreely" type="checkbox" /> Hands-off: Nova does the whole task without asking for each step (until Chrome closes)</label>
+      <p class="muted small">Also the 🙌 button under the message box. Nova clicks, types, searches and opens pages on its own and keeps going until everything you asked for is done ("search these 3 things and open each one", "fill in both pages of this form with …"). It still stops and asks before anything that submits, sends, buys, deletes or goes to the next question, before opening a site it can't read yet, and for anything outside the browser. ■ Stop always works.</p>
+
+      <label class="check"><input id="fullAuto" type="checkbox" /> Hands-off may also submit, send and go to the next page when my request says so</label>
+      <p class="muted small">E.g. "fill this out and submit it": Nova submits without asking. It still asks before buying, paying or deleting anything, and on school homework and quiz sites (DeltaMath, IXL, Khan Academy, Google Forms, …). Check what it did afterwards: a small model can misread a page.</p>
+
+      <h2>Auto-allowed sites</h2>
+      <p class="muted small">On these sites Nova clicks, types and opens pages of the same site without asking each time (until Chrome closes). Submitting, sending, buying, deleting, other sites and searches always ask.</p>
+      <ul id="autoSites" class="history"></ul>
+      <p id="autoSitesEmpty" class="muted small">None. Use “Always allow on …” on an approval card.</p>
+
+      <h2>Browser bridge</h2>
+      <div class="row small"><span id="dot" class="dot"></span><span id="status" class="muted">…</span></div>
+      <label for="token">Pairing code (from <code>npm run browser:token</code>)</label>
+      <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="64-character code" />
+      <div class="row"><input id="port" type="number" min="1024" max="65535" title="Bridge port" class="port" />
+        <button id="connect" class="primary">Connect</button><button id="disconnect" class="danger">Stop &amp; disconnect</button></div>
+      <div id="error" class="error small"></div>
+      <div class="row"><button id="pause">Pause Nova</button></div>
+      <div class="row"><button id="allowSite">Allow on this site</button><button id="allowTabs">Allow tab access</button></div>
+      <p class="muted small" id="siteNote"></p>
+      <div class="row between"><strong>Action history</strong><button id="clear" class="small">Clear</button></div>
+      <ul id="history" class="history"></ul>
+    </section>
+
+    <section id="historyDrawer" class="drawer" hidden aria-label="Saved chats">
+      <div class="drawer-head"><strong>Saved chats</strong><button id="closeHistory" class="icon" aria-label="Close saved chats">✕</button></div>
+      <p id="historyOff" class="muted small">Chat saving is off. Turn it on in ⚙ → Chats.</p>
+      <ul id="chatList" class="chatlist"></ul>
+      <div class="row"><button id="clearChats" class="danger">Delete all saved chats</button></div>
+    </section>
+  </div>
+
+  <footer class="composer">
+    <div class="ctx" id="ctx" data-state="loading">
+      <span class="ctx-dot" aria-hidden="true"></span>
+      <span id="ctxText" class="truncate" title="">Looking at this tab…</span>
+      <button id="ctxAction" class="link" hidden></button>
+      <button id="autoBadge" class="link auto-badge" hidden title="Safe actions on this site run without asking. Click to stop.">Auto-allow on</button>
+      <button id="actBadge" class="link auto-badge" hidden title="Hands-off: Nova does the whole task without asking for each step (it still asks before submitting, sending, buying or deleting). Click to turn off.">🙌 Hands-off on</button>
+      <button id="ctxToggle" class="link" title="Pause page awareness" aria-pressed="false">Pause</button>
+    </div>
+    <div id="slashMenu" class="slashmenu" role="listbox" aria-label="Shortcuts" hidden></div>
+    <div class="quick" id="quick" role="group" aria-label="Quick actions">
+      <button class="chip main" data-say="finish this for me" title="Nova works out what this page needs and does it (it asks before submitting)">✨ Do it for me</button>
+      <button class="chip" data-say="Summarize this page." title="A short summary of this page">📝 Summarize</button>
+      <button class="chip" data-say="Explain what is on this page simply." title="Explain this page in simple words">❓ Explain</button>
+    </div>
+    <div class="box">
+      <textarea id="input" rows="1" placeholder="Message Nova…" aria-label="Message"></textarea>
+      <div class="box-row">
+        <div class="modes" role="radiogroup" aria-label="Mode">
+          <button id="modeAuto" role="radio" aria-checked="true" class="mode on" title="Nova decides: questions get an answer, tasks use the browser tools">Auto</button>
+          <button id="modeChat" role="radio" aria-checked="false" class="mode" title="Only answer, never use tools">Chat</button>
+          <button id="modeActions" role="radio" aria-checked="false" class="mode" title="Use tools (each action needs your approval)">Actions</button>
+        </div>
+        <button id="handsBtn" class="icon see" aria-pressed="false" title="Hands-off: Nova does the whole task without asking for each step (it still asks before submitting, sending, buying or deleting)">🙌</button>
+        <button id="see" class="icon see" aria-pressed="false" title="Include a screenshot of the page with your next message (Nova also does this by itself for questions about graphs, pictures, …)">📷</button>
+        <button id="send" class="send" aria-label="Send" title="Send (Enter) · new line: Shift+Enter">↑</button>
+        <button id="stop" class="send stop" aria-label="Stop" title="Stop" hidden>■</button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="bridge-controls.js"></script>
+  <script src="markdown.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

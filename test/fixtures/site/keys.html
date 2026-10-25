@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Nova Keys Test</title></head>
+<body>
+  <h1>Keys</h1>
+  <p><label for="q">Quick search</label> <input id="q" type="text" value="mint"></p>
+  <p id="result">-</p>
+  <div id="dialog" role="dialog" aria-label="Cookie notice" style="border:1px solid #888;padding:8px">Cookie notice <button type="button">OK</button></div>
+  <form id="f" onsubmit="event.preventDefault(); document.getElementById('formstate').textContent = 'SUBMITTED'">
+    <label for="email">Newsletter email</label> <input id="email" type="text" value="me@example.com"> <button type="submit">Sign up</button>
+  </form>
+  <p id="formstate">not submitted</p>
+  <p><label for="t">Word</label> <input id="t" type="text" value="hello!"></p>
+  <script>
+    // Like many sites: the search reacts to Enter in its own script (no form).
+    document.getElementById("q").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("result").textContent = "Results for " + e.target.value;
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") document.getElementById("dialog").remove();
+    });
+  </script>
+</body>
+</html>

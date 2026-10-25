@@ -1,0 +1,47 @@
+{
+  "name": "nova-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 127.0.0.1 -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "start:local": "next start -H 127.0.0.1 -p 3000",
+    "lint": "tsc --noEmit",
+    "test": "node --test test/api.test.mjs test/agent.test.mjs test/mcp.test.mjs test/blender.test.mjs test/blender-scene.test.mjs test/browser.test.mjs test/sidepanel.test.mjs test/dev-approval.test.mjs test/setup.test.mjs",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "blender:check": "node scripts/blender-check.mjs",
+    "browser:token": "node scripts/browser-token.mjs",
+    "benchmark": "node scripts/benchmark.mjs"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "highlight.js": "^11.12.0",
+    "next": "^15.5.27",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1",
+    "ws": "8.22.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.20",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.29",
+    "puppeteer-core": "24.43.1",
+    "tailwindcss": "3.4",
+    "typescript": "5.9"
+  },
+  "overrides": {
+    "postcss": "^8.5.29"
+  }
+}

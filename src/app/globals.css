@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+  background: #0e0e10;
+  color: #e4e4e7;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a41 transparent;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.35);
+}
+
+/* Consistent, visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Markdown code blocks: highlight.js provides token colors, we own the frame. */
+.nova-prose pre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.nova-prose pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1rem 1.1rem;
+  background: transparent;
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+.nova-prose :not(pre) > code {
+  background: #2a2a2f;
+  border-radius: 0.375rem;
+  padding: 0.15rem 0.4rem;
+  font-weight: 500;
+  font-size: 0.875em;
+}
+.nova-prose :not(pre) > code::before,
+.nova-prose :not(pre) > code::after {
+  content: none;
+}
+.nova-prose > :first-child {
+  margin-top: 0;
+}
+.nova-prose > :last-child {
+  margin-bottom: 0;
+}
+
+/* Blinking caret shown at the end of a streaming reply. */
+.nova-caret > :last-child::after,
+.nova-caret:empty::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -0.15em;
+  border-radius: 2px;
+  background: #a78bfa;
+  animation: blink 1s steps(2, start) infinite;
+}
+
+/* Native <dialog> backdrop */
+dialog::backdrop {
+  background: rgba(5, 5, 7, 0.65);
+  backdrop-filter: blur(3px);
+}
+
+/* Range inputs */
+input[type="range"] {
+  accent-color: #8b5cf6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

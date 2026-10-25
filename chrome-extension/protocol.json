@@ -1,0 +1,112 @@
+{
+  "$comment": "Nova browser bridge protocol: the ONLY commands the browser MCP server may send and the extension may run, with their parameters. Both sides validate every request against this file. Bump version on any incompatible change.",
+  "version": 10,
+  "commands": {
+    "status": {},
+    "list_tabs": {},
+    "get_page": {
+      "tab_id": "integer?"
+    },
+    "list_elements": {
+      "tab_id": "integer?",
+      "filter": "string?"
+    },
+    "navigate": {
+      "url": "string",
+      "tab_id": "integer?",
+      "expect_url_contains": "string?",
+      "expect_text": "string?"
+    },
+    "switch_tab": {
+      "tab_id": "integer"
+    },
+    "open_tab": {
+      "url": "string",
+      "active": "boolean?",
+      "max_chars": "integer?"
+    },
+    "search": {
+      "url": "string",
+      "tab_id": "integer?",
+      "new_tab": "boolean?",
+      "max_results": "integer?",
+      "same_site": "boolean?"
+    },
+    "click": {
+      "snapshot_id": "string",
+      "element_id": "string",
+      "tab_id": "integer?",
+      "confirm_consequential": "boolean?",
+      "expect_url_contains": "string?",
+      "expect_text": "string?"
+    },
+    "type_text": {
+      "snapshot_id": "string",
+      "element_id": "string",
+      "text": "string",
+      "tab_id": "integer?",
+      "submit": "boolean?",
+      "confirm_consequential": "boolean?",
+      "expect_url_contains": "string?",
+      "expect_text": "string?"
+    },
+    "fill_field": {
+      "field": "string",
+      "text": "string",
+      "tab_id": "integer?"
+    },
+    "read_field": {
+      "snapshot_id": "string",
+      "element_id": "string",
+      "tab_id": "integer?"
+    },
+    "screenshot": {
+      "tab_id": "integer?"
+    },
+    "click_target": {
+      "target": "string",
+      "tab_id": "integer?",
+      "confirm_consequential": "boolean?",
+      "expect_url_contains": "string?",
+      "expect_text": "string?"
+    },
+    "select_option": {
+      "snapshot_id": "string",
+      "element_id": "string",
+      "option": "string",
+      "tab_id": "integer?"
+    },
+    "scroll": {
+      "direction": "string?",
+      "snapshot_id": "string?",
+      "element_id": "string?",
+      "tab_id": "integer?"
+    },
+    "check_action": {
+      "action": "string",
+      "snapshot_id": "string?",
+      "element_id": "string?",
+      "target": "string?",
+      "field": "string?",
+      "confirm_consequential": "boolean?",
+      "submit": "boolean?",
+      "tab_id": "integer?"
+    },
+    "capture": {
+      "tab_id": "integer?",
+      "max_width": "integer?",
+      "focus": "string?"
+    },
+    "press_key": {
+      "key": "string",
+      "snapshot_id": "string?",
+      "element_id": "string?",
+      "tab_id": "integer?",
+      "confirm_consequential": "boolean?"
+    },
+    "transcript": {
+      "tab_id": "integer?",
+      "max_chars": "integer?"
+    }
+  }
+}

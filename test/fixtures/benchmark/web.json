@@ -1,0 +1,17 @@
+[
+ {
+  "page": "index.html",
+  "goal": "open remix beatbox in youtube",
+  "check": "location.hostname==='www.youtube.com' && location.pathname==='/watch'"
+ },
+ {
+  "page": "index.html",
+  "goal": "play lofi hip hop on youtube for me",
+  "check": "location.hostname==='www.youtube.com' && location.pathname==='/watch'"
+ },
+ {
+  "page": "index.html",
+  "goal": "search wikipedia for linux mint",
+  "check": "location.hostname==='en.wikipedia.org' && /Linux Mint/i.test(document.title)"
+ }
+]

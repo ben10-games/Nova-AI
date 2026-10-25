@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>I'm Not a Robot</title>
+<style>
+  /* Same structure as the neal.fun game: plain divs styled like reCAPTCHA, no Google frame. */
+  .recaptcha-container { cursor: pointer; display: inline-block; border: 1px solid #ccc; padding: 18px; font: 16px sans-serif; }
+  .captcha-box { display: flex; gap: 12px; align-items: center; }
+  .captcha-box-checkbox-input { width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px; }
+  .done .captcha-box-checkbox-input { background: #2e7d32; }
+</style></head>
+<body>
+  <h1>I'm Not a Robot</h1>
+  <p id="level">Level 1: Checkbox</p>
+  <div class="recaptcha-container">
+    <div class="captcha-box">
+      <div class="captcha-box-checkbox"><div class="captcha-box-checkbox-input"></div></div>
+      <div class="captcha-text">I'm not a robot</div>
+      <div class="captcha-logo-area"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="reCAPTCHA logo" width="20" height="20"><div class="recaptcha-text">reCAPTCHA</div></div>
+    </div>
+  </div>
+  <script>
+    document.querySelector(".captcha-box").addEventListener("click", () => {
+      document.querySelector(".recaptcha-container").classList.add("done");
+      setTimeout(() => (document.getElementById("level").textContent = "Level 2: Stop Signs"), 200);
+    });
+  </script>
+</body>
+</html>

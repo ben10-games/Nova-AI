@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Practice: Linear Equations</title>
+  <style>
+    /* Like MathQuill: the real keyboard input is a tiny clipped textarea inside the visible box. */
+    .mq-editable-field { display: inline-block; min-width: 80px; min-height: 22px; border: 1px solid #888; padding: 2px; position: relative; }
+    .mq-textarea textarea { position: absolute; clip: rect(1em, 1em, 1em, 1em); width: 1px; height: 1px; border: 0; padding: 0; }
+    .katex-mathml { position: absolute; clip: rect(1px, 1px, 1px, 1px); width: 1px; height: 1px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Problem 1</h1>
+    <p>Solve for x:
+      <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>3</mn><mi>x</mi><mo>+</mo><mn>4</mn><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">3x + 4 = 40</annotation></semantics></math></span><span class="katex-html" aria-hidden="true">3x+4=40</span></span>
+    </p>
+    <div class="answer-row"><span>x =</span> <input class="answer" id="x" type="text" autocomplete="off"></div>
+
+    <h2>Problem 2</h2>
+    <p>Find a and b.</p>
+    <div class="answer-row"><span>a =</span> <input class="answer" id="a" type="text"></div>
+    <div class="answer-row"><span>b =</span> <input class="answer" id="b" type="text"></div>
+
+    <h2>Problem 3</h2>
+    <p>Write 0.75 as a fraction.</p>
+    <div class="answer-row"><span>Fraction:</span>
+      <span class="mq-editable-field mq-math-mode" id="mq" aria-label="Math Input"><span class="mq-textarea"><textarea autocapitalize="off" autocomplete="off" spellcheck="false"></textarea></span><span class="mq-root-block"></span></span>
+    </div>
+
+    <h2>Problem 4</h2>
+    <p>Graph widget answer.</p>
+    <div class="answer-row"><span>Point:</span>
+      <span class="mq-editable-field" id="locked" aria-label="Locked Input"><span class="mq-textarea"><textarea></textarea></span><span class="mq-root-block"></span></span>
+    </div>
+
+    <h2>Problem 5</h2>
+    <div class="answer-row"><span>Rounded answer:</span> <input id="picky" type="text"></div>
+    <div class="answer-row"><span>Decimal answer:</span> <input id="num" type="number"></div>
+
+    <h2>Problem 6</h2>
+    <p>Write 7/3 as a mixed number.</p>
+    <div class="answer-row"><span>Mixed number:</span> <input id="mixed" type="text" placeholder="e.g. 1 1/2"></div>
+    <div class="answer-row"><label for="work">Explain your work</label><textarea id="work" rows="3"></textarea></div>
+    <div class="answer-row"><span>Read-only result:</span> <input id="ro" type="text" readonly value=""></div>
+
+    <button id="submit" type="button" onclick="document.getElementById('status').textContent='SUBMITTED'">Submit Answer</button>
+    <button id="next" type="button" onclick="document.getElementById('status').textContent='NEXT'">Next Problem</button>
+    <p id="status">Not submitted</p>
+  </main>
+  <script>
+    // Emulates MathQuill's hidden-textarea input: it consumes the typed text, ignores spaces, and
+    // turns "/" into a stacked fraction whose numerator is the run of digits/letters before it
+    // (so typing "2 1/3" gives 21/3, as in MathQuill). The textarea is emptied afterwards.
+    const mq = document.querySelector("#mq textarea");
+    let typed = "";
+    mq.addEventListener("input", () => {
+      typed += mq.value.replace(/\s+/g, "");
+      mq.value = "";
+      const root = document.querySelector("#mq .mq-root-block");
+      root.replaceChildren();
+      const m = /^(.*?)([a-z0-9.]+)\/([a-z0-9.]*)$/i.exec(typed);
+      const plain = (t) => [...t].forEach((ch) => root.append(Object.assign(document.createElement("span"), { textContent: ch })));
+      if (!m) return plain(typed);
+      plain(m[1]);
+      const f = document.createElement("span");
+      f.className = "mq-fraction";
+      f.append(Object.assign(document.createElement("span"), { className: "mq-numerator", textContent: m[2] }), Object.assign(document.createElement("span"), { className: "mq-denominator", textContent: m[3] }));
+      root.append(f);
+    });
+    // A field whose page script throws away whatever was typed.
+    const picky = document.getElementById("picky");
+    picky.addEventListener("input", () => setTimeout(() => (picky.value = ""), 50));
+  </script>
+</body>
+</html>

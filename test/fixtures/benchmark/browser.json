@@ -1,0 +1,62 @@
+[
+ {
+  "page": "cursor.html",
+  "goal": "Click the Show details button",
+  "check": "document.getElementById('status').textContent==='Details shown'"
+ },
+ {
+  "page": "cursor.html",
+  "goal": "Type hello123 into the Search box",
+  "check": "document.getElementById('search').value==='hello123'"
+ },
+ {
+  "page": "cursor.html",
+  "goal": "Check the Remember me box and choose Large in the Size list",
+  "check": "document.getElementById('remember').checked && document.getElementById('size').value==='L'"
+ },
+ {
+  "page": "cursor.html",
+  "goal": "Scroll down to Section 3 and click Back to top",
+  "check": "true"
+ },
+ {
+  "page": "form.html",
+  "goal": "Fill in Username with nova and Notes with hello there",
+  "check": "document.getElementById('name').value==='nova' && document.getElementById('notes').value==='hello there'"
+ },
+ {
+  "page": "answer.html",
+  "goal": "Solve problem 1 and enter the answer for x",
+  "check": "document.getElementById('x').value==='12'"
+ },
+ {
+  "page": "robot-game.html",
+  "goal": "click the im not a robot checkbox",
+  "check": "document.getElementById('level').textContent.includes('Level 2')"
+ },
+ {
+  "page": "index.html",
+  "goal": "Click the About us link",
+  "check": "location.pathname==='/about.html'"
+ },
+ {
+  "page": "form.html",
+  "goal": "Type nova into username then go to page 2 and type Bangkok as the city",
+  "check": "location.pathname==='/form2.html' && document.getElementById('city').value==='Bangkok'"
+ },
+ {
+  "page": "cursor.html",
+  "goal": "Select Medium size and type blue mug in the search box",
+  "check": "document.getElementById('size').value==='Medium' && document.getElementById('search').value==='blue mug'"
+ },
+ {
+  "page": "answer.html",
+  "goal": "Solve problem 3 and put the fraction in the box",
+  "check": "document.querySelector('#mq .mq-fraction') !== null"
+ },
+ {
+  "page": "cursor.html",
+  "goal": "Delete my account",
+  "check": "true"
+ }
+]

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Nova Cursor Test</title>
+<style>body { font: 16px sans-serif; margin: 20px; } .tall { height: 1600px; } button { margin: 4px; }</style></head>
+<body>
+  <h1>Cursor test</h1>
+  <p>
+    <button id="details" type="button" onclick="document.getElementById('status').textContent='Details shown'">Show details</button>
+    <button id="noop" type="button">Do nothing</button>
+    <button id="count" type="button" onclick="this.dataset.n = (+this.dataset.n || 0) + 1; this.textContent = 'Count ' + this.dataset.n">Count 0</button>
+    <button id="delete" type="button" onclick="document.getElementById('status').textContent='DELETED'">Delete account</button>
+  </p>
+  <p><label><input id="remember" type="checkbox"> Remember me</label></p>
+  <p><label for="size">Size</label> <select id="size"><option>Small</option><option>Medium</option><option value="L">Large</option></select></p>
+  <p><label for="search">Search</label> <input id="search" type="text"></p>
+  <p><label for="message">Message</label><br><textarea id="message"></textarea></p>
+  <p id="status">Nothing yet</p>
+  <p><a id="next" href="/cursor2.html">Next page</a></p>
+  <div class="tall"></div>
+  <h2 id="s2">Section 2</h2>
+  <p>Second section text.</p>
+  <div class="tall"></div>
+  <h2 id="s3">Section 3</h2>
+  <p><a id="top" href="#">Back to top</a></p>
+</body>
+</html>
