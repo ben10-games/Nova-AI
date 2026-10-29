@@ -197,8 +197,22 @@ export function newer(a, b) {
   return false;
 }
 
+// GitHub allows 60 unsigned checks an hour per internet address, and the Nova window refreshes every few
+// seconds: the answer is remembered for 15 minutes (a failed check for 2).
+let releaseCache = null;
+const RELEASE_TTL = 15 * 60_000;
+const RELEASE_RETRY = 2 * 60_000;
+
 /** The newest release: { version, zip } (zip = this system's download), or null if none can be found. */
-export async function latestRelease() {
+export async function latestRelease({ fresh = false } = {}) {
+  const now = Date.now();
+  if (!fresh && releaseCache && now - releaseCache.at < (releaseCache.value ? RELEASE_TTL : RELEASE_RETRY)) return releaseCache.value;
+  const value = await fetchLatestRelease();
+  releaseCache = { at: now, value };
+  return value;
+}
+
+async function fetchLatestRelease() {
   if (UPDATE_VERSION_URL) {
     const r = await http(UPDATE_VERSION_URL, { timeoutMs: 10_000 });
     return r.status === 200 && typeof r.json?.version === "string" ? { version: r.json.version, zip: UPDATE_ZIP } : null;
@@ -323,7 +337,7 @@ const KEEP = new Set([".env.local", ".env.local.before-setup", ".nova", "node_mo
 export async function downloadUpdate(onLine = () => {}) {
   if (isDevCopy()) return { ok: false, error: "This Nova folder is a developer copy (it has .git): update it with git pull instead." };
   onLine("Downloading the newest Nova…");
-  const release = await latestRelease();
+  const release = await latestRelease({ fresh: true });
   if (!release?.zip) return { ok: false, error: "Couldn't find the newest Nova on GitHub. Try again later." };
   let res;
   try {

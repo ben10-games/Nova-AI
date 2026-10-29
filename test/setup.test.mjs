@@ -89,3 +89,24 @@ test("setup without internet says so plainly and writes nothing", async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("the update check asks GitHub at most once per 15 minutes (it allows 60 checks an hour), unless an update is being installed", async () => {
+  let hits = 0;
+  const server = http.createServer((req, res) => {
+    hits++;
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ version: "9.9.9" }));
+  });
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  process.env.NOVA_UPDATE_VERSION_URL = `http://127.0.0.1:${server.address().port}/version`;
+  try {
+    const lib = await import(`../setup/lib.mjs?cache-test=${Date.now()}`);
+    for (let i = 0; i < 30; i++) assert.equal(await lib.latestVersion(), "9.9.9"); // the window refreshing every 2 s for a minute
+    assert.equal(hits, 1);
+    await lib.latestRelease({ fresh: true }); // what Update does
+    assert.equal(hits, 2);
+  } finally {
+    delete process.env.NOVA_UPDATE_VERSION_URL;
+    server.close();
+  }
+});
