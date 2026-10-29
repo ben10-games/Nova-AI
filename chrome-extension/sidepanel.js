@@ -263,8 +263,65 @@ function describeProblem(err, tab) {
   return { state: "noaccess", text: "Nova can't read this site — not shared. Click the Nova icon on this tab to allow it." };
 }
 
+// Welcome suggestions that fit the page you're on. A card with `say` sends it; one with `fill` puts the
+// words in the box (the cursor where you continue typing).
+function ideasFor(ctx) {
+  const snap = ctx && ctx.state === "ready" ? ctx.snap : null;
+  const url = (snap && snap.url) || "";
+  const page = snap ? snap.title || "this page" : "";
+  const web = [
+    { ico: "▶", t: "Play something on YouTube", d: "Finds it and opens it for you", fill: "open  on youtube", at: 5 },
+    { ico: "🔎", t: "Search the web", d: "Finds the best pages and reads them", fill: "search the web for " },
+  ];
+  if (/^https:\/\/(www\.|m\.)?youtube\.com\/(watch|shorts\/|live\/)/.test(url)) {
+    return [
+      { ico: "📝", t: "Summarize this video", d: "The main points in a few lines", say: "Summarize this video." },
+      { ico: "🎧", t: "What are they saying?", d: "What was just said in the video", say: "What did they just say in the video?" },
+      web[0],
+    ];
+  }
+  if (snap) {
+    return [
+      { ico: "✨", t: "Do it for me", d: `Nova does what “${page.slice(0, 40)}” needs`, say: "finish this for me", main: true },
+      { ico: "📝", t: "Summarize this page", d: "The key points in a few lines", say: "Summarize this page." },
+      { ico: "💡", t: "Explain it simply", d: "In plain words, like a friend would", say: "Explain what is on this page simply." },
+      web[1],
+    ];
+  }
+  return ctx && ctx.action ? [{ ico: "👀", t: `${ctx.action}: let Nova see this page`, d: "So it can read and help with it", allow: true, main: true }, ...web] : web;
+}
+function renderIdeas() {
+  const box = $("ideas");
+  if (!box) return;
+  const ideas = ideasFor(ui.ctx);
+  box.replaceChildren(
+    ...ideas.map((idea) => {
+      const b = el("button", `idea${idea.main ? " main" : ""}`);
+      const text = el("span");
+      text.append(el("b", "", idea.t), el("span", "d", idea.d));
+      b.append(el("span", "ico", idea.ico), text);
+      b.onclick = () => {
+        if (idea.allow) return $("ctxAction").click();
+        if (idea.say) return send(idea.say);
+        const input = $("input");
+        input.value = idea.fill;
+        input.focus();
+        const at = idea.at ?? idea.fill.length;
+        input.setSelectionRange(at, at);
+        autosize();
+      };
+      return b;
+    }),
+  );
+  const snap = ui.ctx && ui.ctx.state === "ready" ? ui.ctx.snap : null;
+  $("welcomeSub").textContent = snap ? `You're on “${(snap.title || snap.url).slice(0, 60)}”. Tap a suggestion, or type what you want.` : "Tap a suggestion, or just type what you want.";
+  const tip = document.querySelector("#empty .tip");
+  if (tip) tip.textContent = ui.actFreely ? "🙌 Hands-off is on: Nova acts without asking, but still asks before it submits, sends, buys or deletes anything." : "Nova asks before it clicks or types anything. It never submits, buys or deletes unless you tell it to.";
+}
+
 function setCtx(c) {
   ui.ctx = { ...ui.ctx, ...c };
+  renderIdeas();
   if (typeof renderAutoSites === "function" && $("autoBadge")) setTimeout(renderAutoSites, 0);
   $("ctx").dataset.state = c.state;
   $("ctxText").textContent = c.text;
@@ -430,6 +487,14 @@ const TASK_ANYWHERE = /\b(?:search the web|web search|search (?:google|wikipedia
 const looksLikeTask = (text) => TASK_START.test(text) || TASK_ANYWHERE.test(text);
 
 const shortTool = (name) => String(name).replace(/^mcp__[a-z0-9-]+__/i, "");
+const STEP_NAMES = {
+  get_page: "Read the page", list_elements: "Look at the page", click: "Click", fill_field: "Type", type_text: "Type", select_option: "Choose",
+  press_key: "Press a key", scroll: "Scroll", navigate: "Open a page", open_tab: "Open a tab", search_web: "Search the web", site_search: "Search",
+  look_at_page: "Look at the screen", video_transcript: "Listen to the video", read_field: "Check the field", switch_tab: "Switch tab",
+  list_tabs: "List tabs", screenshot: "Screenshot", browser_status: "Check the browser", work_out: "Work it out", understand_request: "Understand the request",
+};
+/** A step's name in plain words (e.g. fill_field → "Type"). */
+const stepName = (tool) => STEP_NAMES[shortTool(tool)] || shortTool(tool).replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
 function argSummary(tool, a = {}) {
   const t = shortTool(tool);
   if (a.url) return a.url;
@@ -603,7 +668,9 @@ async function sendAction(text, snap, missing, auto) {
           const head = el("div", "head");
           // Each action moves through: proposed → waiting for approval → approved/executing → verified | failed | not run.
           const st = el("span", "st", e.requiresApproval ? "proposed" : "reading…");
-          head.append(el("span", "tool", shortTool(e.tool)), el("span", "arg", argSummary(e.tool, e.arguments)), st);
+          const name = el("span", "tool", stepName(e.tool));
+          name.dataset.tool = shortTool(e.tool);
+          head.append(name, el("span", "arg", argSummary(e.tool, e.arguments)), st);
           li.append(head);
           steps.append(li);
           calls.set(e.callId, { li, st, tool: e.tool, action: !!e.requiresApproval, arg: head.querySelector(".arg") });
@@ -709,6 +776,7 @@ async function setFullAuto(on) {
 
 async function setActFreely(on) {
   ui.actFreely = !!on;
+  renderIdeas();
   await chrome.storage.session.set({ actFreely: ui.actFreely });
   $("actFreely").checked = ui.actFreely;
   $("actBadge").hidden = !ui.actFreely;

@@ -102,7 +102,7 @@ test("answers stream in, Markdown is shown, and the AI's text can't run code in 
   await idle();
   const html = await lastAnswer();
   assert.match(html, /<b>Bold<\/b> and <code>code<\/code>/);
-  assert.match(html, /<pre><code>let x = 1;<\/code><\/pre>/);
+  assert.match(html, /<pre><code>let x = 1;<\/code><button class="copycode">Copy<\/button><\/pre>/, "code blocks have their own Copy button");
   assert.match(html, /^<p>391\.<\/p>/, "a number alone on a line stays (it isn't an empty list item)");
   assert.match(html, /<ol><li value="5">fifth<\/li><li value="6">sixth<\/li><\/ol>/, "numbered lists keep their numbers");
   assert.match(html, /&lt;img src=x onerror=/, "HTML from the AI is shown as text");
@@ -151,7 +151,7 @@ test("chats are saved in the browser (without the pictures) and can be reopened 
   await page.click("#newChat");
   await page.reload();
   await waitFor(() => visible("#app"));
-  await page.click("#toggleChats");
+  assert.equal(await visible("#chats"), true, "on a wide screen the chats are always shown");
   const titles = await page.$$eval("#chatList .open", (b) => b.map((x) => x.textContent));
   assert.equal(titles[0], "hi");
   await page.click("#chatList .open");

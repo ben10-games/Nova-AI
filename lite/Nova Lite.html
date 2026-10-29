@@ -10,119 +10,204 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://generativelanguage.googleapis.com; base-uri 'none'; form-action 'none'">
 <style>
-  :root { --bg: #0f0f14; --panel: #15151c; --card: #1b1b24; --raise: #23232e; --line: #2a2a35; --text: #ececf1; --muted: #a1a1b0; --faint: #6e6e7e; --accent: #7c3aed; --accent2: #a78bfa; --bad: #fca5a5; }
+  /* Nova's look (same as the Nova web app): dark by default, light when the computer uses light mode. */
+  :root {
+    --bg: #0e0e10; --side: #141416; --card: #18181b; --raise: #232327; --hover: #2a2a2f; --line: #2a2a2e;
+    --text: #f4f4f5; --muted: #a1a1aa; --faint: #71717a; --accent: #7c3aed; --accent-hover: #6d28d9; --accent-soft: #2e1f52; --accent-text: #c4b5fd;
+    --bad: #fca5a5; --bad-bg: #2a1215; --code: #0a0a0c; --shadow: 0 10px 30px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+    --bg: #ffffff; --side: #f7f7f8; --card: #ffffff; --raise: #f1f1f3; --hover: #e9e9ec; --line: #e4e4e7;
+    --text: #18181b; --muted: #52525b; --faint: #8b8b94; --accent-soft: #ede9fe; --accent-text: #6d28d9;
+    --bad: #b91c1c; --bad-bg: #fef2f2; --code: #f6f6f8; --shadow: 0 10px 30px rgba(0,0,0,.08);
+    color-scheme: light;
+  } }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --side: #f7f7f8; --card: #ffffff; --raise: #f1f1f3; --hover: #e9e9ec; --line: #e4e4e7;
+    --text: #18181b; --muted: #52525b; --faint: #8b8b94; --accent-soft: #ede9fe; --accent-text: #6d28d9;
+    --bad: #b91c1c; --bad-bg: #fef2f2; --code: #f6f6f8; --shadow: 0 10px 30px rgba(0,0,0,.08);
+    color-scheme: light;
+  }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html, body { height: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
-  header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
-  header .logo { width: 28px; height: 28px; }
-  header b { font-size: 16px; }
-  header .sp { flex: 1; }
-  button, select { font: inherit; color: var(--text); background: var(--raise); border: 1px solid var(--line); border-radius: 9px; padding: 6px 12px; cursor: pointer; }
-  button:hover:not(:disabled) { border-color: var(--accent2); }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; }
+  button, select { font: inherit; color: var(--text); background: transparent; border: 1px solid transparent; border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+  button:hover:not(:disabled), select:hover { background: var(--hover); }
   button:disabled { opacity: .45; cursor: default; }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-  button.icon { padding: 6px 9px; }
-  button.link { background: none; border: 0; padding: 0; color: var(--accent2); text-decoration: underline; }
-  :focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
-  .wrap { flex: 1; display: flex; min-height: 0; }
-  aside { width: 240px; border-right: 1px solid var(--line); background: var(--panel); padding: 10px; overflow-y: auto; }
-  aside h3 { margin: 4px 4px 8px; font-size: 13px; color: var(--muted); }
-  aside .chat { display: flex; gap: 4px; align-items: center; }
-  aside .chat button.open { flex: 1; text-align: left; background: none; border-color: transparent; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  aside .chat button.open.on { background: var(--raise); }
-  main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  #messages { flex: 1; overflow-y: auto; padding: 18px 16px; }
+  button.primary { background: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  button.outline { border-color: var(--line); }
+  button.icon { padding: 7px; line-height: 0; }
+  button.link { padding: 0; border: 0; color: var(--accent-text); text-decoration: underline; background: none; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  a { color: var(--accent-text); }
+
+  /* Sidebar */
+  aside { width: 264px; flex: 0 0 264px; background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 12px; gap: 10px; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 4px 6px; }
+  .brand img { width: 30px; height: 30px; }
+  .brand b { font-size: 16px; flex: 1; }
+  #newChat { width: 100%; display: flex; align-items: center; gap: 8px; justify-content: center; }
+  .side-title { font-size: 12px; color: var(--faint); margin: 6px 6px 0; text-transform: uppercase; letter-spacing: .04em; }
+  #chatList { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .chat { display: flex; align-items: center; border-radius: 10px; }
+  .chat:hover, .chat:has(.open.on) { background: var(--hover); }
+  .chat button.open { flex: 1; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; background: none; }
+  .chat button.icon { opacity: 0; color: var(--faint); }
+  .chat:hover button.icon, .chat button.icon:focus-visible { opacity: 1; }
+  #noChats { color: var(--faint); font-size: 13px; margin: 6px; }
+  .side-foot { border-top: 1px solid var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .side-foot button { display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; color: var(--muted); }
+
+  /* Main */
+  main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+  .topbar { display: none; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .topbar img { width: 26px; }
+  .topbar b { flex: 1; }
+  #messages { flex: 1; overflow-y: auto; padding: 24px 20px 8px; }
   .inner { max-width: 760px; margin: 0 auto; }
-  .msg { margin: 0 0 16px; }
-  .msg.user { display: flex; justify-content: flex-end; }
-  .msg.user .b { background: var(--raise); border-radius: 14px; padding: 9px 13px; max-width: 85%; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .msg.user img { max-width: 160px; max-height: 120px; border-radius: 8px; display: block; margin-top: 6px; }
+  .msg { margin: 0 0 22px; display: flex; gap: 12px; }
+  .msg.user { justify-content: flex-end; }
+  .msg.user .b { background: var(--raise); border-radius: 18px 18px 4px 18px; padding: 10px 15px; max-width: 80%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.user img { max-width: 200px; max-height: 150px; border-radius: 10px; display: block; margin-top: 8px; }
+  .msg.ai::before { content: ""; flex: 0 0 28px; height: 28px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E") center/contain no-repeat; margin-top: 2px; }
+  .msg.ai .col { min-width: 0; flex: 1; }
   .msg.ai .b { overflow-wrap: anywhere; }
-  .msg.ai .b p { margin: 0 0 10px; }
-  .msg.ai pre { background: #0b0b10; border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 13px; }
-  .msg.ai code { background: var(--raise); padding: 1px 5px; border-radius: 5px; font-size: 13px; }
+  .msg.ai .b p { margin: 0 0 12px; }
+  .msg.ai .b ul, .msg.ai .b ol { margin: 0 0 12px; padding-left: 22px; }
+  .msg.ai .b li { margin: 3px 0; }
+  .msg.ai pre { position: relative; background: var(--code); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; overflow-x: auto; font-size: 13px; margin: 0 0 12px; }
+  .msg.ai pre .copycode { position: absolute; top: 6px; right: 6px; font-size: 12px; padding: 3px 8px; border: 1px solid var(--line); background: var(--card); color: var(--muted); line-height: 1.4; }
+  .msg.ai code { background: var(--raise); padding: 1px 6px; border-radius: 6px; font-size: 13px; }
   .msg.ai pre code { background: none; padding: 0; }
-  .msg.ai a { color: var(--accent2); }
-  .msg .tools { margin-top: 4px; display: flex; gap: 10px; font-size: 12.5px; }
-  .note { color: var(--muted); font-size: 13px; }
-  .err { color: var(--bad); font-size: 13.5px; margin-top: 6px; }
-  .typing::after { content: "▍"; animation: blink 1s steps(1) infinite; color: var(--accent2); }
-  @keyframes blink { 50% { opacity: 0; } }
-  footer { border-top: 1px solid var(--line); padding: 10px 16px 14px; background: var(--panel); }
-  .box { max-width: 760px; margin: 0 auto; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 8px 10px; }
-  .box:focus-within { border-color: #5b4b8a; }
-  textarea { width: 100%; resize: none; border: 0; background: none; color: var(--text); font: inherit; outline: none; min-height: 24px; max-height: 40vh; }
-  .row { display: flex; align-items: center; gap: 8px; }
+  .tools { display: flex; gap: 4px; margin-top: 2px; }
+  .tools button { font-size: 12.5px; color: var(--faint); padding: 3px 8px; display: flex; gap: 5px; align-items: center; }
+  .tools svg.i { width: 14px; height: 14px; }
+  .note { color: var(--muted); font-size: 13.5px; }
+  .err { color: var(--bad); background: var(--bad-bg); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+  .typing::after { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-left: 4px; animation: pulse 1s ease-in-out infinite; vertical-align: middle; }
+  @keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
+
+  /* Welcome */
+  .empty { text-align: center; margin: 9vh auto 0; max-width: 720px; }
+  .empty .logo { width: 56px; height: 56px; }
+  .empty h1 { font-size: 30px; margin: 16px 0 4px; letter-spacing: -.01em; }
+  .empty p { color: var(--muted); margin: 0 0 26px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+  .cards button { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; background: var(--card); text-align: left; }
+  .cards button:hover { background: var(--hover); border-color: var(--accent); }
+  .cards .ico { flex: 0 0 34px; height: 34px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); display: grid; place-items: center; }
+  .cards b { display: block; font-size: 14.5px; }
+  .cards span.d { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+  /* Composer */
+  footer { padding: 8px 20px 14px; }
+  .box { max-width: 760px; margin: 0 auto; border: 1px solid var(--line); background: var(--card); border-radius: 20px; padding: 10px 12px 8px; box-shadow: var(--shadow); transition: border-color .15s; }
+  .box:focus-within { border-color: var(--accent); }
+  .box.drag { border-color: var(--accent); border-style: dashed; background: var(--accent-soft); }
+  textarea { width: 100%; resize: none; border: 0; background: none; color: var(--text); font: inherit; outline: none; min-height: 26px; max-height: 40vh; padding: 2px 4px; }
+  textarea:focus-visible { outline: none; } /* the box around it shows the focus */
+  .row { display: flex; align-items: center; gap: 6px; }
   .row .sp { flex: 1; }
-  .thumbs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  #model { border: 1px solid var(--line); font-size: 13px; padding: 5px 8px; color: var(--muted); background: var(--card); max-width: 60vw; }
+  #send, #stop { width: 36px; height: 36px; border-radius: 50%; padding: 0; display: grid; place-items: center; }
+  #send:disabled { background: var(--raise); color: var(--faint); opacity: 1; }
+  #stop { background: var(--text); color: var(--bg); }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 2px 8px; }
+  .thumbs:empty { display: none; }
   .thumb { position: relative; }
-  .thumb img { height: 54px; border-radius: 6px; display: block; }
-  .thumb span { display: inline-block; background: var(--raise); border-radius: 6px; padding: 4px 8px; font-size: 12.5px; }
-  .thumb button { position: absolute; top: -6px; right: -6px; padding: 0 5px; font-size: 11px; border-radius: 50%; }
-  .hint { color: var(--faint); font-size: 12px; text-align: center; margin-top: 6px; }
-  .setup { max-width: 520px; margin: 6vh auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
-  .setup h1 { margin: 6px 0; font-size: 22px; }
-  .setup input[type=password] { width: 100%; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 6px 0; }
-  .setup ol { padding-left: 20px; color: var(--muted); }
-  .empty { text-align: center; color: var(--muted); margin-top: 12vh; }
-  .empty img { width: 64px; }
-  @media (max-width: 720px) { aside { display: none; } aside.show { display: block; position: fixed; inset: 52px 0 0 0; width: auto; z-index: 5; } }
+  .thumb img { height: 60px; border-radius: 10px; display: block; border: 1px solid var(--line); }
+  .thumb span { display: inline-block; background: var(--raise); border-radius: 10px; padding: 8px 10px; font-size: 13px; }
+  .thumb button { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; padding: 0; font-size: 12px; border-radius: 50%; background: var(--text); color: var(--bg); }
+  .hint { color: var(--faint); font-size: 12px; text-align: center; margin-top: 8px; }
+
+  /* Setup */
+  .setup-wrap { flex: 1; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 6vh 16px; }
+  .setup { width: 100%; max-width: 500px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 28px; box-shadow: var(--shadow); }
+  .setup .logo { width: 52px; height: 52px; }
+  .setup h1 { margin: 12px 0 4px; font-size: 24px; }
+  .steps { list-style: none; padding: 0; margin: 18px 0; display: grid; gap: 12px; }
+  .steps li { display: flex; gap: 12px; align-items: flex-start; }
+  .steps .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-text); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+  .keyrow { display: flex; gap: 6px; margin: 4px 0 8px; }
+  .keyrow input { flex: 1; min-width: 0; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+  .keyrow input:focus { border-color: var(--accent); outline: none; }
+  .keyrow button { border-color: var(--line); }
+  #saveKey { width: 100%; padding: 11px; font-size: 15.5px; margin-top: 6px; }
+  #keyMsg { display: block; margin-top: 8px; min-height: 1.2em; }
+  #keyMsg.bad { color: var(--bad); }
+  .check { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14px; }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .privacy { margin-top: 18px; padding: 12px 14px; border-radius: 12px; background: var(--raise); color: var(--muted); font-size: 13px; }
+  @media (max-width: 760px) {
+    aside { display: none; }
+    aside.show { display: flex; position: fixed; inset: 0 auto 0 0; z-index: 10; box-shadow: var(--shadow); }
+    .topbar { display: flex; }
+    .cards { grid-template-columns: 1fr; }
+    .empty { margin-top: 4vh; }
+    .empty h1 { font-size: 24px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <button class="icon" id="toggleChats" title="Chats" aria-label="Chats">☰</button>
-  <img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
-  <b>Nova Lite</b>
-  <span class="sp"></span>
-  <select id="model" title="Which Gemini model">
-    <option value="gemini-3.1-flash-lite">Gemini Flash-Lite (fast, most free uses)</option>
-    <option value="gemini-3.6-flash">Gemini Flash (smarter, ~20 a day)</option>
-  </select>
-  <button id="newChat" title="New chat">＋ New</button>
-  <button class="icon" id="settings" title="Settings" aria-label="Settings">⚙</button>
-</header>
+<div class="setup-wrap" id="setup" hidden>
+  <section class="setup">
+    <img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
+    <h1>Welcome to Nova Lite</h1>
+    <p class="note">Chat with Nova right here — nothing to install. It runs on Google's free Gemini AI, so you need a free key once:</p>
+    <ol class="steps">
+      <li><span class="n">1</span><div><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"><b>Open Google AI Studio</b></a> and sign in with Google.</div></li>
+      <li><span class="n">2</span><div>Click <b>Create API key</b>, then <b>Copy</b>.</div></li>
+      <li><span class="n">3</span><div>Paste it here:</div></li>
+    </ol>
+    <div class="keyrow">
+      <input type="password" id="key" placeholder="Your Gemini API key" autocomplete="off" spellcheck="false" aria-label="Gemini API key">
+      <button id="pasteKey" title="Paste from the clipboard">Paste</button>
+      <button class="icon" id="showKey" title="Show or hide the key" aria-label="Show or hide the key"><svg class="i" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+    <label class="check"><input type="checkbox" id="remember" checked> Remember the key in this browser</label>
+    <button class="primary" id="saveKey">Start chatting</button>
+    <span id="keyMsg" class="note" role="status"></span>
+    <div class="privacy">What you write and the pictures you add go to Google's Gemini AI. Your key stays in this browser. On a shared computer, untick “Remember”.</div>
+    <p class="note" id="setupCancelRow" hidden style="margin-top:14px"><button class="link" id="setupCancel">← Back to the chat</button> &nbsp;·&nbsp; <button class="link" id="forget">Forget my key</button> &nbsp;·&nbsp; <button class="link" id="theme">Switch light/dark</button></p>
+  </section>
+</div>
 
-<section class="setup" id="setup" hidden>
-  <img class="logo" alt="" style="width:56px" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
-  <h1>Welcome to Nova Lite</h1>
-  <p class="note">Chat with Nova right here — no install. It uses Google's free Gemini AI, so you need a free key once:</p>
-  <ol>
-    <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--accent2)">Open Google AI Studio</a> and sign in.</li>
-    <li>Click <b>Create API key</b> and copy it.</li>
-    <li>Paste it here:</li>
-  </ol>
-  <input type="password" id="key" placeholder="Your Gemini API key" autocomplete="off" spellcheck="false">
-  <label class="note"><input type="checkbox" id="remember" checked> Remember the key in this browser</label>
-  <div class="row" style="margin-top:12px"><button class="primary" id="saveKey">Start</button><span id="keyMsg" class="note"></span></div>
-  <p class="note" style="margin-top:14px">Privacy: what you write and the pictures you add go to Google's Gemini AI. The key stays in this browser. Don't use Nova Lite on a shared computer with “Remember” on.</p>
-  <p class="note" id="setupCancelRow" hidden><button class="link" id="setupCancel">Back to the chat</button> · <button class="link" id="forget">Forget my key</button></p>
-</section>
-
-<div class="wrap" id="app" hidden>
-  <aside id="chats" hidden>
-    <h3>Chats (saved in this browser)</h3>
+<div style="display:contents" id="app" hidden>
+  <aside id="chats">
+    <div class="brand"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E"><b>Nova Lite</b><button class="icon" id="closeChats" title="Close" aria-label="Close chats" hidden><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <button class="primary" id="newChat"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New chat</button>
+    <div class="side-title">Your chats</div>
     <div id="chatList"></div>
-    <p class="note" id="noChats">No saved chats yet.</p>
-    <button id="clearChats" style="margin-top:10px" hidden>Delete all chats</button>
+    <p id="noChats">Your chats will appear here (saved only in this browser).</p>
+    <div class="side-foot">
+      <button id="clearChats" hidden><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Delete all chats</button>
+      <button id="settings"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Key &amp; settings</button>
+    </div>
   </aside>
   <main>
+    <div class="topbar"><button class="icon" id="toggleChats" title="Chats" aria-label="Chats"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E"><b>Nova Lite</b><button class="icon" id="newChatTop" title="New chat" aria-label="New chat"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
     <div id="messages"><div class="inner" id="list"></div></div>
     <footer>
       <div class="box" id="drop">
         <div class="thumbs" id="thumbs"></div>
-        <textarea id="input" rows="1" placeholder="Ask Nova anything… (paste or drop a picture too)" aria-label="Message"></textarea>
+        <textarea id="input" rows="1" placeholder="Ask Nova anything…" aria-label="Message"></textarea>
         <div class="row">
-          <button class="icon" id="attach" title="Add a picture or text file" aria-label="Add a picture or text file">📎</button>
+          <button class="icon" id="attach" title="Add a picture or text file" aria-label="Add a picture or text file"><svg class="i" viewBox="0 0 24 24"><path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
           <input type="file" id="file" multiple accept="image/*,.txt,.md,.csv,.json,.html,.css,.js,.py,.java,.c,.cpp,.ts" hidden>
+          <select id="model" title="Which Gemini model" aria-label="Model">
+            <option value="gemini-3.1-flash-lite">Flash-Lite · fast, most free uses</option>
+            <option value="gemini-3.6-flash">Flash · smarter, ~20 a day</option>
+          </select>
           <span class="sp"></span>
-          <button class="primary" id="send">Send</button>
-          <button id="stop" hidden>■ Stop</button>
+          <button class="primary" id="send" title="Send (Enter)" aria-label="Send"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+          <button id="stop" title="Stop" aria-label="Stop" hidden><svg class="i" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
         </div>
       </div>
-      <div class="hint">Nova can make mistakes. Enter sends · Shift+Enter for a new line</div>
+      <div class="hint">Nova can make mistakes — check important answers. Drop or paste pictures into the box.</div>
     </footer>
   </main>
 </div>
@@ -217,12 +302,13 @@ async function checkKey(k) {
 }
 $("saveKey").onclick = async () => {
   const k = $("key").value.replace(/\s+/g, "");
-  if (!/^[A-Za-z0-9_.-]{20,200}$/.test(k)) { $("keyMsg").textContent = "That doesn't look like an API key."; return; }
+  if (!/^[A-Za-z0-9_.-]{20,200}$/.test(k)) { $("keyMsg").textContent = "That doesn't look like an API key."; $("keyMsg").className = "note bad"; return; }
+  $("keyMsg").className = "note";
   $("saveKey").disabled = true;
   $("keyMsg").textContent = "Checking…";
   const problem = await checkKey(k);
   $("saveKey").disabled = false;
-  if (problem) { $("keyMsg").textContent = problem; return; }
+  if (problem) { $("keyMsg").textContent = problem; $("keyMsg").className = "note bad"; return; }
   key = k;
   store.del("key");
   store.set("key", k, !$("remember").checked);
@@ -232,6 +318,19 @@ $("key").addEventListener("keydown", (e) => {
   if (e.key === "Enter") $("saveKey").click();
 });
 $("settings").onclick = () => showSetup(true);
+$("pasteKey").onclick = async () => {
+  try {
+    $("key").value = (await navigator.clipboard.readText()).trim();
+    $("key").focus();
+  } catch {
+    $("keyMsg").textContent = "Your browser didn't allow pasting from here: click the box and press Ctrl+V (Mac: ⌘V).";
+  }
+};
+$("showKey").onclick = () => ($("key").type = $("key").type === "password" ? "text" : "password");
+// Light/dark: follows the computer, unless you switch it here.
+const applyTheme = () => { const t = store.get("theme", ""); if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; };
+$("theme").onclick = () => { const dark = matchMedia("(prefers-color-scheme: dark)").matches; const now = store.get("theme", "") || (dark ? "dark" : "light"); store.set("theme", now === "dark" ? "light" : "dark"); applyTheme(); };
+applyTheme();
 $("setupCancel").onclick = () => (key ? showApp() : null);
 $("forget").onclick = () => { store.del("key"); key = ""; showSetup(false); };
 
@@ -257,7 +356,7 @@ function renderChats() {
     const open = document.createElement("button");
     open.className = `open ${chat && c.id === chat.id ? "on" : ""}`;
     open.textContent = c.title;
-    open.onclick = () => { chat = JSON.parse(JSON.stringify(c)); renderMessages(); renderChats(); $("chats").classList.remove("show"); };
+    open.onclick = () => { chat = JSON.parse(JSON.stringify(c)); renderMessages(); renderChats(); $("closeChats").click(); };
     const del = document.createElement("button");
     del.className = "icon";
     del.title = "Delete this chat";
@@ -271,13 +370,41 @@ function renderChats() {
 }
 $("clearChats").onclick = () => { if (confirm("Delete all saved chats?")) { chats = []; store.set("chats", []); newChat(); } };
 $("newChat").onclick = () => { if (controller) controller.abort(); newChat(); $("input").focus(); };
-$("toggleChats").onclick = () => { const a = $("chats"); if (window.innerWidth <= 720) { a.hidden = false; a.classList.toggle("show"); } else a.hidden = !a.hidden; };
+$("newChatTop").onclick = () => $("newChat").click();
+// Small screens: the chat list slides in over the chat.
+$("toggleChats").onclick = () => { $("chats").classList.add("show"); $("closeChats").hidden = false; };
+$("closeChats").onclick = () => { $("chats").classList.remove("show"); $("closeChats").hidden = true; };
 
+// Tap a suggestion: it fills the box (you can still change it) — and for photos opens the picture picker.
+const IDEAS = [
+  { icon: '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>', title: "Explain a question from a photo", text: "Add a photo or screenshot and get it explained step by step.", prompt: "Explain this step by step, like a patient tutor:", pick: true },
+  { icon: '<path d="M4 6h16M4 12h16M4 18h10"/>', title: "Summarize something", text: "Paste an article or notes and get the key points.", prompt: "Summarize this in 5 short bullet points:\n\n" },
+  { icon: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>', title: "Help me write", text: "A message, an email, or a paragraph for school.", prompt: "Help me write a short, friendly message to " },
+  { icon: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>', title: "Quiz me", text: "Practice for a test with questions on any topic.", prompt: "Quiz me with 5 questions, one at a time, about " },
+];
 function renderMessages() {
   const list = $("list");
   list.replaceChildren();
   if (!chat.messages.length) {
-    list.innerHTML = '<div class="empty"><p style="font-size:20px;color:var(--text)">Hi! What can I help with?</p><p>Ask a question, paste a screenshot of a problem, or drop in a text file.</p></div>';
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.innerHTML = `<img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E"><h1>What can I help you with?</h1><p>Ask anything, or start with one of these:</p><div class="cards"></div>`;
+    for (const idea of IDEAS) {
+      const card = document.createElement("button");
+      card.innerHTML = `<span class="ico"><svg class="i" viewBox="0 0 24 24">${idea.icon}</svg></span><span><b></b><span class="d"></span></span>`;
+      card.querySelector("b").textContent = idea.title;
+      card.querySelector(".d").textContent = idea.text;
+      card.onclick = () => {
+        $("input").value = idea.prompt;
+        autosize();
+        updateSend();
+        $("input").focus();
+        $("input").setSelectionRange(idea.prompt.length, idea.prompt.length);
+        if (idea.pick) $("file").click();
+      };
+      empty.querySelector(".cards").append(card);
+    }
+    list.append(empty);
     return;
   }
   chat.messages.forEach((m) => addMessage(m));
@@ -292,22 +419,40 @@ function addMessage(m) {
     b.textContent = m.shown ?? m.text;
     if (m.pictures && !m.images) b.append(Object.assign(document.createElement("div"), { className: "note", textContent: `🖼 ${m.pictures} picture(s) (not saved)` }));
     (m.images || []).forEach((img) => { const i = document.createElement("img"); i.src = `data:${img.mime};base64,${img.data}`; i.alt = "Picture you added"; b.append(i); });
-  } else b.innerHTML = markdown(m.text || "");
-  el.append(b);
-  if (m.role !== "user" && m.text) addTools(el, m.text);
+    el.append(b);
+  } else {
+    setAnswer(b, m.text || "");
+    const col = document.createElement("div");
+    col.className = "col";
+    col.append(b);
+    el.append(col);
+    if (m.text) addTools(col, m.text);
+  }
   $("list").append(el);
   $("messages").scrollTop = $("messages").scrollHeight;
   return b;
 }
-function addTools(el, text) {
+/** Shows an answer (Markdown) with a Copy button on each code block. */
+function setAnswer(b, text) {
+  b.innerHTML = markdown(text);
+  b.querySelectorAll("pre").forEach((pre) => {
+    const c = document.createElement("button");
+    c.className = "copycode";
+    c.textContent = "Copy";
+    c.onclick = () => navigator.clipboard.writeText(pre.querySelector("code").textContent).then(() => (c.textContent = "Copied ✓"));
+    pre.append(c);
+  });
+}
+const COPY_ICON = '<svg class="i" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+function addTools(col, text) {
   const t = document.createElement("div");
   t.className = "tools";
   const copy = document.createElement("button");
-  copy.className = "link";
-  copy.textContent = "Copy";
-  copy.onclick = () => navigator.clipboard.writeText(text).then(() => (copy.textContent = "Copied"));
+  copy.innerHTML = `${COPY_ICON}<span>Copy</span>`;
+  copy.title = "Copy the answer";
+  copy.onclick = () => navigator.clipboard.writeText(text).then(() => (copy.querySelector("span").textContent = "Copied ✓"));
   t.append(copy);
-  el.append(t);
+  col.append(t);
 }
 
 // ---------------- Attachments ----------------
@@ -341,6 +486,7 @@ function shrinkImage(file) {
   });
 }
 function renderThumbs() {
+  queueMicrotask(updateSend);
   $("thumbs").replaceChildren(...pending.map((p, i) => {
     const t = document.createElement("div");
     t.className = "thumb";
@@ -357,8 +503,9 @@ function renderThumbs() {
 $("attach").onclick = () => $("file").click();
 $("file").onchange = () => { addFiles([...$("file").files]); $("file").value = ""; };
 $("input").addEventListener("paste", (e) => { const files = [...e.clipboardData.files]; if (files.length) { e.preventDefault(); addFiles(files); } });
-$("drop").addEventListener("dragover", (e) => e.preventDefault());
-$("drop").addEventListener("drop", (e) => { e.preventDefault(); addFiles([...e.dataTransfer.files]); });
+$("drop").addEventListener("dragover", (e) => { e.preventDefault(); $("drop").classList.add("drag"); });
+$("drop").addEventListener("dragleave", () => $("drop").classList.remove("drag"));
+$("drop").addEventListener("drop", (e) => { e.preventDefault(); $("drop").classList.remove("drag"); addFiles([...e.dataTransfer.files]); });
 
 // ---------------- Talking to Gemini ----------------
 function toContents(messages) {
@@ -421,6 +568,7 @@ async function ask(bubble, attempt = 0) {
     $("messages").scrollTop = $("messages").scrollHeight;
   }
   bubble.classList.remove("typing");
+  setAnswer(bubble, text);
   return text;
 }
 
@@ -464,7 +612,7 @@ async function send() {
       const retry = document.createElement("button");
       retry.textContent = err.key ? "Add a new key" : "Retry";
       retry.style.marginTop = "6px";
-      retry.onclick = () => { if (err.key) return showSetup(true); holder.parentElement.remove(); $("list").lastElementChild?.remove(); $("input").value = typed; images.forEach((i) => pending.push({ kind: "image", name: "picture", mime: i.mime, data: i.data, url: `data:${i.mime};base64,${i.data}` })); files.forEach((f) => pending.push(f)); renderThumbs(); send(); };
+      retry.onclick = () => { if (err.key) return showSetup(true); holder.closest(".msg").remove(); $("list").lastElementChild?.remove(); $("input").value = typed; images.forEach((i) => pending.push({ kind: "image", name: "picture", mime: i.mime, data: i.data, url: `data:${i.mime};base64,${i.data}` })); files.forEach((f) => pending.push(f)); renderThumbs(); send(); };
       holder.append(retry);
     }
   } finally {
@@ -478,10 +626,12 @@ $("send").onclick = send;
 $("stop").onclick = () => controller && controller.abort();
 $("input").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
 function autosize() { const t = $("input"); t.style.height = "auto"; t.style.height = `${Math.min(t.scrollHeight, innerHeight * 0.4)}px`; }
-$("input").addEventListener("input", autosize);
+function updateSend() { $("send").disabled = !$("input").value.trim() && !pending.length; }
+$("input").addEventListener("input", () => { autosize(); updateSend(); });
 $("model").value = store.get("model", "gemini-3.1-flash-lite");
 $("model").onchange = () => store.set("model", $("model").value);
 
+updateSend();
 if (key) showApp(); else showSetup(false);
 </script>
 </body>

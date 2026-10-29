@@ -327,6 +327,35 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.ok(!plain.includes("<<video words>>"));
   });
 
+  test("welcome suggestions fit the page (video page vs. normal page) and tapping one sends it", async () => {
+    await panel.click("#newChat");
+    await page.goto(`${siteBase}/yt-watch.html`);
+    await show(page);
+    await waitFor(async () => (await ctx()) === "Watching: Remix Beatbox Battle - YouTube");
+    const titles = () => panel.$$eval("#ideas .idea b", (b) => b.map((x) => x.textContent));
+    // A local stand-in page, so it isn't youtube.com: the normal-page suggestions.
+    await waitFor(async () => (await titles())[0] === "Do it for me");
+    assert.deepEqual(await titles(), ["Do it for me", "Summarize this page", "Explain it simply", "Search the web"]);
+    assert.match(await text("#welcomeSub"), /You're on “Remix Beatbox Battle - YouTube”/);
+    assert.equal(await panel.$eval("#quick", (q) => getComputedStyle(q).display), "none", "the small quick buttons wait until the chat starts");
+    // The real YouTube address gets the video suggestions.
+    const ideas = await panel.evaluate(() => ideasFor({ state: "ready", snap: { url: "https://www.youtube.com/watch?v=abc", title: "A video" } }).map((i) => i.t));
+    assert.deepEqual(ideas, ["Summarize this video", "What are they saying?", "Play something on YouTube"]);
+    const none = await panel.evaluate(() => ideasFor({ state: "noaccess", action: "Allow" }).map((i) => i.t));
+    assert.deepEqual(none, ["Allow: let Nova see this page", "Play something on YouTube", "Search the web"]);
+    // Tapping a card sends it (here: a summary, in Chat).
+    const sent = mock.seen.chatBodies.length;
+    await panel.evaluate(() => [...document.querySelectorAll("#ideas .idea")].find((b) => b.textContent.includes("Summarize this page")).click());
+    await waitFor(async () => mock.seen.chatBodies.length > sent && (await panel.evaluate(() => document.getElementById("stop").hidden)));
+    assert.match(mock.seen.chatBodies.at(-1).messages.at(-1).content, /User request: Summarize this page\.$/);
+    // "Play something on YouTube" fills the box with the cursor where the name goes.
+    await panel.click("#newChat");
+    await panel.evaluate(() => ideasFor({ state: "ready", snap: { url: "https://www.youtube.com/watch?v=abc" } }));
+    assert.equal(await panel.$eval("#quick", (q) => getComputedStyle(q).display), "none");
+    await page.goto(`${siteBase}/index.html`);
+    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+  });
+
   test("switching tabs updates the indicator and the context", async () => {
     const other = await browser.newPage();
     await other.goto(`${siteBase}/about.html`);
@@ -448,7 +477,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.equal(await page.$eval("#x", (e) => e.value), "12", "the answer is in the real page");
     const statuses = await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps .st")].map((x) => x.textContent));
     assert.deepEqual(statuses, ["done", "done", "done", "done", "done", "verified ✓"], "first looks, the worked-out answer and the reads done; the typing step verified by the extension");
-    const work = await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps li")].find((li) => li.querySelector(".tool")?.textContent === "work_out")?.querySelector("details pre")?.textContent);
+    const work = await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps li")].find((li) => li.querySelector(".tool")?.dataset.tool === "work_out")?.querySelector("details pre")?.textContent);
     assert.match(work, /x = 12[\s\S]*Final answer: 12/, "the working is shown to the user");
     assert.equal(await page.$eval("#status", (e) => e.textContent), "Not submitted");
     // The reading tools ran without approval; only the typing needed it.

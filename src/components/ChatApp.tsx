@@ -36,10 +36,10 @@ import SettingsDialog from "./SettingsDialog";
 import Sidebar, { type Status } from "./Sidebar";
 
 const SUGGESTIONS = [
-  { icon: CodeIcon, title: "Debug my code", prompt: "Help me find the bug in this function and explain the fix:\n\n" },
-  { icon: BulbIcon, title: "Explain a concept", prompt: "Explain how HTTP streaming works, in simple terms with a short example." },
-  { icon: PenLineIcon, title: "Help me write", prompt: "Write a friendly, concise email asking a colleague to review my pull request." },
-  { icon: ChartIcon, title: "Make a plan", prompt: "Create a 7-day study plan for learning SQL, with one small exercise per day." },
+  { icon: BulbIcon, title: "Explain something simply", prompt: "Explain how volcanoes work in simple words, with an everyday example." },
+  { icon: PenLineIcon, title: "Help me write", prompt: "Help me write a short, friendly message to " },
+  { icon: ChartIcon, title: "Make a study plan", prompt: "Make a 7-day study plan for my test on " },
+  { icon: CodeIcon, title: "Fix my code", prompt: "Help me find the bug in this code and explain the fix:\n\n" },
 ];
 
 const ACTION_SUGGESTIONS = [

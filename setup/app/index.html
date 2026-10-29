@@ -6,43 +6,55 @@
 <title>Nova AI</title>
 <link rel="icon" href="/nova.png">
 <style>
+  /* Nova's look (shared with the side panel and Nova Lite): dark by default, light when the computer is light. */
   :root {
-    --bg: #0f0f14; --card: #17171f; --raise: #20202a; --line: #2a2a35; --text: #ececf1; --muted: #a1a1b0; --faint: #6e6e7e;
-    --accent: #7c3aed; --accent2: #a78bfa; --ok: #22c55e; --warn: #f59e0b; --bad: #ef4444;
-    --grad: linear-gradient(135deg, #8b9cff, #d946ef);
+    --bg: #0e0e10; --card: #18181b; --raise: #232327; --hover: #2a2a2f; --line: #2a2a2e; --text: #f4f4f5; --muted: #a1a1aa; --faint: #71717a;
+    --accent: #7c3aed; --accent-hover: #6d28d9; --accent-soft: #2e1f52; --accent2: #c4b5fd; --ok: #34d399; --ok-soft: #0f2a20; --warn: #f59e0b; --bad: #ef4444; --bad-text: #fca5a5; --bad-soft: #2a1215;
+    --grad: linear-gradient(135deg, #8b9cff, #d946ef); --shadow: 0 10px 30px rgba(0,0,0,.35); color-scheme: dark;
   }
+  @media (prefers-color-scheme: light) { :root {
+    --bg: #f7f7f8; --card: #ffffff; --raise: #f1f1f3; --hover: #e9e9ec; --line: #e4e4e7; --text: #18181b; --muted: #52525b; --faint: #8b8b94;
+    --accent-soft: #ede9fe; --accent2: #6d28d9; --ok: #059669; --ok-soft: #ecfdf5; --bad-text: #b91c1c; --bad-soft: #fef2f2; --shadow: 0 10px 30px rgba(0,0,0,.07); color-scheme: light;
+  } }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14.5px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   main { max-width: 640px; margin: 0 auto; padding: 28px 20px 40px; }
   header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
   header img { width: 52px; height: 52px; }
   header h1 { margin: 0; font-size: 22px; }
   header .sub { color: var(--muted); font-size: 13px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .card h2 { margin: 0 0 6px; font-size: 15px; }
   .muted { color: var(--muted); }
   .small { font-size: 12.5px; }
   .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .spread { justify-content: space-between; }
-  button { font: inherit; border: 1px solid var(--line); background: var(--raise); color: var(--text); padding: 8px 14px; border-radius: 10px; cursor: pointer; }
-  button:hover:not(:disabled) { border-color: var(--accent2); }
+  button { font: inherit; border: 1px solid var(--line); background: var(--raise); color: var(--text); padding: 9px 16px; border-radius: 12px; cursor: pointer; }
+  button:hover:not(:disabled) { background: var(--hover); }
   button:disabled { opacity: .5; cursor: default; }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-  button.primary:hover:not(:disabled) { background: #6d28d9; }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
   button.big { padding: 12px 22px; font-size: 15px; }
-  button.danger { color: #fca5a5; }
+  button.danger { color: var(--bad-text); }
   button.link { background: none; border: 0; padding: 0; color: var(--accent2); text-decoration: underline; }
-  .choice { display: block; border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
-  .choice:has(input:checked) { border-color: var(--accent2); background: #1c1830; }
+  .choice { display: block; border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; }
+  .choice:hover { background: var(--hover); }
+  .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
   .choice input { margin-right: 8px; accent-color: var(--accent); }
   .tag { font-size: 11px; background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
-  input[type=password], input[type=text] { width: 100%; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  input[type=password], input[type=text] { width: 100%; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+  input[type=password]:focus, input[type=text]:focus { border-color: var(--accent); outline: none; }
+  /* On/off switches */
+  input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: 0 0 38px; width: 38px; height: 22px; border-radius: 999px; background: var(--hover); border: 1px solid var(--line); position: relative; cursor: pointer; margin: 0; }
+  input[type=checkbox]::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+  input[type=checkbox]:checked { background: var(--accent); border-color: var(--accent); }
+  input[type=checkbox]:checked::after { transform: translateX(16px); }
   input:focus-visible, button:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
   .msg { margin-top: 8px; font-size: 13px; }
-  .msg.ok { color: var(--ok); } .msg.bad { color: #fca5a5; }
+  .msg.ok { color: var(--ok); } .msg.bad { color: var(--bad-text); }
   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--faint); margin-right: 6px; }
-  .dot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .dot.on { background: var(--ok); box-shadow: 0 0 0 4px var(--ok-soft); }
   ol.steps { list-style: none; padding: 0; margin: 8px 0 0; }
   ol.steps li { padding: 6px 0; color: var(--faint); display: flex; gap: 10px; align-items: center; }
   ol.steps li.done { color: var(--text); } ol.steps li.now { color: var(--text); font-weight: 600; }
@@ -255,7 +267,14 @@ function openUninstall() {
 }
 
 document.querySelectorAll("input[name=ai]").forEach((r) => (r.onchange = updateChoice));
-$("key").oninput = () => { $("install").disabled = true; $("checkMsg").textContent = ""; };
+// Pasting a whole key checks it by itself (no need to find the Check button).
+let autoCheck = null;
+$("key").oninput = () => {
+  $("install").disabled = true;
+  $("checkMsg").textContent = "";
+  clearTimeout(autoCheck);
+  if (/^[A-Za-z0-9_.-]{30,200}$/.test($("key").value.trim())) autoCheck = setTimeout(() => $("check").click(), 500);
+};
 $("startSetup").onclick = () => openChoose("install");
 $("chooseBack").onclick = () => { go("loading"); refresh(); };
 $("getKey").onclick = () => call("open", { what: "key" });
