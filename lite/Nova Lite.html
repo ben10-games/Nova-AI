@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova Lite</title>
+<!-- Nova Lite: Nova in one file. Open it in any browser, paste a free Gemini key, and chat (pictures too).
+     Nothing to install. Talks only to Google's Gemini API, directly from this page. The full Nova (with the
+     Chrome extension) can also act on websites; this file can't. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://generativelanguage.googleapis.com; base-uri 'none'; form-action 'none'">
+<style>
+  :root { --bg: #0f0f14; --panel: #15151c; --card: #1b1b24; --raise: #23232e; --line: #2a2a35; --text: #ececf1; --muted: #a1a1b0; --faint: #6e6e7e; --accent: #7c3aed; --accent2: #a78bfa; --bad: #fca5a5; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header .logo { width: 28px; height: 28px; }
+  header b { font-size: 16px; }
+  header .sp { flex: 1; }
+  button, select { font: inherit; color: var(--text); background: var(--raise); border: 1px solid var(--line); border-radius: 9px; padding: 6px 12px; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--accent2); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.icon { padding: 6px 9px; }
+  button.link { background: none; border: 0; padding: 0; color: var(--accent2); text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+  .wrap { flex: 1; display: flex; min-height: 0; }
+  aside { width: 240px; border-right: 1px solid var(--line); background: var(--panel); padding: 10px; overflow-y: auto; }
+  aside h3 { margin: 4px 4px 8px; font-size: 13px; color: var(--muted); }
+  aside .chat { display: flex; gap: 4px; align-items: center; }
+  aside .chat button.open { flex: 1; text-align: left; background: none; border-color: transparent; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  aside .chat button.open.on { background: var(--raise); }
+  main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  #messages { flex: 1; overflow-y: auto; padding: 18px 16px; }
+  .inner { max-width: 760px; margin: 0 auto; }
+  .msg { margin: 0 0 16px; }
+  .msg.user { display: flex; justify-content: flex-end; }
+  .msg.user .b { background: var(--raise); border-radius: 14px; padding: 9px 13px; max-width: 85%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.user img { max-width: 160px; max-height: 120px; border-radius: 8px; display: block; margin-top: 6px; }
+  .msg.ai .b { overflow-wrap: anywhere; }
+  .msg.ai .b p { margin: 0 0 10px; }
+  .msg.ai pre { background: #0b0b10; border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 13px; }
+  .msg.ai code { background: var(--raise); padding: 1px 5px; border-radius: 5px; font-size: 13px; }
+  .msg.ai pre code { background: none; padding: 0; }
+  .msg.ai a { color: var(--accent2); }
+  .msg .tools { margin-top: 4px; display: flex; gap: 10px; font-size: 12.5px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .err { color: var(--bad); font-size: 13.5px; margin-top: 6px; }
+  .typing::after { content: "▍"; animation: blink 1s steps(1) infinite; color: var(--accent2); }
+  @keyframes blink { 50% { opacity: 0; } }
+  footer { border-top: 1px solid var(--line); padding: 10px 16px 14px; background: var(--panel); }
+  .box { max-width: 760px; margin: 0 auto; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 8px 10px; }
+  .box:focus-within { border-color: #5b4b8a; }
+  textarea { width: 100%; resize: none; border: 0; background: none; color: var(--text); font: inherit; outline: none; min-height: 24px; max-height: 40vh; }
+  .row { display: flex; align-items: center; gap: 8px; }
+  .row .sp { flex: 1; }
+  .thumbs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  .thumb { position: relative; }
+  .thumb img { height: 54px; border-radius: 6px; display: block; }
+  .thumb span { display: inline-block; background: var(--raise); border-radius: 6px; padding: 4px 8px; font-size: 12.5px; }
+  .thumb button { position: absolute; top: -6px; right: -6px; padding: 0 5px; font-size: 11px; border-radius: 50%; }
+  .hint { color: var(--faint); font-size: 12px; text-align: center; margin-top: 6px; }
+  .setup { max-width: 520px; margin: 6vh auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .setup h1 { margin: 6px 0; font-size: 22px; }
+  .setup input[type=password] { width: 100%; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 6px 0; }
+  .setup ol { padding-left: 20px; color: var(--muted); }
+  .empty { text-align: center; color: var(--muted); margin-top: 12vh; }
+  .empty img { width: 64px; }
+  @media (max-width: 720px) { aside { display: none; } aside.show { display: block; position: fixed; inset: 52px 0 0 0; width: auto; z-index: 5; } }
+</style>
+</head>
+<body>
+<header>
+  <button class="icon" id="toggleChats" title="Chats" aria-label="Chats">☰</button>
+  <img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
+  <b>Nova Lite</b>
+  <span class="sp"></span>
+  <select id="model" title="Which Gemini model">
+    <option value="gemini-3.1-flash-lite">Gemini Flash-Lite (fast, most free uses)</option>
+    <option value="gemini-3.6-flash">Gemini Flash (smarter, ~20 a day)</option>
+  </select>
+  <button id="newChat" title="New chat">＋ New</button>
+  <button class="icon" id="settings" title="Settings" aria-label="Settings">⚙</button>
+</header>
+
+<section class="setup" id="setup" hidden>
+  <img class="logo" alt="" style="width:56px" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
+  <h1>Welcome to Nova Lite</h1>
+  <p class="note">Chat with Nova right here — no install. It uses Google's free Gemini AI, so you need a free key once:</p>
+  <ol>
+    <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--accent2)">Open Google AI Studio</a> and sign in.</li>
+    <li>Click <b>Create API key</b> and copy it.</li>
+    <li>Paste it here:</li>
+  </ol>
+  <input type="password" id="key" placeholder="Your Gemini API key" autocomplete="off" spellcheck="false">
+  <label class="note"><input type="checkbox" id="remember" checked> Remember the key in this browser</label>
+  <div class="row" style="margin-top:12px"><button class="primary" id="saveKey">Start</button><span id="keyMsg" class="note"></span></div>
+  <p class="note" style="margin-top:14px">Privacy: what you write and the pictures you add go to Google's Gemini AI. The key stays in this browser. Don't use Nova Lite on a shared computer with “Remember” on.</p>
+  <p class="note" id="setupCancelRow" hidden><button class="link" id="setupCancel">Back to the chat</button> · <button class="link" id="forget">Forget my key</button></p>
+</section>
+
+<div class="wrap" id="app" hidden>
+  <aside id="chats" hidden>
+    <h3>Chats (saved in this browser)</h3>
+    <div id="chatList"></div>
+    <p class="note" id="noChats">No saved chats yet.</p>
+    <button id="clearChats" style="margin-top:10px" hidden>Delete all chats</button>
+  </aside>
+  <main>
+    <div id="messages"><div class="inner" id="list"></div></div>
+    <footer>
+      <div class="box" id="drop">
+        <div class="thumbs" id="thumbs"></div>
+        <textarea id="input" rows="1" placeholder="Ask Nova anything… (paste or drop a picture too)" aria-label="Message"></textarea>
+        <div class="row">
+          <button class="icon" id="attach" title="Add a picture or text file" aria-label="Add a picture or text file">📎</button>
+          <input type="file" id="file" multiple accept="image/*,.txt,.md,.csv,.json,.html,.css,.js,.py,.java,.c,.cpp,.ts" hidden>
+          <span class="sp"></span>
+          <button class="primary" id="send">Send</button>
+          <button id="stop" hidden>■ Stop</button>
+        </div>
+      </div>
+      <div class="hint">Nova can make mistakes. Enter sends · Shift+Enter for a new line</div>
+    </footer>
+  </main>
+</div>
+
+<script>
+"use strict";
+const API = "https://generativelanguage.googleapis.com/v1beta/models";
+const SYSTEM = "You are Nova, a friendly, helpful assistant. Answer clearly and briefly unless the user asks for detail. Use Markdown for lists and code. If you are not sure, say so.";
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(`nova-lite:${k}`) ?? sessionStorage.getItem(`nova-lite:${k}`); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v, session = false) { try { (session ? sessionStorage : localStorage).setItem(`nova-lite:${k}`, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(`nova-lite:${k}`); sessionStorage.removeItem(`nova-lite:${k}`); } catch {} },
+};
+
+let key = store.get("key", "");
+let chats = store.get("chats", []); // [{ id, title, messages: [{ role, text }] }]  (pictures are not saved)
+let chat = null; // the open chat: { id, title, messages: [{ role, text, images?: [{ mime, data }] }] }
+let pending = []; // attachments for the next message: { kind: "image"|"text", name, mime, data|text, url }
+let controller = null;
+
+// ---------------- Markdown (model output is untrusted: everything is escaped) ----------------
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function inline(s) {
+  return esc(s)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<i>$2</i>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+function markdown(src) {
+  const out = [];
+  const lines = src.replace(/\r/g, "").split("\n");
+  let i = 0, list = null, para = [];
+  const flush = () => { if (para.length) { out.push(`<p>${inline(para.join("\n")).replace(/\n/g, "<br>")}</p>`); para = []; } };
+  const endList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  while (i < lines.length) {
+    const l = lines[i];
+    const fence = /^```(\w*)/.exec(l);
+    if (fence) {
+      flush(); endList();
+      const code = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+      i++;
+      out.push(`<pre><code>${esc(code.join("\n"))}</code></pre>`);
+      continue;
+    }
+    const h = /^(#{1,4})\s+(.*)/.exec(l);
+    // List items need some text: a line like "391." on its own is an answer, not an empty list item.
+    const ul = /^\s*[-*•]\s+(\S.*)/.exec(l);
+    const ol = /^\s*(\d+)[.)]\s+(\S.*)/.exec(l);
+    if (h) { flush(); endList(); out.push(`<p><b>${inline(h[2])}</b></p>`); }
+    else if (ul || ol) {
+      flush();
+      const kind = ul ? "ul" : "ol";
+      if (list !== kind) { endList(); out.push(`<${kind}>`); list = kind; }
+      out.push(ul ? `<li>${inline(ul[1])}</li>` : `<li value="${Number(ol[1])}">${inline(ol[2])}</li>`);
+    } else if (!l.trim()) { flush(); endList(); }
+    else { endList(); para.push(l); }
+    i++;
+  }
+  flush(); endList();
+  return out.join("");
+}
+
+// ---------------- Screens ----------------
+function showSetup(cancellable) {
+  $("setup").hidden = false;
+  $("app").hidden = true;
+  $("setupCancelRow").hidden = !cancellable;
+  $("key").value = "";
+  $("keyMsg").textContent = "";
+  $("key").focus();
+}
+function showApp() {
+  $("setup").hidden = true;
+  $("app").hidden = false;
+  renderChats();
+  if (!chat) newChat();
+  $("input").focus();
+}
+
+async function checkKey(k) {
+  try {
+    const r = await fetch(`${API}?pageSize=1`, { headers: { "x-goog-api-key": k } });
+    if (r.ok) return "";
+    return r.status === 400 || r.status === 403 ? "Google says this key doesn't work. Copy the whole key again." : `Google answered with an error (HTTP ${r.status}). Try again.`;
+  } catch {
+    return "Can't reach Google. Check your internet connection.";
+  }
+}
+$("saveKey").onclick = async () => {
+  const k = $("key").value.replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9_.-]{20,200}$/.test(k)) { $("keyMsg").textContent = "That doesn't look like an API key."; return; }
+  $("saveKey").disabled = true;
+  $("keyMsg").textContent = "Checking…";
+  const problem = await checkKey(k);
+  $("saveKey").disabled = false;
+  if (problem) { $("keyMsg").textContent = problem; return; }
+  key = k;
+  store.del("key");
+  store.set("key", k, !$("remember").checked);
+  showApp();
+};
+$("key").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") $("saveKey").click();
+});
+$("settings").onclick = () => showSetup(true);
+$("setupCancel").onclick = () => (key ? showApp() : null);
+$("forget").onclick = () => { store.del("key"); key = ""; showSetup(false); };
+
+// ---------------- Chats ----------------
+function newChat() {
+  chat = { id: String(Date.now()), title: "New chat", messages: [] };
+  renderMessages();
+  renderChats();
+}
+function saveChat() {
+  if (!chat.messages.length) return;
+  chat.title = (chat.messages.find((m) => m.role === "user")?.text || "Chat").slice(0, 60);
+  // Pictures aren't saved (they'd fill the browser's storage); the chat remembers how many there were.
+  const plain = { id: chat.id, title: chat.title, messages: chat.messages.map((m) => ({ role: m.role, text: m.text, ...(m.shown !== undefined ? { shown: m.shown } : {}), ...(m.images?.length ? { pictures: m.images.length } : {}) })) };
+  chats = [plain, ...chats.filter((c) => c.id !== chat.id)].slice(0, 50);
+  store.set("chats", chats);
+  renderChats();
+}
+function renderChats() {
+  $("chatList").replaceChildren(...chats.map((c) => {
+    const row = document.createElement("div");
+    row.className = "chat";
+    const open = document.createElement("button");
+    open.className = `open ${chat && c.id === chat.id ? "on" : ""}`;
+    open.textContent = c.title;
+    open.onclick = () => { chat = JSON.parse(JSON.stringify(c)); renderMessages(); renderChats(); $("chats").classList.remove("show"); };
+    const del = document.createElement("button");
+    del.className = "icon";
+    del.title = "Delete this chat";
+    del.textContent = "✕";
+    del.onclick = () => { chats = chats.filter((x) => x.id !== c.id); store.set("chats", chats); if (chat && chat.id === c.id) newChat(); renderChats(); };
+    row.append(open, del);
+    return row;
+  }));
+  $("noChats").hidden = chats.length > 0;
+  $("clearChats").hidden = chats.length === 0;
+}
+$("clearChats").onclick = () => { if (confirm("Delete all saved chats?")) { chats = []; store.set("chats", []); newChat(); } };
+$("newChat").onclick = () => { if (controller) controller.abort(); newChat(); $("input").focus(); };
+$("toggleChats").onclick = () => { const a = $("chats"); if (window.innerWidth <= 720) { a.hidden = false; a.classList.toggle("show"); } else a.hidden = !a.hidden; };
+
+function renderMessages() {
+  const list = $("list");
+  list.replaceChildren();
+  if (!chat.messages.length) {
+    list.innerHTML = '<div class="empty"><p style="font-size:20px;color:var(--text)">Hi! What can I help with?</p><p>Ask a question, paste a screenshot of a problem, or drop in a text file.</p></div>';
+    return;
+  }
+  chat.messages.forEach((m) => addMessage(m));
+}
+function addMessage(m) {
+  if ($("list").querySelector(".empty")) $("list").replaceChildren();
+  const el = document.createElement("div");
+  el.className = `msg ${m.role === "user" ? "user" : "ai"}`;
+  const b = document.createElement("div");
+  b.className = "b";
+  if (m.role === "user") {
+    b.textContent = m.shown ?? m.text;
+    if (m.pictures && !m.images) b.append(Object.assign(document.createElement("div"), { className: "note", textContent: `🖼 ${m.pictures} picture(s) (not saved)` }));
+    (m.images || []).forEach((img) => { const i = document.createElement("img"); i.src = `data:${img.mime};base64,${img.data}`; i.alt = "Picture you added"; b.append(i); });
+  } else b.innerHTML = markdown(m.text || "");
+  el.append(b);
+  if (m.role !== "user" && m.text) addTools(el, m.text);
+  $("list").append(el);
+  $("messages").scrollTop = $("messages").scrollHeight;
+  return b;
+}
+function addTools(el, text) {
+  const t = document.createElement("div");
+  t.className = "tools";
+  const copy = document.createElement("button");
+  copy.className = "link";
+  copy.textContent = "Copy";
+  copy.onclick = () => navigator.clipboard.writeText(text).then(() => (copy.textContent = "Copied"));
+  t.append(copy);
+  el.append(t);
+}
+
+// ---------------- Attachments ----------------
+const MAX_FILES = 4;
+async function addFiles(files) {
+  for (const f of files) {
+    if (pending.length >= MAX_FILES) break;
+    if (f.type.startsWith("image/")) pending.push(await shrinkImage(f));
+    else if (f.size <= 200_000) pending.push({ kind: "text", name: f.name, text: await f.text() });
+    else alert(`${f.name} is too big (text files up to 200 KB).`);
+  }
+  renderThumbs();
+}
+// Pictures are made smaller (max 1600 px, JPEG) so they send fast and fit the free tier.
+function shrinkImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      const dataUrl = c.toDataURL("image/jpeg", 0.85);
+      URL.revokeObjectURL(url);
+      resolve({ kind: "image", name: file.name, mime: "image/jpeg", data: dataUrl.split(",")[1], url: dataUrl });
+    };
+    img.onerror = () => reject(new Error("That picture couldn't be read."));
+    img.src = url;
+  });
+}
+function renderThumbs() {
+  $("thumbs").replaceChildren(...pending.map((p, i) => {
+    const t = document.createElement("div");
+    t.className = "thumb";
+    if (p.kind === "image") { const im = document.createElement("img"); im.src = p.url; im.alt = p.name; t.append(im); }
+    else { const s = document.createElement("span"); s.textContent = `📄 ${p.name}`; t.append(s); }
+    const x = document.createElement("button");
+    x.textContent = "✕";
+    x.title = "Remove";
+    x.onclick = () => { pending.splice(i, 1); renderThumbs(); };
+    t.append(x);
+    return t;
+  }));
+}
+$("attach").onclick = () => $("file").click();
+$("file").onchange = () => { addFiles([...$("file").files]); $("file").value = ""; };
+$("input").addEventListener("paste", (e) => { const files = [...e.clipboardData.files]; if (files.length) { e.preventDefault(); addFiles(files); } });
+$("drop").addEventListener("dragover", (e) => e.preventDefault());
+$("drop").addEventListener("drop", (e) => { e.preventDefault(); addFiles([...e.dataTransfer.files]); });
+
+// ---------------- Talking to Gemini ----------------
+function toContents(messages) {
+  return messages.slice(-30).map((m) => ({
+    role: m.role === "user" ? "user" : "model",
+    parts: [{ text: m.text || " " }, ...(m.images || []).map((i) => ({ inline_data: { mime_type: i.mime, data: i.data } }))],
+  }));
+}
+function explain(status, body) {
+  if (status === 400 && /API key/i.test(body)) return { msg: "Your Gemini key doesn't work anymore. Click ⚙ to add a new one.", key: true };
+  if (status === 403) return { msg: "Google refused the key. Click ⚙ to add a new one.", key: true };
+  if (status === 429 && /PerDay|per day/i.test(body)) return { msg: "Today's free limit for this model is used up. Try the other model (top right) or come back tomorrow." };
+  if (status === 429) return { msg: "Google says: too many requests right now.", wait: Number((/"retryDelay":\s*"(\d+)/.exec(body) || [])[1] || 20) };
+  if (status >= 500) return { msg: "Google's AI is having trouble right now. Try again in a moment." };
+  return { msg: `Something went wrong (HTTP ${status}).` };
+}
+async function ask(bubble, attempt = 0) {
+  controller = new AbortController();
+  let text = "";
+  const res = await fetch(`${API}/${$("model").value}:streamGenerateContent?alt=sse`, {
+    method: "POST",
+    signal: controller.signal,
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: toContents(chat.messages),
+      generationConfig: { maxOutputTokens: 4096, ...($("model").value.includes("lite") ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    const why = explain(res.status, body);
+    if (why.wait && attempt === 0 && why.wait <= 60) {
+      bubble.innerHTML = `<span class="note">Google asked Nova to wait ${why.wait} seconds (free tier limit)… trying again then.</span>`;
+      await new Promise((r, j) => { const t = setTimeout(r, why.wait * 1000); controller.signal.addEventListener("abort", () => { clearTimeout(t); j(new DOMException("aborted", "AbortError")); }); });
+      return ask(bubble, 1);
+    }
+    throw Object.assign(new Error(why.msg), { key: why.key });
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  bubble.classList.add("typing");
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const events = buf.split(/\r?\n\r?\n/);
+    buf = events.pop();
+    for (const ev of events) {
+      const line = ev.split(/\r?\n/).find((l) => l.startsWith("data:"));
+      if (!line) continue;
+      try {
+        const d = JSON.parse(line.slice(5));
+        for (const part of d.candidates?.[0]?.content?.parts || []) if (part.text && !part.thought) text += part.text;
+        if (d.candidates?.[0]?.finishReason === "SAFETY") text += "\n\n_(Google stopped this answer for safety reasons.)_";
+      } catch {}
+    }
+    bubble.innerHTML = markdown(text);
+    $("messages").scrollTop = $("messages").scrollHeight;
+  }
+  bubble.classList.remove("typing");
+  return text;
+}
+
+async function send() {
+  const typed = $("input").value.trim();
+  if ((!typed && !pending.length) || controller) return;
+  const files = pending.filter((p) => p.kind === "text");
+  const images = pending.filter((p) => p.kind === "image").map((p) => ({ mime: p.mime, data: p.data }));
+  const text = [typed || (images.length ? "What is in this picture?" : ""), ...files.map((f) => `\n\nFile "${f.name}":\n\`\`\`\n${f.text}\n\`\`\``)].join("");
+  // `shown`: what you typed and the file names (the file contents go to Nova, not on screen).
+  const shown = [typed, files.length ? `📄 ${files.map((f) => f.name).join(", ")}` : ""].filter(Boolean).join("\n");
+  const userMsg = { role: "user", text, shown, ...(images.length ? { images } : {}) };
+  chat.messages.push(userMsg);
+  addMessage(userMsg);
+  $("input").value = "";
+  pending = [];
+  renderThumbs();
+  autosize();
+  const holder = addMessage({ role: "model", text: "" });
+  holder.innerHTML = '<span class="note">Thinking…</span>';
+  $("send").hidden = true;
+  $("stop").hidden = false;
+  try {
+    const answer = await ask(holder);
+    chat.messages.push({ role: "model", text: answer || "(No answer.)" });
+    if (!answer) holder.innerHTML = '<span class="note">(No answer.)</span>';
+    addTools(holder.parentElement, answer);
+    saveChat();
+  } catch (err) {
+    holder.classList.remove("typing");
+    if (err.name === "AbortError") {
+      holder.insertAdjacentHTML("beforeend", '<div class="note">Stopped.</div>');
+      chat.messages.pop();
+    } else {
+      chat.messages.pop(); // the failed question isn't kept, so Retry sends it again
+      holder.innerHTML = "";
+      const e = document.createElement("div");
+      e.className = "err";
+      e.textContent = err.message === "Failed to fetch" ? "Can't reach Google. Check your internet connection." : err.message;
+      holder.append(e);
+      const retry = document.createElement("button");
+      retry.textContent = err.key ? "Add a new key" : "Retry";
+      retry.style.marginTop = "6px";
+      retry.onclick = () => { if (err.key) return showSetup(true); holder.parentElement.remove(); $("list").lastElementChild?.remove(); $("input").value = typed; images.forEach((i) => pending.push({ kind: "image", name: "picture", mime: i.mime, data: i.data, url: `data:${i.mime};base64,${i.data}` })); files.forEach((f) => pending.push(f)); renderThumbs(); send(); };
+      holder.append(retry);
+    }
+  } finally {
+    controller = null;
+    $("send").hidden = false;
+    $("stop").hidden = true;
+    $("input").focus();
+  }
+}
+$("send").onclick = send;
+$("stop").onclick = () => controller && controller.abort();
+$("input").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+function autosize() { const t = $("input"); t.style.height = "auto"; t.style.height = `${Math.min(t.scrollHeight, innerHeight * 0.4)}px`; }
+$("input").addEventListener("input", autosize);
+$("model").value = store.get("model", "gemini-3.1-flash-lite");
+$("model").onchange = () => store.set("model", $("model").value);
+
+if (key) showApp(); else showSetup(false);
+</script>
+</body>
+</html>

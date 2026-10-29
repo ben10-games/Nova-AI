@@ -2,6 +2,12 @@
 
 **An AI helper that lives in Chrome's side panel.** Ask about the page you're on, or tell it what to do — "open remix beatbox on YouTube", "fill this out", "summarize this video" — and it does it in your browser. Works on slow computers too (with Google's free Gemini AI).
 
+## Just want to chat? Nova Lite — one file, nothing to install
+
+Download **[Nova-Lite.html](https://github.com/ben10-games/Nova-AI/releases/latest/download/Nova-Lite.html)** and double-click it: it opens in your browser (any computer, also Chromebooks and school laptops that can't install things). Paste a free Gemini key once ([get one here](https://aistudio.google.com/apikey)) and chat — you can add pictures (screenshots, photos of homework questions) and text files. Chats are saved in that browser only.
+
+Nova Lite can only chat: it can't read or click on other websites. For that, install the full Nova below.
+
 ## Get Nova (Windows or Mac) — about 5 minutes, once
 
 You need **Google Chrome** and a **Google account**.

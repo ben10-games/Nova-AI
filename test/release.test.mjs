@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,6 +38,8 @@ test("release ZIPs: Mac gets the Mac app (executable), Windows the .bat (CRLF), 
     assert.ok(windows.find(([n]) => n === "Nova AI/setup/windows/launch.ps1")[2]);
     assert.ok(!windows.some(([n]) => n.includes("Nova Setup.app/")), "no Mac app for Windows");
     assert.ok(!linux.some(([n]) => n.endsWith(".bat") || n.includes(".app/")));
+    const lite = readFileSync(path.join(out, "Nova-Lite.html"), "utf8");
+    assert.match(lite, /<title>Nova Lite<\/title>/, "Nova Lite as its own download");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

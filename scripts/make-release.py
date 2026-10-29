@@ -3,6 +3,7 @@
   dist/Nova-for-Mac.zip      Nova Setup.app (no Windows files)
   dist/Nova-for-Windows.zip  Nova Setup (Windows).bat (no Mac app)
   dist/Nova-for-Linux.zip    for `node setup/nova-app.mjs`
+  dist/Nova-Lite.html        Nova Lite: chat in one file, nothing to install
 Each unzips to a "Nova AI" folder. The names never change, so the Nova window's Update button and the
 README link (releases/latest/download/...) always find the newest one.
 Run from the project folder: python3 scripts/make-release.py [--out DIR]"""
@@ -57,6 +58,11 @@ def main():
                 info.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(info, data)
         print(f"{zip_name}: {os.path.getsize(path) // 1024} KB")
+    # Nova Lite on its own: one file, nothing to install.
+    lite = next(d for n, _, d in members if n == "lite/Nova Lite.html")
+    with open(os.path.join(out, "Nova-Lite.html"), "wb") as f:
+        f.write(lite)
+    print(f"Nova-Lite.html: {len(lite) // 1024} KB")
     print(f"Version {version}. Upload these as a GitHub release tagged v{version}.")
 
 
