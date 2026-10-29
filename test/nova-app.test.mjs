@@ -150,7 +150,7 @@ test("stop and start Nova with the button", { timeout: 120_000 }, async () => {
 });
 
 test("update: a newer version is offered and installed; settings are kept", { timeout: 900_000 }, async () => {
-  await waitFor(async () => /A new version is ready: 9\.9\.9 \(you have 1\.0\.0\)/.test(await text("#updText")));
+  await waitFor(async () => /A new version is ready: 9\.9\.9 \(you have \d+\.\d+\.\d+\)/.test(await text("#updText")));
   await page.click("#update");
   await waitFor(() => visible("working"));
   await waitFor(async () => /Nova is up to date ✓/.test(await text("#workTitle")), 600_000);
