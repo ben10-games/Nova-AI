@@ -8,7 +8,7 @@
     "start": "next start",
     "start:local": "next start -H 127.0.0.1 -p 3000",
     "lint": "tsc --noEmit",
-    "test": "node --test test/api.test.mjs test/agent.test.mjs test/mcp.test.mjs test/blender.test.mjs test/blender-scene.test.mjs test/browser.test.mjs test/sidepanel.test.mjs test/dev-approval.test.mjs test/setup.test.mjs test/release.test.mjs test/lite.test.mjs",
+    "test": "node --test test/api.test.mjs test/agent.test.mjs test/mcp.test.mjs test/blender.test.mjs test/blender-scene.test.mjs test/browser.test.mjs test/sidepanel.test.mjs test/dev-approval.test.mjs test/setup.test.mjs test/release.test.mjs test/lite.test.mjs test/website.test.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
     "blender:check": "node scripts/blender-check.mjs",
     "browser:token": "node scripts/browser-token.mjs",

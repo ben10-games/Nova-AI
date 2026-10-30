@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://generativelanguage.googleapis.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>Syntaz AI – Chat</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script src="site.js"></script>
+<style>
+body{margin:0}
+.site{--bg:#0e0e10;--side:#141416;--card:#18181b;--raised:#232327;--hover:#2a2a2f;--border:#2a2a2e;--text:#f4f4f5;--muted:#a1a1aa;--accent:#7c3aed;--accent-h:#6d28d9;--soft:#2e1f52;--atext:#c4b5fd;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--shadow:0 12px 32px rgba(0,0,0,.35);background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;min-height:100%;overflow-x:hidden}
+:root[data-theme="light"] .site{--bg:#ffffff;--side:#f7f7f8;--card:#ffffff;--raised:#f1f1f3;--hover:#e9e9ec;--border:#e4e4e7;--text:#18181b;--muted:#52525b;--soft:#ede9fe;--atext:#6d28d9;--ok:#059669;--warn:#b45309;--bad:#dc2626;--shadow:0 12px 32px rgba(24,24,27,.08)}
+.site *{box-sizing:border-box}
+.site a{color:var(--atext)}
+.site a:hover{color:var(--text)}
+.site h1,.site h2,.site h3,.site p{margin:0}
+.site h1,.site h2,.site h3{line-height:1.12;letter-spacing:-0.02em}
+.site :focus-visible{outline:2px solid #d946ef;outline-offset:3px}
+.nav{color:var(--muted)!important;text-decoration:none;padding:8px 12px;border-radius:10px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.nav:hover{background:var(--hover);color:var(--text)!important}
+.nav.on{color:var(--text)!important;background:var(--raised)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:inherit;line-height:1.2}
+.btn-p{background:var(--accent);color:#fff!important}
+.btn-p:hover{background:var(--accent-h)}
+.btn-g{background:var(--raised);color:var(--text)!important;border-color:var(--border)}
+.btn-g:hover{background:var(--hover)}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--raised);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--soft);color:var(--atext);font-size:13px;font-weight:700}
+.muted{color:var(--muted)}
+.num{width:28px;height:28px;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none}
+.field{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:10px 14px;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.sw{width:46px;height:28px;border-radius:999px;border:none;position:relative;cursor:pointer;flex:none}
+.sw span{position:absolute;top:4px;width:20px;height:20px;border-radius:50%;background:#fff}
+.shell{display:flex;height:760px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--bg);position:relative}
+.side{width:260px;flex:none;background:var(--side);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:6px;padding:14px}
+.chatrow{display:flex;align-items:center;gap:6px;border-radius:10px}
+.chatrow.on{background:var(--raised)}
+.chatrow a{flex:1;min-width:0;color:var(--text)!important;text-decoration:none;padding:10px 10px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.del{width:36px;height:36px;border:none;background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.del:hover{background:var(--hover);color:var(--text)}
+.menu-btn{display:none}
+.scrim{display:none}
+.bub-u{align-self:flex-end;max-width:80%;background:var(--accent);color:#fff;padding:10px 15px;border-radius:18px 18px 4px 18px;font-size:15px}
+.ans{align-self:flex-start;max-width:min(720px,92%);display:flex;flex-direction:column;gap:10px;font-size:15px}
+.ans ol,.ans ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.code{background:var(--side);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.code pre{margin:0;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;overflow-x:auto}
+.ic{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:var(--raised);border-radius:6px;padding:1px 6px}
+.sugg{flex:1 1 220px;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;min-height:56px}
+.sugg:hover{background:var(--hover)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.sel{min-height:40px;border-radius:10px;border:1px solid var(--border);background:var(--raised);color:var(--text);padding:6px 10px;font-family:inherit;font-size:14px}
+@media (max-width: 760px){
+.side{position:absolute;left:0;top:0;bottom:0;z-index:5;transform:translateX(-100%);transition:transform .2s;width:84%;max-width:300px}
+.side.open{transform:none}
+.menu-btn{display:inline-flex}
+.scrim.open{display:block;position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:4;border:none}
+}
+.shell{height:min(760px,calc(100vh - 150px));min-height:520px}
+.chatrow button.open{flex:1;min-width:0;text-align:left;background:none;border:none;color:var(--text);padding:10px;font:inherit;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border-radius:10px}
+.chatrow:hover{background:var(--hover)}
+.bub-u{white-space:pre-wrap;overflow-wrap:anywhere}
+.bub-u img{display:block;max-width:220px;max-height:160px;border-radius:10px;margin-top:8px}
+.ans{overflow-wrap:anywhere}
+.ans p{margin:0}
+.ans .code pre code{font:inherit;background:none;padding:0}
+.ans code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:var(--raised);border-radius:6px;padding:1px 6px}
+.ans a{color:var(--atext)}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 14px;border-bottom:1px solid var(--border)}
+.note{color:var(--muted);font-size:13px}
+.err{align-self:flex-start;max-width:560px;display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:14px;border:1px solid var(--bad);background:var(--card)}
+.err strong{color:var(--bad);font-size:14px}
+.thumb{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 6px;border-radius:10px;background:var(--raised);border:1px solid var(--border);font-size:13px;max-width:240px}
+.thumb img{width:32px;height:32px;object-fit:cover;border-radius:6px}
+.thumb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.composer{display:flex;gap:8px;align-items:flex-end;border:1px solid var(--border);background:var(--card);border-radius:16px;padding:6px;transition:border-color .15s}
+.composer:focus-within{border-color:var(--accent)}
+.composer.drag{border-style:dashed;border-color:var(--accent);background:var(--soft)}
+#msg{flex:1;min-width:0;resize:none;border:none;outline:none;background:transparent;color:var(--text);font-family:inherit;font-size:15px;padding:11px 4px;min-height:44px;max-height:40vh}
+.btn:disabled{opacity:.45;cursor:default}
+.sw[aria-checked="true"]{background:var(--accent)}.sw[aria-checked="false"]{background:var(--hover)}
+.sw[aria-checked="true"] span{left:22px}.sw[aria-checked="false"] span{left:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width: 760px){.shell{height:calc(100vh - 190px)}#model-label{display:none}.sel{max-width:46vw}}
+@media (prefers-reduced-motion: reduce){.site *{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+html,body{background:#0e0e10}
+:root{color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="light"] body{background:#ffffff}
+.when-dark{display:contents}.when-light{display:none}
+:root[data-theme="light"] .when-dark{display:none}:root[data-theme="light"] .when-light{display:contents}
+</style>
+</head>
+<body>
+<div class="site">
+<header style="border-bottom: 1px solid var(--border)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 18px; min-height: 44px">
+<svg aria-hidden="true" width="32" height="32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-h)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz AI</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 2px; flex: 1 1 auto">
+<a class="nav" href="features.html">Features</a>
+<a class="nav" href="download.html">Download</a>
+<a class="nav on" href="chat.html" aria-current="page">Chat</a>
+<a class="nav" href="safety.html">Safety</a>
+<a class="nav" href="faq.html">FAQ</a>
+</nav>
+<div style="display: flex; gap: 10px; align-items: center">
+<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch light or dark theme">
+<span class="when-light"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg></span>
+<span class="when-dark"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></span>
+</button>
+<a class="btn btn-p" href="download.html">Download</a>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-direction: column; gap: 14px">
+
+<section id="setup" aria-labelledby="keyh" style="display: flex; justify-content: center; padding: 32px 0 48px" hidden>
+<div class="card" style="width: 100%; max-width: 560px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 id="keyh" style="font-size: 30px; font-weight: 800">Chat with Syntaz</h1>
+<p class="muted">Hi! First, Syntaz needs a free key from Google. It takes about 2 minutes.</p>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+<li style="display: flex; gap: 12px; align-items: flex-start"><span class="num">1</span><span>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> and sign in.</span></li>
+<li style="display: flex; gap: 12px; align-items: flex-start"><span class="num">2</span><span>Click <strong>Create API key</strong> and copy it.</span></li>
+<li style="display: flex; gap: 12px; align-items: flex-start"><span class="num">3</span><span>Paste it here.</span></li>
+</ol>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="k" style="font-weight: 700; font-size: 14px">Your Gemini key</label>
+<div style="display: flex; gap: 8px">
+<input id="k" class="field" type="password" placeholder="Paste your key" autocomplete="off" spellcheck="false">
+<button class="icon-btn" type="button" id="eye" aria-label="Show key"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+<button class="btn btn-g" type="button" id="paste">Paste</button>
+</div>
+<p id="keyMsg" role="status" style="font-size: 14px; font-weight: 600" hidden></p>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<span id="rem" style="font-size: 14px; font-weight: 600">Remember on this device</span>
+<button class="sw" type="button" role="switch" id="remember" aria-checked="true" aria-labelledby="rem"><span></span></button>
+</div>
+<button class="btn btn-p" type="button" id="start" style="width: 100%">Start chatting</button>
+<button class="btn btn-g btn-s" type="button" id="cancelSetup" hidden>Back to my chats</button>
+<p class="muted" style="font-size: 13px">What you write and the pictures you add go to Google's Gemini AI. Your key stays in this browser.</p>
+</div>
+</section>
+
+<div id="app" hidden>
+<h1 class="sr">Chat with Syntaz</h1>
+<div class="shell">
+<button type="button" class="scrim" id="scrim" aria-label="Close chat list"></button>
+<aside class="side" id="side" aria-label="Your chats">
+<button class="btn btn-p" type="button" id="newChat" style="width: 100%">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+<span>New chat</span></button>
+<p class="muted" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 10px 6px 2px">Chats</p>
+<div id="chatList" style="display: flex; flex-direction: column; gap: 2px; overflow-y: auto; min-height: 0"></div>
+<p id="noChats" class="muted" style="font-size: 13px; padding: 4px 6px">Your chats show up here. They're saved only in this browser.</p>
+<div style="flex: 1"></div>
+<button class="btn btn-g btn-s" type="button" id="changeKey">Change key</button>
+</aside>
+
+<section id="chat" aria-label="Conversation" style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border)">
+<button class="icon-btn menu-btn" type="button" id="openMenu" aria-label="Open chat list"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+<button class="icon-btn menu-btn" type="button" id="newChatTop" aria-label="New chat"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+<strong id="chatTitle" style="font-size: 15px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">New chat</strong>
+<label for="model" id="model-label" class="muted" style="font-size: 13px; font-weight: 600">Model</label>
+<select id="model" class="sel">
+<option value="gemini-3.1-flash-lite">Flash-Lite · fast, most free uses</option>
+<option value="gemini-3.6-flash">Flash · smarter, ~20 a day</option>
+</select>
+</div>
+
+<div id="msgs" aria-live="polite" style="flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 18px"></div>
+
+<div style="padding: 12px 16px 14px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px">
+<div id="thumbs" style="display: flex; gap: 8px; flex-wrap: wrap"></div>
+<div class="composer" id="drop">
+<button class="icon-btn" type="button" id="attach" aria-label="Add pictures or text files" style="border: none; background: transparent"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"></path></svg></button>
+<input type="file" id="file" multiple accept="image/*,.txt,.md,.csv,.json,.html,.css,.js,.py,.java,.c,.cpp" hidden>
+<label for="msg" class="sr">Message Syntaz</label>
+<textarea id="msg" rows="1" placeholder="Message Syntaz… (paste or drop pictures here)"></textarea>
+<button class="btn btn-g" type="button" id="stop" hidden>Stop</button>
+<button class="btn btn-p" type="button" id="send" aria-label="Send" disabled><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
+</div>
+<p class="muted" style="font-size: 12px">What you write and the pictures you add go to Google's Gemini AI. Your key stays in this browser.</p>
+</div>
+</section>
+</div>
+</div>
+
+<div class="card" style="padding: 18px 22px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; box-shadow: none">
+<p style="font-weight: 600">Want Syntaz to do things on websites for you? Download the full Syntaz.</p>
+<a class="btn btn-p" href="download.html">Download Syntaz</a>
+</div>
+</main>
+
+<footer style="border-top: 1px solid var(--border); background: var(--side)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px; font-weight: 800">
+<svg aria-hidden="true" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-f)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz AI</span><span class="muted" style="font-weight: 500; font-size: 14px">v1.3.0</span>
+</div>
+<nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14px">
+<a href="changelog.html">What's new</a>
+<a href="safety.html">Safety &amp; privacy</a>
+<a href="https://github.com/ben10-games/Nova-AI">GitHub</a>
+</nav>
+<p class="muted" style="font-size: 14px; flex-basis: 100%">Made by Novaryn · Syntaz AI used to be called Nova AI.</p>
+</div>
+</footer>
+</div>
+<script>
+// The website chat: the same Gemini chat as Syntaz Lite, in the website's design. Everything runs in this
+// browser: the visitor's own key goes only to Google (see the page's Content-Security-Policy).
+"use strict";
+const API = "https://generativelanguage.googleapis.com/v1beta/models";
+const SYSTEM = "You are Syntaz, a friendly, helpful assistant. Answer clearly and briefly unless the user asks for detail. Use Markdown for lists and code. If you are not sure, say so.";
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(`syntaz-site:${k}`) ?? sessionStorage.getItem(`syntaz-site:${k}`); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v, session = false) { try { (session ? sessionStorage : localStorage).setItem(`syntaz-site:${k}`, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(`syntaz-site:${k}`); sessionStorage.removeItem(`syntaz-site:${k}`); } catch {} },
+};
+
+let key = store.get("key", "");
+let chats = store.get("chats", []); // [{ id, title, messages: [{ role, text, shown?, pictures? }] }]  (pictures are not saved)
+let chat = null; // the open chat; its messages may carry images: [{ mime, data }]
+let pending = []; // attachments for the next message: { kind: "image"|"text", name, mime, data|text, url }
+let controller = null;
+
+// ---------------- Markdown (the AI's text is untrusted: everything is escaped) ----------------
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function inline(s) {
+  return esc(s)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+function markdown(src) {
+  const out = [];
+  const lines = src.replace(/\r/g, "").split("\n");
+  let i = 0, list = null, para = [];
+  const flush = () => { if (para.length) { out.push(`<p>${inline(para.join("\n")).replace(/\n/g, "<br>")}</p>`); para = []; } };
+  const endList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  while (i < lines.length) {
+    const l = lines[i];
+    const fence = /^```(\w*)/.exec(l);
+    if (fence) {
+      flush(); endList();
+      const code = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+      i++;
+      out.push(`<div class="code"><div class="code-head"><span class="muted" style="font-size:12px;font-weight:600">${esc(fence[1] || "text")}</span><button class="btn btn-g btn-s copycode" type="button">Copy code</button></div><pre><code>${esc(code.join("\n"))}</code></pre></div>`);
+      continue;
+    }
+    const h = /^(#{1,4})\s+(.*)/.exec(l);
+    // List items need some text: a line like "391." on its own is an answer, not an empty list item.
+    const ul = /^\s*[-*•]\s+(\S.*)/.exec(l);
+    const ol = /^\s*(\d+)[.)]\s+(\S.*)/.exec(l);
+    if (h) { flush(); endList(); out.push(`<p><strong>${inline(h[2])}</strong></p>`); }
+    else if (ul || ol) {
+      flush();
+      const kind = ul ? "ul" : "ol";
+      if (list !== kind) { endList(); out.push(`<${kind}>`); list = kind; }
+      out.push(ul ? `<li>${inline(ul[1])}</li>` : `<li value="${Number(ol[1])}">${inline(ol[2])}</li>`);
+    } else if (!l.trim()) { flush(); endList(); }
+    else { endList(); para.push(l); }
+    i++;
+  }
+  flush(); endList();
+  return out.join("");
+}
+
+// ---------------- Screens ----------------
+function keyMsg(text, bad) {
+  $("keyMsg").hidden = !text;
+  $("keyMsg").textContent = text;
+  $("keyMsg").style.color = bad ? "var(--bad)" : "var(--muted)";
+}
+function showSetup(cancellable) {
+  $("setup").hidden = false;
+  $("app").hidden = true;
+  $("cancelSetup").hidden = !cancellable;
+  $("k").value = "";
+  keyMsg("");
+  $("k").focus();
+}
+function showApp() {
+  $("setup").hidden = true;
+  $("app").hidden = false;
+  renderChats();
+  if (!chat) newChat();
+  $("msg").focus();
+}
+async function checkKey(k) {
+  try {
+    const r = await fetch(`${API}?pageSize=1`, { headers: { "x-goog-api-key": k } });
+    if (r.ok) return "";
+    return r.status === 400 || r.status === 403 ? "This key doesn't work. Copy the whole key again." : `Google answered with an error (HTTP ${r.status}). Try again.`;
+  } catch {
+    return "Can't reach Google. Check your internet connection.";
+  }
+}
+$("start").onclick = async () => {
+  const k = $("k").value.replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9_.-]{20,200}$/.test(k)) return keyMsg("That doesn't look like a Gemini key. Copy the whole key again.", true);
+  $("start").disabled = true;
+  keyMsg("Checking the key…");
+  const problem = await checkKey(k);
+  $("start").disabled = false;
+  if (problem) return keyMsg(problem, true);
+  key = k;
+  store.del("key");
+  store.set("key", k, $("remember").getAttribute("aria-checked") !== "true");
+  showApp();
+};
+$("k").addEventListener("keydown", (e) => { if (e.key === "Enter") $("start").click(); });
+$("k").addEventListener("input", () => keyMsg(""));
+$("eye").onclick = () => {
+  const show = $("k").type === "password";
+  $("k").type = show ? "text" : "password";
+  $("eye").setAttribute("aria-label", show ? "Hide key" : "Show key");
+};
+$("paste").onclick = async () => {
+  try {
+    $("k").value = (await navigator.clipboard.readText()).trim();
+    $("k").focus();
+  } catch {
+    keyMsg("Your browser didn't let Syntaz paste. Click the box and press Ctrl+V (or Cmd+V).");
+  }
+};
+$("remember").onclick = () => $("remember").setAttribute("aria-checked", String($("remember").getAttribute("aria-checked") !== "true"));
+$("cancelSetup").onclick = () => (key ? showApp() : null);
+$("changeKey").onclick = () => { if (controller) controller.abort(); store.del("key"); key = ""; showSetup(false); };
+
+// ---------------- Chats ----------------
+const menu = (open) => { $("side").classList.toggle("open", open); $("scrim").classList.toggle("open", open); };
+$("openMenu").onclick = () => menu(true);
+$("scrim").onclick = () => menu(false);
+function newChat() {
+  chat = { id: String(Date.now()), title: "New chat", messages: [] };
+  renderMessages();
+  renderChats();
+}
+function saveChat() {
+  if (!chat.messages.length) return;
+  chat.title = (chat.messages.find((m) => m.role === "user")?.shown || chat.messages.find((m) => m.role === "user")?.text || "Chat").slice(0, 60);
+  // Pictures aren't saved (they'd fill the browser's storage); the chat remembers how many there were.
+  const plain = { id: chat.id, title: chat.title, messages: chat.messages.map((m) => ({ role: m.role, text: m.text, ...(m.shown !== undefined ? { shown: m.shown } : {}), ...(m.images?.length ? { pictures: m.images.length } : {}) })) };
+  chats = [plain, ...chats.filter((c) => c.id !== chat.id)].slice(0, 50);
+  store.set("chats", chats);
+  renderChats();
+}
+function renderChats() {
+  $("chatList").replaceChildren(...chats.map((c) => {
+    const row = document.createElement("div");
+    row.className = `chatrow${chat && c.id === chat.id ? " on" : ""}`;
+    const open = document.createElement("button");
+    open.type = "button";
+    open.className = "open";
+    open.textContent = c.title;
+    open.onclick = () => { if (controller) controller.abort(); chat = JSON.parse(JSON.stringify(c)); renderMessages(); renderChats(); menu(false); };
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "del";
+    del.setAttribute("aria-label", `Delete chat: ${c.title}`);
+    del.innerHTML = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg>';
+    del.onclick = () => { chats = chats.filter((x) => x.id !== c.id); store.set("chats", chats); if (chat && chat.id === c.id) newChat(); else renderChats(); };
+    row.append(open, del);
+    return row;
+  }));
+  $("noChats").hidden = chats.length > 0;
+  $("chatTitle").textContent = chat && chat.messages.length ? chat.title : "New chat";
+}
+$("newChat").onclick = () => { if (controller) controller.abort(); newChat(); menu(false); $("msg").focus(); };
+$("newChatTop").onclick = () => $("newChat").click();
+
+// Suggestions fill the box (you can still change them); the photo one also opens the picture picker.
+const IDEAS = [
+  { label: "Explain a question from a photo", prompt: "Explain this step by step, like a patient tutor:", pick: true },
+  { label: "Summarize something", prompt: "Summarize this in 5 short bullet points:\n\n" },
+  { label: "Help me write", prompt: "Help me write a short, friendly message to " },
+  { label: "Quiz me", prompt: "Quiz me with 5 questions, one at a time, about " },
+];
+const LOGO = '<svg aria-hidden="true" width="56" height="56" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-w" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-w)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>';
+function renderMessages() {
+  const list = $("msgs");
+  list.replaceChildren();
+  $("chatTitle").textContent = chat.messages.length ? chat.title : "New chat";
+  if (!chat.messages.length) {
+    const w = document.createElement("div");
+    w.className = "welcome";
+    w.style.cssText = "margin:auto;max-width:640px;width:100%;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center";
+    w.innerHTML = `${LOGO}<h2 style="font-size:28px;font-weight:800">Hi! What should Syntaz do?</h2><p class="muted">Tap a suggestion, or just type what you want.</p><div class="ideas" style="display:flex;flex-wrap:wrap;gap:10px;width:100%"></div>`;
+    for (const idea of IDEAS) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "sugg";
+      b.textContent = idea.label;
+      b.onclick = () => {
+        $("msg").value = idea.prompt;
+        autosize();
+        updateSend();
+        $("msg").focus();
+        $("msg").setSelectionRange(idea.prompt.length, idea.prompt.length);
+        if (idea.pick) $("file").click();
+      };
+      w.querySelector(".ideas").append(b);
+    }
+    list.append(w);
+    return;
+  }
+  chat.messages.forEach((m) => addMessage(m));
+}
+function addMessage(m) {
+  const list = $("msgs");
+  list.querySelector(".welcome")?.remove();
+  let body;
+  if (m.role === "user") {
+    body = document.createElement("div");
+    body.className = "bub-u";
+    body.textContent = m.shown ?? m.text;
+    if (m.pictures && !m.images) body.append(Object.assign(document.createElement("div"), { style: "font-size:13px;opacity:.85;margin-top:4px", textContent: `🖼 ${m.pictures} picture(s) (not saved)` }));
+    (m.images || []).forEach((img) => { const i = document.createElement("img"); i.src = `data:${img.mime};base64,${img.data}`; i.alt = "Picture you added"; body.append(i); });
+    list.append(body);
+  } else {
+    const wrap = document.createElement("div");
+    wrap.className = "ans";
+    body = document.createElement("div");
+    body.style.cssText = "display:flex;flex-direction:column;gap:10px";
+    wrap.append(body);
+    if (m.text) { setAnswer(body, m.text); addTools(wrap, m.text); }
+    list.append(wrap);
+  }
+  list.scrollTop = list.scrollHeight;
+  return body;
+}
+/** Shows an answer (Markdown); each code block has its own Copy button. */
+function setAnswer(b, text) {
+  b.innerHTML = markdown(text);
+  b.querySelectorAll(".copycode").forEach((c) => {
+    c.onclick = () => navigator.clipboard.writeText(c.closest(".code").querySelector("code").textContent).then(() => (c.textContent = "Copied ✓"));
+  });
+}
+function addTools(wrap, text) {
+  const row = document.createElement("div");
+  row.style.cssText = "display:flex;gap:6px";
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.className = "btn btn-g btn-s";
+  copy.textContent = "Copy";
+  copy.onclick = () => navigator.clipboard.writeText(text).then(() => (copy.textContent = "Copied ✓"));
+  row.append(copy);
+  wrap.append(row);
+}
+
+// ---------------- Attachments ----------------
+const MAX_FILES = 4;
+async function addFiles(files) {
+  for (const f of files) {
+    if (pending.length >= MAX_FILES) break;
+    try {
+      if (f.type.startsWith("image/")) pending.push(await shrinkImage(f));
+      else if (f.size <= 200_000) pending.push({ kind: "text", name: f.name, text: await f.text() });
+      else alert(`${f.name} is too big (text files up to 200 KB).`);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+  renderThumbs();
+}
+// Pictures are made smaller (max 1600 px, JPEG) so they send fast and fit the free tier.
+function shrinkImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      const dataUrl = c.toDataURL("image/jpeg", 0.85);
+      URL.revokeObjectURL(url);
+      resolve({ kind: "image", name: file.name, mime: "image/jpeg", data: dataUrl.split(",")[1], url: dataUrl });
+    };
+    img.onerror = () => reject(new Error(`${file.name}: that picture couldn't be read.`));
+    img.src = url;
+  });
+}
+function renderThumbs() {
+  queueMicrotask(updateSend);
+  $("thumbs").replaceChildren(...pending.map((p, i) => {
+    const t = document.createElement("div");
+    t.className = "thumb";
+    if (p.kind === "image") { const im = document.createElement("img"); im.src = p.url; im.alt = ""; t.append(im); }
+    const s = document.createElement("span");
+    s.textContent = p.kind === "image" ? p.name : `📄 ${p.name}`;
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "del";
+    x.style.cssText = "width:28px;height:28px";
+    x.textContent = "×";
+    x.setAttribute("aria-label", `Remove ${p.name}`);
+    x.onclick = () => { pending.splice(i, 1); renderThumbs(); };
+    t.append(s, x);
+    return t;
+  }));
+}
+$("attach").onclick = () => $("file").click();
+$("file").onchange = () => { addFiles([...$("file").files]); $("file").value = ""; };
+$("msg").addEventListener("paste", (e) => { const files = [...e.clipboardData.files]; if (files.length) { e.preventDefault(); addFiles(files); } });
+$("drop").addEventListener("dragover", (e) => { e.preventDefault(); $("drop").classList.add("drag"); });
+$("drop").addEventListener("dragleave", () => $("drop").classList.remove("drag"));
+$("drop").addEventListener("drop", (e) => { e.preventDefault(); $("drop").classList.remove("drag"); addFiles([...e.dataTransfer.files]); });
+
+// ---------------- Talking to Gemini ----------------
+function toContents(messages) {
+  return messages.slice(-30).map((m) => ({
+    role: m.role === "user" ? "user" : "model",
+    parts: [{ text: m.text || " " }, ...(m.images || []).map((i) => ({ inline_data: { mime_type: i.mime, data: i.data } }))],
+  }));
+}
+function explain(status, body) {
+  if (status === 400 && /API key/i.test(body)) return { msg: "Your Gemini key doesn't work anymore. Add a new one.", key: true };
+  if (status === 403) return { msg: "Google refused the key. Add a new one.", key: true };
+  if (status === 429 && /PerDay|per day/i.test(body)) return { msg: "Today's free limit for this model is used up. Try the other model (top right) or come back tomorrow." };
+  if (status === 429) return { msg: "Google says: too many requests right now.", wait: Number((/"retryDelay":\s*"(\d+)/.exec(body) || [])[1] || 20) };
+  if (status >= 500) return { msg: "Google's AI is having trouble right now. Try again in a moment." };
+  return { msg: `Something went wrong (HTTP ${status}).` };
+}
+const TYPING = '<div role="status" aria-label="Syntaz is typing" style="display:flex;gap:5px;padding:12px 16px;border-radius:16px;background:var(--card);border:1px solid var(--border);align-self:flex-start"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+async function ask(bubble, attempt = 0) {
+  controller = new AbortController();
+  let text = "";
+  const model = $("model").value;
+  const res = await fetch(`${API}/${model}:streamGenerateContent?alt=sse`, {
+    method: "POST",
+    signal: controller.signal,
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: toContents(chat.messages),
+      generationConfig: { maxOutputTokens: 4096, ...(model.includes("lite") ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    const why = explain(res.status, body);
+    if (why.wait && attempt === 0 && why.wait <= 60) {
+      bubble.innerHTML = `<p class="note">Google asked Syntaz to wait ${why.wait} seconds (free tier limit)… trying again then.</p>`;
+      await new Promise((r, j) => { const t = setTimeout(r, why.wait * 1000); controller.signal.addEventListener("abort", () => { clearTimeout(t); j(new DOMException("aborted", "AbortError")); }); });
+      return ask(bubble, 1);
+    }
+    throw Object.assign(new Error(why.msg), { key: why.key });
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const events = buf.split(/\r?\n\r?\n/);
+    buf = events.pop();
+    for (const ev of events) {
+      const line = ev.split(/\r?\n/).find((l) => l.startsWith("data:"));
+      if (!line) continue;
+      try {
+        const d = JSON.parse(line.slice(5));
+        for (const part of d.candidates?.[0]?.content?.parts || []) if (part.text && !part.thought) text += part.text;
+        if (d.candidates?.[0]?.finishReason === "SAFETY") text += "\n\n_(Google stopped this answer for safety reasons.)_";
+      } catch {}
+    }
+    if (text) bubble.innerHTML = markdown(text);
+    $("msgs").scrollTop = $("msgs").scrollHeight;
+  }
+  setAnswer(bubble, text);
+  return text;
+}
+
+async function send() {
+  const typed = $("msg").value.trim();
+  if ((!typed && !pending.length) || controller) return;
+  const files = pending.filter((p) => p.kind === "text");
+  const images = pending.filter((p) => p.kind === "image").map((p) => ({ mime: p.mime, data: p.data }));
+  const text = [typed || (images.length ? "What is in this picture?" : ""), ...files.map((f) => `\n\nFile "${f.name}":\n\`\`\`\n${f.text}\n\`\`\``)].join("");
+  // `shown`: what you typed and the file names (the file contents go to Syntaz, not on screen).
+  const shown = [typed, files.length ? `📄 ${files.map((f) => f.name).join(", ")}` : ""].filter(Boolean).join("\n");
+  const userMsg = { role: "user", text, shown, ...(images.length ? { images } : {}) };
+  const sent = [...pending];
+  chat.messages.push(userMsg);
+  addMessage(userMsg);
+  if (chat.messages.length === 1) { chat.title = (shown || "Chat").slice(0, 60); $("chatTitle").textContent = chat.title; }
+  $("msg").value = "";
+  pending = [];
+  renderThumbs();
+  autosize();
+  const holder = addMessage({ role: "model", text: "" });
+  holder.innerHTML = TYPING;
+  $("send").hidden = true;
+  $("stop").hidden = false;
+  const open = chat;
+  try {
+    const answer = await ask(holder);
+    open.messages.push({ role: "model", text: answer || "(No answer.)" });
+    if (!answer) holder.innerHTML = '<p class="note">(No answer.)</p>';
+    addTools(holder.parentElement, answer);
+    if (open === chat) saveChat();
+  } catch (err) {
+    open.messages.pop(); // the question isn't kept, so Retry sends it again
+    if (err.name === "AbortError") {
+      holder.innerHTML = '<p class="note">Stopped.</p>';
+    } else {
+      holder.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = "err";
+      box.setAttribute("role", "alert");
+      const s = document.createElement("strong");
+      s.textContent = err.message === "Failed to fetch" ? "Can't reach Google. Check your internet connection." : err.message;
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn btn-g btn-s";
+      retry.style.alignSelf = "flex-start";
+      retry.textContent = err.key ? "Add a new key" : "Retry";
+      retry.onclick = () => {
+        if (err.key) return $("changeKey").click();
+        holder.parentElement.remove();
+        $("msgs").lastElementChild?.remove(); // the question bubble
+        $("msg").value = typed;
+        pending = sent;
+        renderThumbs();
+        send();
+      };
+      box.append(s, retry);
+      holder.append(box);
+    }
+  } finally {
+    controller = null;
+    $("send").hidden = false;
+    $("stop").hidden = true;
+    $("msg").focus();
+  }
+}
+$("send").onclick = send;
+$("stop").onclick = () => controller && controller.abort();
+$("msg").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+function autosize() { const t = $("msg"); t.style.height = "auto"; t.style.height = `${Math.min(t.scrollHeight, innerHeight * 0.4)}px`; }
+function updateSend() { $("send").disabled = !$("msg").value.trim() && !pending.length; }
+$("msg").addEventListener("input", () => { autosize(); updateSend(); });
+$("model").value = store.get("model", "gemini-3.1-flash-lite");
+$("model").onchange = () => store.set("model", $("model").value);
+
+if (key) showApp(); else showSetup(false);
+</script>
+</body>
+</html>

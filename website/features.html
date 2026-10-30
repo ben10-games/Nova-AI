@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntaz AI – Features</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script src="site.js"></script>
+<style>
+body{margin:0}
+.site{--bg:#0e0e10;--side:#141416;--card:#18181b;--raised:#232327;--hover:#2a2a2f;--border:#2a2a2e;--text:#f4f4f5;--muted:#a1a1aa;--accent:#7c3aed;--accent-h:#6d28d9;--soft:#2e1f52;--atext:#c4b5fd;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--shadow:0 12px 32px rgba(0,0,0,.35);background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;min-height:100%;overflow-x:hidden}
+:root[data-theme="light"] .site{--bg:#ffffff;--side:#f7f7f8;--card:#ffffff;--raised:#f1f1f3;--hover:#e9e9ec;--border:#e4e4e7;--text:#18181b;--muted:#52525b;--soft:#ede9fe;--atext:#6d28d9;--ok:#059669;--warn:#b45309;--bad:#dc2626;--shadow:0 12px 32px rgba(24,24,27,.08)}
+.site *{box-sizing:border-box}
+.site a{color:var(--atext)}
+.site a:hover{color:var(--text)}
+.site h1,.site h2,.site h3,.site p{margin:0}
+.site h1,.site h2,.site h3{line-height:1.12;letter-spacing:-0.02em}
+.site :focus-visible{outline:2px solid #d946ef;outline-offset:3px}
+.nav{color:var(--muted)!important;text-decoration:none;padding:8px 12px;border-radius:10px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.nav:hover{background:var(--hover);color:var(--text)!important}
+.nav.on{color:var(--text)!important;background:var(--raised)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:inherit;line-height:1.2}
+.btn-p{background:var(--accent);color:#fff!important}
+.btn-p:hover{background:var(--accent-h)}
+.btn-g{background:var(--raised);color:var(--text)!important;border-color:var(--border)}
+.btn-g:hover{background:var(--hover)}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--raised);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--soft);color:var(--atext);font-size:13px;font-weight:700}
+.muted{color:var(--muted)}
+.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:var(--raised);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+.ico{width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--atext);display:flex;align-items:center;justify-content:center;flex:none}
+.row{display:flex;flex-wrap:wrap;gap:32px;align-items:center;padding:40px 0;border-bottom:1px solid var(--border)}
+.txt{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.mock{flex:1 1 420px;min-width:0;background:var(--side);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.bub-u{align-self:flex-end;max-width:85%;background:var(--accent);color:#fff;padding:9px 14px;border-radius:16px 16px 4px 16px;font-size:14px}
+.bub-a{align-self:flex-start;max-width:90%;background:var(--card);border:1px solid var(--border);padding:10px 14px;border-radius:16px 16px 16px 4px;font-size:14px}
+.chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--raised);border:1px solid var(--border);font-size:13px;font-weight:600}
+@media (prefers-reduced-motion: reduce){.site *{animation:none!important;transition:none!important}}
+
+[hidden]{display:none!important}
+html,body{background:#0e0e10}
+:root{color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="light"] body{background:#ffffff}
+.when-dark{display:contents}.when-light{display:none}
+:root[data-theme="light"] .when-dark{display:none}:root[data-theme="light"] .when-light{display:contents}
+</style>
+</head>
+<body>
+<div class="site">
+<header style="border-bottom: 1px solid var(--border)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 18px; min-height: 44px">
+<svg aria-hidden="true" width="32" height="32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-h)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz AI</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 2px; flex: 1 1 auto">
+<a class="nav on" href="features.html" aria-current="page">Features</a>
+<a class="nav" href="download.html">Download</a>
+<a class="nav" href="chat.html">Chat</a>
+<a class="nav" href="safety.html">Safety</a>
+<a class="nav" href="faq.html">FAQ</a>
+</nav>
+<div style="display: flex; gap: 10px; align-items: center">
+<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch light or dark theme">
+<span class="when-light"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg></span>
+<span class="when-dark"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></span>
+</button>
+<a class="btn btn-p" href="download.html">Download</a>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1100px; margin: 0 auto; padding: 72px 24px 48px">
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 680px; padding-bottom: 16px">
+<span class="pill" style="align-self: flex-start">Features</span>
+<h1 style="font-size: clamp(36px, 5vw, 52px); font-weight: 800">Everything Syntaz can do</h1>
+<p class="muted" style="font-size: 18px">Syntaz lives in Chrome's side panel, right next to the website you're on.</p>
+</div>
+
+<section class="row" aria-labelledby="f1">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg></div>
+<h2 id="f1" style="font-size: 28px">Knows the page you're on</h2>
+<p class="muted">No copy and paste. Just ask "what does this page say?", "explain this" or "summarize this". Syntaz also shows suggestions that fit the page.</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><span class="chip">Summarize this page</span><span class="chip">Explain the hard words</span><span class="chip">Quiz me on it</span></div>
+<div class="bub-u">summarize this</div>
+<div class="bub-a">This article is about how volcanoes form. Three key points: …</div>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f2">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 7-6 2-2 6z"></path></svg></div>
+<h2 id="f2" style="font-size: 28px">Does things on websites for you</h2>
+<p class="muted">Syntaz can click, type, fill in forms, pick from lists, scroll, and search the web or a site like YouTube. Say "open remix beatbox on YouTube" and it opens the video. A violet Syntaz cursor shows on the page while it works.</p>
+</div>
+<div class="mock" aria-hidden="true" style="position: relative; min-height: 200px">
+<div style="height: 36px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); padding: 7px 16px; font-size: 14px" class="muted">Search…</div>
+<div style="display: flex; gap: 12px; padding: 8px; border-radius: 12px; background: rgba(124,58,237,.18)"><div style="width: 110px; height: 62px; border-radius: 8px; background: var(--raised)"></div><strong style="font-size: 14px">Remix Beatbox Battle</strong></div>
+<div style="position: absolute; left: 150px; top: 92px; display: flex; align-items: center; gap: 6px">
+<svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 3l15 7.5-6.5 1.8L10.7 19z" fill="#7c3aed" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+<span style="background: #7c3aed; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px">Syntaz</span>
+</div>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f3">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V6a1.5 1.5 0 0 1 3 0v4M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V12M16 9.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-3l-2.5-4a1.5 1.5 0 0 1 2.5-1.6L7 14"></path></svg></div>
+<h2 id="f3" style="font-size: 28px">Asks first, or goes hands-off</h2>
+<p class="muted">Normally every click or keystroke needs your OK. Turn on hands-off mode and Syntaz does a whole task without asking each step. It still always asks before submitting, sending, buying or deleting.</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px">
+<strong style="font-size: 14px">Hands-off mode</strong>
+<span style="width: 44px; height: 26px; border-radius: 999px; background: var(--accent); position: relative; display: inline-block"><span style="position: absolute; right: 3px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff"></span></span>
+</div>
+<div style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<span class="muted" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em">Syntaz wants to</span>
+<span style="font-size: 14px; font-weight: 600">Click "Send"</span>
+<div style="display: flex; gap: 8px"><span class="btn btn-p" style="min-height: 34px; padding: 5px 14px; font-size: 13px">Allow</span><span class="btn btn-g" style="min-height: 34px; padding: 5px 14px; font-size: 13px">Deny</span></div>
+</div>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f4">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg></div>
+<h2 id="f4" style="font-size: 28px">Do it for me</h2>
+<p class="muted">One tap and Syntaz does what the page needs, for example answering a question. It fills things in, but it never submits by itself. You check it and press the button.</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; font-weight: 600">Q3. What is 15% of 80?</span>
+<span style="border: 1px solid var(--accent); border-radius: 10px; padding: 8px 12px; font-size: 14px">12</span>
+</div>
+<span class="btn btn-p" style="align-self: flex-start">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+<span>Do it for me</span></span>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f5">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-9 8"></path></svg></div>
+<h2 id="f5" style="font-size: 28px">Sees pictures and graphs</h2>
+<p class="muted">Ask about a chart, a diagram or a photo on the page. This works when the AI model you use can see images.</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="display: flex; align-items: flex-end; gap: 10px; height: 110px; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 14px">
+<span style="flex: 1; height: 40%; background: var(--soft); border-radius: 6px 6px 0 0"></span><span style="flex: 1; height: 65%; background: var(--soft); border-radius: 6px 6px 0 0"></span><span style="flex: 1; height: 90%; background: var(--accent); border-radius: 6px 6px 0 0"></span><span style="flex: 1; height: 55%; background: var(--soft); border-radius: 6px 6px 0 0"></span>
+</div>
+<div class="bub-u">which month was the highest?</div>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f6">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M7 11h4M13 11h4M7 15h7"></path></svg></div>
+<h2 id="f6" style="font-size: 28px">"Hears" videos</h2>
+<p class="muted">Syntaz reads a YouTube video's transcript, so you can ask "what did they just say?" It can't hear music.</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="height: 120px; border-radius: 12px; background: linear-gradient(135deg, var(--soft), var(--raised)); display: flex; align-items: flex-end; padding: 10px"><span style="background: rgba(0,0,0,.65); color: #fff; font-size: 13px; padding: 3px 8px; border-radius: 6px">…and that's why the sky looks blue.</span></div>
+<div class="bub-u">what did they just say?</div>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f7">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"></path></svg></div>
+<h2 id="f7" style="font-size: 28px">Shortcuts</h2>
+<p class="muted">Type <span class="kbd">/summarize</span>, <span class="kbd">/explain</span> or <span class="kbd">/translate</span>. Press <span class="kbd">Alt+N</span> to open Syntaz, or right-click anything and choose "Ask Syntaz about this".</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<span style="padding: 8px 12px; border-radius: 8px; background: var(--soft); color: var(--atext); font-weight: 600">/summarize</span>
+<span style="padding: 8px 12px">/explain</span>
+<span style="padding: 8px 12px">/translate</span>
+</div>
+<div style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 14px; align-self: flex-start">Ask Syntaz about this</div>
+</div>
+</section>
+
+<section class="row" aria-labelledby="f8" style="border-bottom: none">
+<div class="txt">
+<div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18"></path></svg></div>
+<h2 id="f8" style="font-size: 28px">The Syntaz window</h2>
+<p class="muted">Find Syntaz on your desktop and in the Start menu or Applications. Start or stop it, change the AI, update with one click, or uninstall.</p>
+</div>
+<div class="mock" aria-hidden="true">
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 10px; height: 10px; border-radius: 50%; background: var(--ok)"></span><strong style="font-size: 15px">Syntaz is running</strong></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><span class="btn btn-g" style="min-height: 38px; padding: 6px 14px; font-size: 14px">Stop</span><span class="btn btn-g" style="min-height: 38px; padding: 6px 14px; font-size: 14px">Change AI</span><span class="btn btn-p" style="min-height: 38px; padding: 6px 14px; font-size: 14px">Update</span><span class="btn btn-g" style="min-height: 38px; padding: 6px 14px; font-size: 14px">Uninstall</span></div>
+<span class="muted" style="font-size: 13px">AI: Google Gemini (free)</span>
+</div>
+</section>
+
+<div class="card" style="margin-top: 32px; padding: 28px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 6px"><h2 style="font-size: 24px">Choose your AI</h2><p class="muted">Free Google Gemini works even on slow computers. LM Studio runs a model on your own computer, private and offline, but needs a strong graphics card.</p></div>
+<a class="btn btn-p" href="download.html">Get Syntaz</a>
+</div>
+</main>
+
+<footer style="border-top: 1px solid var(--border); background: var(--side)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px; font-weight: 800">
+<svg aria-hidden="true" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-f)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz AI</span><span class="muted" style="font-weight: 500; font-size: 14px">v1.3.0</span>
+</div>
+<nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14px">
+<a href="changelog.html">What's new</a>
+<a href="safety.html">Safety &amp; privacy</a>
+<a href="https://github.com/ben10-games/Nova-AI">GitHub</a>
+</nav>
+<p class="muted" style="font-size: 14px; flex-basis: 100%">Made by Novaryn · Syntaz AI used to be called Nova AI.</p>
+</div>
+</footer>
+</div>
+</body>
+</html>

@@ -21,7 +21,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOP = "Syntaz AI"
-EVERYWHERE = ("test/",)  # not needed to run Syntaz
+EVERYWHERE = ("test/", "website/", ".github/")  # not needed to run Syntaz
 ONLY_WINDOWS = ("Syntaz Setup (Windows).bat", "setup/windows/")
 ONLY_MAC = ("Syntaz Setup.app/",)
 TARGETS = {

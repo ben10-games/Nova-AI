@@ -211,6 +211,10 @@ Clicking the Syntaz icon opens a side panel that stays open while you switch tab
 
 The README links (`releases/latest/download/...`) always give the newest release, and the **Update** button in friends' Syntaz window finds it by the same names.
 
+### The website
+
+`website/` is the Syntaz AI website (Home, Features, Download, Chat, Safety, FAQ, What's new): plain HTML, no build step. Its Chat works like Syntaz Lite, in the browser with the visitor's own Gemini key. On every push to `main` that changes it, `.github/workflows/website.yml` publishes it to GitHub Pages (one-time setup: repo **Settings → Pages → Source: GitHub Actions**). Test it with `node --test test/website.test.mjs` (`NOVA_SITE_SHOTS=<folder>` saves screenshots). It isn't part of the release downloads.
+
 ### Comparing models (benchmark)
 
 `npm run benchmark` runs realistic tasks with the model loaded in LM Studio, in a separate headless Chrome on local test pages (your running Syntaz and Chrome are not touched), and checks the real pages: `npm run benchmark -- browser math vision --runs 2 --verbose`. It needs a production build (`NOVA_NEXT_DIST_DIR=.next-test npm run build` while `npm run dev` is running, then the same variable for the benchmark).

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntaz AI – Your AI helper, right inside Chrome</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script src="site.js"></script>
+<style>
+body{margin:0}
+.site{--bg:#0e0e10;--side:#141416;--card:#18181b;--raised:#232327;--hover:#2a2a2f;--border:#2a2a2e;--text:#f4f4f5;--muted:#a1a1aa;--accent:#7c3aed;--accent-h:#6d28d9;--soft:#2e1f52;--atext:#c4b5fd;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--shadow:0 12px 32px rgba(0,0,0,.35);background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;min-height:100%;overflow-x:hidden}
+:root[data-theme="light"] .site{--bg:#ffffff;--side:#f7f7f8;--card:#ffffff;--raised:#f1f1f3;--hover:#e9e9ec;--border:#e4e4e7;--text:#18181b;--muted:#52525b;--soft:#ede9fe;--atext:#6d28d9;--ok:#059669;--warn:#b45309;--bad:#dc2626;--shadow:0 12px 32px rgba(24,24,27,.08)}
+.site *{box-sizing:border-box}
+.site a{color:var(--atext)}
+.site a:hover{color:var(--text)}
+.site h1,.site h2,.site h3,.site p{margin:0}
+.site h1,.site h2,.site h3{line-height:1.12;letter-spacing:-0.02em}
+.site :focus-visible{outline:2px solid #d946ef;outline-offset:3px}
+.nav{color:var(--muted)!important;text-decoration:none;padding:8px 12px;border-radius:10px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.nav:hover{background:var(--hover);color:var(--text)!important}
+.nav.on{color:var(--text)!important;background:var(--raised)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:inherit;line-height:1.2}
+.btn-p{background:var(--accent);color:#fff!important}
+.btn-p:hover{background:var(--accent-h)}
+.btn-g{background:var(--raised);color:var(--text)!important;border-color:var(--border)}
+.btn-g:hover{background:var(--hover)}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--raised);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--soft);color:var(--atext);font-size:13px;font-weight:700}
+.muted{color:var(--muted)}
+.ico{width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--atext);display:flex;align-items:center;justify-content:center;flex:none}
+.hero{display:flex;flex-wrap:wrap;gap:48px;align-items:center;padding:72px 0 56px}
+.hero .txt{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:18px}
+.grad{background:linear-gradient(135deg,#8b9cff,#d946ef);-webkit-background-clip:text;background-clip:text;color:transparent}
+.demo{flex:1 1 380px;min-width:0;max-width:440px;margin:0 auto;background:var(--side);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.demo-top{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);font-weight:800;font-size:15px}
+.demo-top .st{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:2px 10px}
+.demo-top .st i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.demo-body{padding:16px;display:flex;flex-direction:column;gap:10px;min-height:340px}
+.bub-u{align-self:flex-end;max-width:85%;background:var(--accent);color:#fff;padding:9px 14px;border-radius:16px 16px 4px 16px;font-size:14px}
+.bub-a{align-self:flex-start;max-width:92%;background:var(--card);border:1px solid var(--border);padding:10px 14px;border-radius:16px 16px 16px 4px;font-size:14px}
+.step{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:13px}
+.step b{font-weight:700}.step span{color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ok{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,transparent)}
+.demo-body>*{opacity:0;animation:pop .45s ease forwards}
+.demo-body>:nth-child(1){animation-delay:.3s}.demo-body>:nth-child(2){animation-delay:1.3s}.demo-body>:nth-child(3){animation-delay:2.1s}.demo-body>:nth-child(4){animation-delay:2.9s}.demo-body>:nth-child(5){animation-delay:3.9s}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.demo-body>*{opacity:1;animation:none}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.feat{padding:22px;display:flex;flex-direction:column;gap:10px}
+.feat h3{font-size:19px}
+.ways{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.way{padding:26px;display:flex;flex-direction:column;gap:12px}
+.way h3{font-size:22px}
+.way ul{margin:0;padding-left:20px;color:var(--muted);display:flex;flex-direction:column;gap:4px;flex:1}
+.sec{padding:56px 0;display:flex;flex-direction:column;gap:24px}
+.sec>h2{font-size:clamp(28px,4vw,38px);font-weight:800}
+.safe{display:flex;flex-wrap:wrap;gap:10px}
+.safe span{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--border);font-size:14px;font-weight:600}
+.safe span::before{content:"✓";color:var(--ok);font-weight:800}
+[hidden]{display:none!important}
+html,body{background:#0e0e10}
+:root{color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="light"] body{background:#ffffff}
+.when-dark{display:contents}.when-light{display:none}
+:root[data-theme="light"] .when-dark{display:none}:root[data-theme="light"] .when-light{display:contents}
+</style>
+</head>
+<body>
+<div class="site">
+<header style="border-bottom: 1px solid var(--border)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 18px; min-height: 44px">
+<svg aria-hidden="true" width="32" height="32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-h)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz AI</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 2px; flex: 1 1 auto">
+<a class="nav" href="features.html">Features</a>
+<a class="nav" href="download.html">Download</a>
+<a class="nav" href="chat.html">Chat</a>
+<a class="nav" href="safety.html">Safety</a>
+<a class="nav" href="faq.html">FAQ</a>
+</nav>
+<div style="display: flex; gap: 10px; align-items: center">
+<button class="icon-btn" type="button" data-theme-toggle aria-label="Switch light or dark theme">
+<span class="when-light"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg></span>
+<span class="when-dark"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></span>
+</button>
+<a class="btn btn-p" href="download.html">Download</a>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1160px; margin: 0 auto; padding: 0 24px 48px">
+
+<section class="hero" aria-labelledby="hero">
+<div class="txt">
+<span class="pill" style="align-self: flex-start">Free · Version 1.3.0</span>
+<h1 id="hero" style="font-size: clamp(40px, 6vw, 64px); font-weight: 800">Your AI helper, <span class="grad">right inside Chrome</span></h1>
+<p class="muted" style="font-size: 19px; max-width: 560px">Ask about the page you're on, or tell Syntaz what to do: "open lofi on YouTube", "fill this out", "summarize this video". It does it in your browser, and asks before anything important.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a class="btn btn-p" href="download.html" style="min-height: 50px; padding: 12px 24px; font-size: 16px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg><span>Download Syntaz</span></a>
+<a class="btn btn-g" href="chat.html" style="min-height: 50px; padding: 12px 24px; font-size: 16px">Chat now, no download</a>
+</div>
+<p class="muted" style="font-size: 14px">Windows and Mac. Works on slow computers too, with Google's free Gemini AI.</p>
+</div>
+
+<div class="demo" aria-label="Example: Syntaz in Chrome's side panel">
+<div class="demo-top">
+<svg aria-hidden="true" width="22" height="22" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-d)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz</span><span class="st"><i></i>Ready</span>
+</div>
+<div class="demo-body">
+<div class="bub-u">open remix beatbox on youtube</div>
+<div class="step"><b>Search YouTube</b><span>remix beatbox</span><em class="ok">done</em></div>
+<div class="step"><b>Open</b><span>Remix Beatbox Battle</span><em class="ok">done</em></div>
+<div class="bub-a">Done! I opened "Remix Beatbox Battle" on YouTube. It's playing now.</div>
+<div class="bub-u">what did he just say?</div>
+</div>
+</div>
+</section>
+
+<section class="sec" aria-labelledby="can">
+<h2 id="can">What Syntaz can do</h2>
+<div class="grid">
+<div class="card feat"><div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg></div><h3>Knows the page you're on</h3><p class="muted">Ask "summarize this" or "explain this". No copy and paste.</p></div>
+<div class="card feat"><div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-6 1.5L10 20z"></path></svg></div><h3>Does things for you</h3><p class="muted">Clicks, types, searches and opens pages. "Open lofi on YouTube" just happens.</p></div>
+<div class="card feat"><div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"></path><path d="M9 12l2 2 4-4"></path></svg></div><h3>Asks first</h3><p class="muted">You press Allow for each step, or turn on hands-off. Submitting, buying and deleting always ask.</p></div>
+<div class="card feat"><div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="11" r="2"></circle><path d="M21 16l-5-5-8 8"></path></svg></div><h3>Sees pictures</h3><p class="muted">Graphs, charts and photos on the page, or ones you add.</p></div>
+<div class="card feat"><div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"></path><rect x="3" y="14" width="4" height="6" rx="1"></rect><rect x="17" y="14" width="4" height="6" rx="1"></rect></svg></div><h3>"Hears" videos</h3><p class="muted">Reads a YouTube video's transcript: "what did he just say?"</p></div>
+<div class="card feat"><div class="ico"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path></svg></div><h3>Do it for me</h3><p class="muted">One tap and Syntaz works out what the page needs.</p></div>
+</div>
+<a href="features.html" style="font-weight: 700; align-self: flex-start">See all features →</a>
+</section>
+
+<section class="sec" aria-labelledby="ways">
+<h2 id="ways">Three ways to use it</h2>
+<div class="ways">
+<div class="card way"><span class="pill" style="align-self: flex-start">Most powerful</span><h3>Syntaz for Chrome</h3><ul><li>Lives in Chrome's side panel</li><li>Reads and acts on websites</li><li>Windows and Mac, about 5 minutes to set up</li></ul><a class="btn btn-p" href="download.html">Download</a></div>
+<div class="card way"><span class="pill" style="align-self: flex-start">Nothing to install</span><h3>Syntaz Lite</h3><ul><li>One file you double-click</li><li>Chat with pictures and text files</li><li>Works on Chromebooks and school laptops</li></ul><a class="btn btn-g" href="https://github.com/ben10-games/Nova-AI/releases/latest/download/Syntaz-Lite.html">Download Syntaz Lite</a></div>
+<div class="card way"><span class="pill" style="align-self: flex-start">Right here</span><h3>Chat on this website</h3><ul><li>Nothing to download at all</li><li>Uses your own free Gemini key</li><li>Your chats stay in your browser</li></ul><a class="btn btn-g" href="chat.html">Open the chat</a></div>
+</div>
+</section>
+
+<section class="sec" aria-labelledby="safeh">
+<h2 id="safeh">Safe by design</h2>
+<div class="safe"><span>Never reads passwords or payment fields</span><span>Never solves CAPTCHAs</span><span>Asks before submitting, buying or deleting</span><span>Stop works at any time</span><span>Your key stays on your computer</span></div>
+<a href="safety.html" style="font-weight: 700; align-self: flex-start">Read about safety and privacy →</a>
+</section>
+
+<div class="card" style="margin-top: 16px; padding: 32px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 6px"><h2 style="font-size: 26px">Ready to try it?</h2><p class="muted">Free, and about 5 minutes to set up.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px"><a class="btn btn-p" href="download.html">Download Syntaz</a><a class="btn btn-g" href="faq.html">Questions? Read the FAQ</a></div>
+</div>
+</main>
+
+<footer style="border-top: 1px solid var(--border); background: var(--side)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px; font-weight: 800">
+<svg aria-hidden="true" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><linearGradient id="g-f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b9cff"></stop><stop offset="1" stop-color="#d946ef"></stop></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#g-f)"></rect><path d="M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path fill="#fff" d="M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+<span>Syntaz AI</span><span class="muted" style="font-weight: 500; font-size: 14px">v1.3.0</span>
+</div>
+<nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14px">
+<a href="changelog.html">What's new</a>
+<a href="safety.html">Safety &amp; privacy</a>
+<a href="https://github.com/ben10-games/Nova-AI">GitHub</a>
+</nav>
+<p class="muted" style="font-size: 14px; flex-basis: 100%">Made by Novaryn · Syntaz AI used to be called Nova AI.</p>
+</div>
+</footer>
+</div>
+</body>
+</html>
