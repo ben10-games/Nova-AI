@@ -4,14 +4,11 @@
   dist/Syntaz-for-Windows.zip  Syntaz Setup (Windows).bat (no Mac app)
   dist/Syntaz-for-Linux.zip    for `node setup/nova-app.mjs`
   dist/Syntaz-Lite.html        Syntaz Lite: chat in one file, nothing to install
-  dist/Nova-for-*.zip          the same ZIPs under the old names: Syntaz used to be "Nova AI", and older
-                               installs look for these names when they check for updates
 Each unzips to a "Syntaz AI" folder. The names never change, so the Syntaz window's Update button and the
 README link (releases/latest/download/...) always find the newest one.
 Run from the project folder: python3 scripts/make-release.py [--out DIR]"""
 import io
 import json
-import shutil
 import os
 import stat
 import subprocess
@@ -61,9 +58,10 @@ def main():
                 info.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(info, data)
         print(f"{zip_name}: {os.path.getsize(path) // 1024} KB")
-    # Older installs (from before the rename to Syntaz) look for the old names: same files, old names.
-    for zip_name in TARGETS:
-        shutil.copyfile(os.path.join(out, zip_name), os.path.join(out, zip_name.replace("Syntaz-", "Nova-")))
+    # Downloads under the old name (Syntaz used to be "Nova AI") from earlier builds: not uploaded any more.
+    for old in ("Nova-for-Mac.zip", "Nova-for-Windows.zip", "Nova-for-Linux.zip", "Nova-Lite.html"):
+        if os.path.exists(os.path.join(out, old)):
+            os.remove(os.path.join(out, old))
     # Syntaz Lite on its own: one file, nothing to install.
     lite = next(d for n, _, d in members if n == "lite/Syntaz Lite.html")
     with open(os.path.join(out, "Syntaz-Lite.html"), "wb") as f:

@@ -209,7 +209,7 @@ Clicking the Syntaz icon opens a side panel that stays open while you switch tab
 
 1. Raise `"version"` in `package.json` (e.g. 1.0.0 → 1.0.1), commit and push.
 2. `npm run release` — makes `dist/Syntaz-for-Windows.zip`, `dist/Syntaz-for-Mac.zip` and `dist/Syntaz-for-Linux.zip` from the committed project (Windows gets only the Windows setup, Mac only the Mac app).
-3. On GitHub: **Releases → Draft a new release** → tag `v1.0.1` (the same number) → drag in **everything in `dist`** (the Syntaz ZIPs, `Syntaz-Lite.html`, and the same ZIPs under the old `Nova-for-…` names, which installs from before the rename use to find their update) → **Publish release**.
+3. On GitHub: **Releases → Draft a new release** → tag `v1.0.1` (the same number) → drag in the four files in `dist` (`Syntaz-for-Windows.zip`, `Syntaz-for-Mac.zip`, `Syntaz-for-Linux.zip`, `Syntaz-Lite.html`) → **Publish release**.
 
 The README links (`releases/latest/download/...`) always give the newest release, and the **Update** button in friends' Syntaz window finds it by the same names.
 

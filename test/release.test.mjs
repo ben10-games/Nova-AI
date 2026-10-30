@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,8 +38,7 @@ test("release ZIPs: Mac gets the Mac app (executable), Windows the .bat (CRLF), 
     assert.ok(windows.find(([n]) => n === "Syntaz AI/setup/windows/launch.ps1")[2]);
     assert.ok(!windows.some(([n]) => n.includes("Syntaz Setup.app/")), "no Mac app for Windows");
     assert.ok(!linux.some(([n]) => n.endsWith(".bat") || n.includes(".app/")));
-    // Old installs (from when it was called Nova) find their update under the old names.
-    for (const sys of ["Mac", "Windows", "Linux"]) assert.deepEqual(readFileSync(path.join(out, `Nova-for-${sys}.zip`)), readFileSync(path.join(out, `Syntaz-for-${sys}.zip`)));
+    assert.deepEqual(readdirSync(out).sort(), ["Syntaz-Lite.html", "Syntaz-for-Linux.zip", "Syntaz-for-Mac.zip", "Syntaz-for-Windows.zip"], "only the four Syntaz downloads");
     const lite = readFileSync(path.join(out, "Syntaz-Lite.html"), "utf8");
     assert.match(lite, /<title>Syntaz Lite<\/title>/, "Syntaz Lite as its own download");
   } finally {
