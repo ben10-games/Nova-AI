@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Nova browser benchmark: runs realistic tasks with YOUR model (from .env.local / LM Studio) in a
+// Syntaz browser benchmark: runs realistic tasks with YOUR model (from .env.local / LM Studio) in a
 // throwaway headless Chrome with the real extension, on local test pages, and checks the real page.
-// It starts its own Nova on free ports (your running Nova is not touched) and needs a production
+// It starts its own Syntaz on free ports (your running Syntaz is not touched) and needs a production
 // build: `npm run build` (or NOVA_NEXT_DIST_DIR=.next-test npm run build while `npm run dev` runs).
 //
 //   npm run benchmark                     # browser tasks
@@ -105,7 +105,7 @@ try {
             if (e.type === "done" && verbose) steps.push(`  done: ${e.status}`);
           }
         }
-        // Nova may have opened the result in a new tab: the task passes if any open tab passes the check.
+        // Syntaz may have opened the result in a new tab: the task passes if any open tab passes the check.
         let ok = false;
         for (const p of await browser.pages()) if (!p.url().startsWith("chrome-extension://") && (await p.evaluate(check).catch(() => false)) === true) ok = true;
         for (const p of await browser.pages()) if (p !== page && !p.url().startsWith("chrome-extension://")) await p.close().catch(() => {});

@@ -176,9 +176,9 @@ describe("calling MCP tools (real stdio connection)", () => {
     let preview = "";
     const { events } = await run(m, "Count words", { onApproval: (e) => ((preview = e.preview), true) });
     const call = of(events, "tool_call").find((c) => c.tool === T("text_stats"));
-    assert.deepEqual(call.source, { kind: "mcp", server: "nova-test", serverLabel: "Nova test server", tool: "text_stats" });
+    assert.deepEqual(call.source, { kind: "mcp", server: "nova-test", serverLabel: "Syntaz test server", tool: "text_stats" });
     assert.equal(call.requiresApproval, true);
-    assert.match(preview, /Run MCP tool "text_stats" on server "Nova test server" \(nova-test\)/);
+    assert.match(preview, /Run MCP tool "text_stats" on server "Syntaz test server" \(nova-test\)/);
     assert.match(preview, /"text": "Hello MCP world\. Second sentence!"/);
     const r = resultFor(events, T("text_stats"));
     assert.equal(r.executed, true);
@@ -199,7 +199,7 @@ describe("calling MCP tools (real stdio connection)", () => {
       step(T("convert_temperature"), { value: "hot", from: "C", to: "F" }), // wrong type
       step(T("convert_temperature"), { value: 1, from: "C", to: "X" }), // enum
       step(T("text_stats"), { text: "hi", sneaky: true }), // extra argument
-      step(F("loose"), { x: "a", extra: "b" }), // server schema allows extras; Nova does not
+      step(F("loose"), { x: "a", extra: "b" }), // server schema allows extras; Syntaz does not
       step(T("text_stats"), { text: "x".repeat(20_001) }), // over the server's maxLength
       finish(),
     ]);

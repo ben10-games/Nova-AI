@@ -1,5 +1,5 @@
 // Browser (Chrome extension) integration tests.
-//  - Always: Nova + the real nova-browser MCP server + a FAKE extension (WebSocket client
+//  - Always: Syntaz + the real nova-browser MCP server + a FAKE extension (WebSocket client
 //    presenting the extension's origin) that can be scripted to fail in specific ways.
 //  - Optional: real Chrome with the real extension (set NOVA_TEST_CHROME_BIN).
 import assert from "node:assert/strict";
@@ -50,7 +50,7 @@ function fakeExtension({
   respond = () => ({ ok: true, result: {} }),
   commands,
   protocol = PROTOCOL.version,
-  // Nova's pre-approval check: by default the target exists and is allowed.
+  // Syntaz's pre-approval check: by default the target exists and is allowed.
   checkAction = () => ({ ok: true, result: { label: "the element", kind: "button", title: "Test page" } }),
 } = {}) {
   const received = [];
@@ -216,12 +216,12 @@ describe("with a connected (fake) extension", () => {
   });
 
   test("permission failures are reported and stop the task", async () => {
-    behaviour.fn = () => ({ ok: false, error: { code: "permission_required", message: "Nova doesn't have access to this site." } });
+    behaviour.fn = () => ({ ok: false, error: { code: "permission_required", message: "Syntaz doesn't have access to this site." } });
     await mock.script([PLAN, step(B("get_page"), {}), step(B("get_page"), { tab_id: 2 }), finish()]);
     const events = await run("Read the page");
     assert.match(resultFor(events, B("get_page")).output, /doesn't have access to this site\. \[permission_required\]/);
     assert.equal(of(events, "tool_call").filter((c) => c.tool === B("get_page")).length, 1, "stopped after the failure");
-    assert.ok(of(events, "notice").some((n) => /A step failed, so Nova stopped/.test(n.message)));
+    assert.ok(of(events, "notice").some((n) => /A step failed, so Syntaz stopped/.test(n.message)));
   });
 
   test("invalid arguments never reach the browser", async () => {
@@ -293,7 +293,7 @@ describe("with a connected (fake) extension", () => {
     assert.equal(typed.ok, true);
     assert.match(typed.output, /^Entered "12" into "e1" \(x =\) — verified: the input shows it; the field still shows the text\. Not submitted\./);
     const final = of(events, "final")[0].answer;
-    assert.match(final, /Checked by Nova \(from the actual tool results\)[\s\S]*✔ mcp__browser__type_text: Entered "12"/);
+    assert.match(final, /Checked by Syntaz \(from the actual tool results\)[\s\S]*✔ mcp__browser__type_text: Entered "12"/);
     assert.equal(ext.requests().filter((m) => m.command === "type_text").at(-1).params.submit, undefined, "never submitted");
   });
 
@@ -303,7 +303,7 @@ describe("with a connected (fake) extension", () => {
       m.command === "list_elements"
         ? { ok: true, result: FIELDS }
         : m.command === "type_text"
-          ? { ok: false, error: { code: "unsupported_widget", message: "This math answer box did not accept typed input from Nova (unsupported editor). Nothing was entered; please type the answer yourself." } }
+          ? { ok: false, error: { code: "unsupported_widget", message: "This math answer box did not accept typed input from Syntaz (unsupported editor). Nothing was entered; please type the answer yourself." } }
           : null;
     await mock.script([PLAN, step(B("list_elements"), { filter: "fields" }), step(B("type_text"), { snapshot_id: "snapB", element_id: "e1", text: "3/4" }), finish("Entered 3/4!")]);
     const events = await run("Enter the answer");
@@ -455,7 +455,7 @@ describe("with a connected (fake) extension", () => {
         : m.command === "click_target"
           ? { ok: true, result: { ok: true, target: '"I\'m not a robot"', clicked: "I'm not a robot", page: { access: true }, navigated: false, page_changed: true } }
           : null;
-    const realCaptcha = fakeExtension({ respond: (m) => behaviour.fn(m), checkAction: () => ({ ok: false, error: { code: "captcha", message: "That is a CAPTCHA (an \"I'm not a robot\" check). Nova never clicks or solves CAPTCHAs." } }) });
+    const realCaptcha = fakeExtension({ respond: (m) => behaviour.fn(m), checkAction: () => ({ ok: false, error: { code: "captcha", message: "That is a CAPTCHA (an \"I'm not a robot\" check). Syntaz never clicks or solves CAPTCHAs." } }) });
     await realCaptcha.ready; // replaces the main fake extension for this part
     try {
       await mock.script([PLAN, step(B("click"), { tab_id: 1 }), step(B("list_elements"), {}), step(B("click"), { element_id: "e33" }), step(B("click"), { target: "I'm not a robot" }), finish()]);
@@ -476,7 +476,7 @@ describe("with a connected (fake) extension", () => {
       await mock.script([PLAN, step(B("click"), { target: "I'm not a robot" }), finish("Clicked.")]);
       let preview = "";
       const events = await run("Click the I'm not a robot box", { decide: (e) => ((preview = e.preview), true) });
-      assert.match(preview, /^Nova will: Click “I'm not a robot” \(button\) on “I'm Not a Robot”\./);
+      assert.match(preview, /^Syntaz will: Click “I'm not a robot” \(button\) on “I'm Not a Robot”\./);
       assert.equal(resultFor(events, B("click")).ok, true);
       assert.deepEqual(game.requests().map((m) => m.command), ["click_target"]);
     } finally {
@@ -510,7 +510,7 @@ describe("with a connected (fake) extension", () => {
       let events = await run("Delete my account", { decide: (e) => ((preview = e.preview), true) });
       let calls = of(events, "tool_call").filter((c) => c.tool === B("click")).map((c) => of(events, "tool_result").find((r) => r.callId === c.callId));
       assert.equal(calls[0].executed, false);
-      assert.match(preview, /^⚠ Nova will: Click/);
+      assert.match(preview, /^⚠ Syntaz will: Click/);
       assert.equal(of(events, "approval_required")[0].arguments.confirm_consequential, true);
       assert.equal(picky.requests().find((m) => m.command === "click_target").params.confirm_consequential, true);
       // 2. "type blue mug in the search box" without naming the field twice: the request's "search" is used.
@@ -566,7 +566,7 @@ describe("with a connected (fake) extension", () => {
     assert.equal(ext.requests().filter((m) => m.command === "capture").at(-1).params.focus, "picture");
   });
 
-  test("smarter: '… on YouTube' starts with Nova's own site search; vague requests are interpreted; made-up personal details are refused", async () => {
+  test("smarter: '… on YouTube' starts with Syntaz's own site search; vague requests are interpreted; made-up personal details are refused", async () => {
     behaviour.fn = (m) =>
       m.command === "search"
         ? { ok: true, result: { tab_id: 1, title: "remix beatbox - YouTube", url: "https://www.youtube.com/results?search_query=remix%20beatbox", results: [{ title: "REMIX | INSANE", url: "https://www.youtube.com/watch?v=K07", snippet: "" }] } }
@@ -579,7 +579,7 @@ describe("with a connected (fake) extension", () => {
               : m.command === "list_elements"
                 ? { ok: true, result: { ...ELEMENTS, snapshot_id: "snapS" } }
                 : null;
-    // 1. The model's FIRST scripted step is the navigate: Nova proposed the YouTube search itself.
+    // 1. The model's FIRST scripted step is the navigate: Syntaz proposed the YouTube search itself.
     await mock.script([step(B("navigate"), { url: "https://www.youtube.com/watch?v=K07" }), finish("Opened it.")]);
     const approvals = [];
     let events = await run("open remix beatbox in youtube", { focus: "browser", decide: (e) => (approvals.push(e.tool), true) });
@@ -592,7 +592,7 @@ describe("with a connected (fake) extension", () => {
     // 2. "fill this out for me": interpreted (shown), and a made-up username is refused before approval.
     await mock.script([{ interpret: "Fill in the Username and Notes fields; ask the user for their details." }, step(B("fill_field"), { field: "Username", text: "testuser" }), finish("Please tell me your username.")]);
     events = await run("fill this out for me", { focus: "browser", decide: () => assert.fail("must not ask") });
-    assert.ok(of(events, "notice").some((n) => /Nova understood: Fill in the Username and Notes fields/.test(n.message)));
+    assert.ok(of(events, "notice").some((n) => /Syntaz understood: Fill in the Username and Notes fields/.test(n.message)));
     const fill = resultFor(events, B("fill_field"));
     assert.equal(fill.executed, false);
     assert.match(fill.output, /"Username" asks for personal details, and "testuser" is not something the user gave[\s\S]*\[needs_user_info\]/);
@@ -647,10 +647,10 @@ describe("with a connected (fake) extension", () => {
   });
 
   test("a paused extension refuses and the task stops", async () => {
-    behaviour.fn = () => ({ ok: false, error: { code: "paused", message: "The user paused Nova in the browser extension." } });
+    behaviour.fn = () => ({ ok: false, error: { code: "paused", message: "The user paused Syntaz in the browser extension." } });
     await mock.script([PLAN, step(B("get_page"), {}), finish()]);
     const events = await run("Read");
-    assert.match(resultFor(events, B("get_page")).output, /paused Nova in the browser extension/);
+    assert.match(resultFor(events, B("get_page")).output, /paused Syntaz in the browser extension/);
   });
 
   test("a second connection replaces the first; a dropped connection fails pending calls", async () => {
@@ -670,7 +670,7 @@ describe("with a connected (fake) extension", () => {
 // ---------------------------------------------------------------------------
 // Optional: the REAL extension in a real Chrome (set NOVA_TEST_CHROME_BIN).
 // ---------------------------------------------------------------------------
-describe("protocol contract between Nova's browser server and the extension", () => {
+describe("protocol contract between Syntaz's browser server and the extension", () => {
   test("protocol.json, the extension's command handlers and the server's requests list exactly the same commands", () => {
     const bg = readFileSync(path.join(root, "chrome-extension/background.js"), "utf8");
     const block = bg.slice(bg.indexOf("const COMMANDS = {"), bg.indexOf("\n};", bg.indexOf("const COMMANDS = {")));
@@ -697,7 +697,7 @@ describe("protocol contract between Nova's browser server and the extension", ()
       const err = await old.ready.then(() => null, (e) => e);
       assert.equal(err?.code, 4004, `protocol ${protocol}`);
       const notice = old.received.find((m) => m.type === "incompatible");
-      assert.equal(notice.protocol, PROTOCOL.version, "the extension is told which version Nova speaks");
+      assert.equal(notice.protocol, PROTOCOL.version, "the extension is told which version Syntaz speaks");
       assert.equal(old.requests().length, 0);
     }
     // Nothing is connected now: a typing request is reported honestly, not attempted.
@@ -797,7 +797,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     // 1. Read-only inspection (no approvals).
     await mock.script([PLAN, step(B("get_page"), {}), step(B("list_elements"), {}), finish()]);
     let events = await runReal("What's on this page?", () => assert.fail("reading must not need approval"));
-    assert.match(resultFor(events, B("get_page")).output, /Title: Nova Test Shop/);
+    assert.match(resultFor(events, B("get_page")).output, /Title: Syntaz Test Shop/);
     assert.match(resultFor(events, B("get_page")).output, /\[redacted number\]/);
     assert.ok(!resultFor(events, B("get_page")).output.includes("hunter2"));
     const els = JSON.parse(resultFor(events, B("list_elements")).output);
@@ -1000,7 +1000,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     assert.equal(await page.$eval("#status", (e) => e.textContent), "Not submitted");
   });
 
-  test("LOCAL TYPING: Nova's tool calls reach the real DOM — hello123 in an input and a textarea, read back, failures reported as failures", async () => {
+  test("LOCAL TYPING: Syntaz's tool calls reach the real DOM — hello123 in an input and a textarea, read back, failures reported as failures", async () => {
     const runReal = async (goal) => {
       const res = await fetch(real.base + "/api/agent", { method: "POST", headers: json, body: JSON.stringify({ goal }) });
       const events = [];
@@ -1027,7 +1027,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     // 1. Read the page and identify its input fields.
     await mock.script([PLAN, step(B("get_page"), {}), step(B("list_elements"), { filter: "fields" }), finish()]);
     let events = await runReal("What fields are on this page?");
-    assert.match(resultFor(events, B("get_page")).output, /Title: Nova Form Test/);
+    assert.match(resultFor(events, B("get_page")).output, /Title: Syntaz Form Test/);
     const listing = JSON.parse(resultFor(events, B("list_elements")).output);
     const f = (label) => listing.elements.find((e) => e.label === label);
     for (const label of ["Username", "Notes", "Locked code", "Fancy editor", "Password"]) assert.ok(f(label), `field "${label}" listed`);
@@ -1049,10 +1049,10 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     assert.match(r.output, /^Entered "hello123" into "Username" — verified: the input shows it; the field still shows the text\. Not submitted\./);
     assert.equal(await page.$eval("#name", (e) => e.value), "hello123");
     assert.match(final, /✔ mcp__browser__type_text: Entered "hello123"/);
-    // ...and read back through the bridge (Nova typed it, so the value may be shown).
+    // ...and read back through the bridge (Syntaz typed it, so the value may be shown).
     ({ r } = await tryTool("read_field", { element_id: f("Username").id }));
     assert.equal(JSON.parse(r.output).value, "hello123");
-    // A field Nova did not type into: only whether it has content.
+    // A field Syntaz did not type into: only whether it has content.
     await page.$eval("#notes", (e) => (e.value = "my own private note"));
     ({ r } = await tryTool("read_field", { element_id: f("Notes").id }));
     assert.equal(JSON.parse(r.output).value, undefined);
@@ -1283,7 +1283,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
       })();
       return { controller, done };
     };
-    // 1. Stop (the task is cancelled in Nova; the extension is told to cancel the pending action).
+    // 1. Stop (the task is cancelled in Syntaz; the extension is told to cancel the pending action).
     let run1 = await start();
     await waitMoving();
     run1.controller.abort();
@@ -1340,7 +1340,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     await page.bringToFront();
     // An option's name selects it in its list (the card says so).
     let { r, preview } = await one("click", { target: "Large" });
-    assert.match(preview, /^Nova will: Choose “Large” in “Size” \(drop-down list\)/);
+    assert.match(preview, /^Syntaz will: Choose “Large” in “Size” \(drop-down list\)/);
     assert.match(r.output, /^Selected "Large" in "Size" — verified/);
     assert.equal(await page.$eval("#size", (e) => e.value), "L");
     // "Medium size" = option + list name.
@@ -1406,7 +1406,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     r = await one("press_key", { key: "Escape" });
     assert.equal(r.ok, true, r.output);
     assert.equal(await page.$("#dialog"), null);
-    // Tab moves focus (done by Nova, since synthetic keys don't move focus by themselves).
+    // Tab moves focus (done by Syntaz, since synthetic keys don't move focus by themselves).
     r = await one("press_key", { key: "Tab", element_id: ids.q });
     assert.match(r.output, /focus moved to/);
     // Backspace deletes one character.
@@ -1423,7 +1423,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
     // Looking at the page without screenshot permission (this test Chrome only allows 127.0.0.1): a clear message.
     r = await one("look_at_page", {});
     assert.equal(r.ok, false);
-    assert.match(r.output, /Nova can't see this tab yet\. Click the Nova icon[\s\S]*\[needs_screen_permission\]/);
+    assert.match(r.output, /Syntaz can't see this tab yet\. Click the Syntaz icon[\s\S]*\[needs_screen_permission\]/);
     // What a video says: the transcript panel is opened and read (no download, no approval); none → said so.
     await page.goto(`${siteUrl}/yt-watch.html`);
     r = await one("video_transcript", {});
@@ -1506,7 +1506,7 @@ describe("real Chrome with the real extension", { skip: !CHROME || !existsSync(C
         await new Promise((r) => setTimeout(r, 150));
       }
       assert.equal(st.status, "disconnected");
-      assert.match(st.error, /This extension is older than Nova \(protocol \d+ vs \d+\): reload it in chrome:\/\/extensions/);
+      assert.match(st.error, /This extension is older than Syntaz \(protocol \d+ vs \d+\): reload it in chrome:\/\/extensions/);
     } finally {
       await old.close();
     }

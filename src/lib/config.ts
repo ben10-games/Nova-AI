@@ -40,7 +40,7 @@ export class ConfigError extends Error {}
 
 const DEV_DEFAULT_BASE_URL = "http://127.0.0.1:1234/v1";
 const DEFAULT_SYSTEM_PROMPT =
-  "You are Nova, a helpful, accurate and concise AI assistant. Use Markdown formatting where it helps readability, and fenced code blocks with a language tag for code.";
+  "You are Syntaz, a helpful, accurate and concise AI assistant. Use Markdown formatting where it helps readability, and fenced code blocks with a language tag for code.";
 
 export const isProduction = process.env.NODE_ENV === "production";
 
@@ -183,7 +183,7 @@ export function getAgentConfig(): AgentConfig {
 }
 
 /**
- * MCP servers Nova may start. The command and script for each server are fixed
+ * MCP servers Syntaz may start. The command and script for each server are fixed
  * here in source code and reviewed; configuration can only ENABLE a listed ID.
  * Nothing from users, the model or environment variables can supply a command or URL.
  */
@@ -194,7 +194,7 @@ export type TrustedMcpServer = {
   script: string;
   /** Only available when NOVA_ENABLE_TEST_FIXTURES=true (automated tests). */
   testOnly?: boolean;
-  /** Tools Nova itself classifies as read-only: they run without approval. Everything else needs approval. */
+  /** Tools Syntaz itself classifies as read-only: they run without approval. Everything else needs approval. */
   readOnlyTools?: string[];
   /** Per-call timeout for this server (overrides MCP_TOOL_TIMEOUT_MS). */
   toolTimeoutMs?: number;
@@ -210,23 +210,23 @@ export type TrustedMcpServer = {
   requireOneOf?: Record<string, string[][]>;
   /** Per tool: a tool of the same server that checks the call before approval (and describes it on the approval card). */
   precheckTools?: Record<string, string>;
-  /** Tools Nova uses itself (e.g. those checks); never offered to the model. */
+  /** Tools Syntaz uses itself (e.g. those checks); never offered to the model. */
   internalTools?: string[];
   /** Tools whose real outcome (first line of the result) is shown under the final answer. */
   reportTools?: string[];
 };
 
 export const TRUSTED_MCP_SERVERS: TrustedMcpServer[] = [
-  { id: "nova-test", label: "Nova test server", script: "mcp-servers/nova-test-server.mjs" },
+  { id: "nova-test", label: "Syntaz test server", script: "mcp-servers/nova-test-server.mjs" },
   {
     id: "blender",
-    label: "Blender (Nova bridge)",
+    label: "Blender (Syntaz bridge)",
     script: "mcp-servers/nova-blender-server.mjs",
     readOnlyTools: ["scene_info", "object_info"],
   },
   {
     id: "browser",
-    label: "Chrome (Nova Browser Bridge)",
+    label: "Chrome (Syntaz Browser Bridge)",
     script: "mcp-servers/nova-browser-server.mjs",
     readOnlyTools: ["browser_status", "list_tabs", "get_page", "list_elements", "read_field", "scroll", "look_at_page", "video_transcript"],
     haltOnFailure: true,
@@ -292,7 +292,7 @@ export function getMcpConfig(): McpConfig {
   };
 }
 
-/** The Nova Browser Bridge extension's fixed id (from the public key in chrome-extension/manifest.json). */
+/** The Syntaz Browser Bridge extension's fixed id (from the public key in chrome-extension/manifest.json). */
 export const BROWSER_EXTENSION_ID = DEFAULT_EXTENSION_ID;
 
 /** Where the browser MCP server listens for the extension (always 127.0.0.1) and keeps its pairing token. */
@@ -306,7 +306,7 @@ export function getBrowserConfig(): { port: number; tokenFile: string; extension
   const extensionId = env("NOVA_BROWSER_EXTENSION_ID") ?? BROWSER_EXTENSION_ID;
   if (!/^[a-p]{32}$/.test(extensionId)) throw new ConfigError("NOVA_BROWSER_EXTENSION_ID is not a valid Chrome extension id.");
   const shotDir = joinPath(process.env.TMPDIR || process.env.TEMP || process.env.TMP || "/tmp", "nova-browser-shots");
-  // The search page Nova's search_web tool opens; the query is URL-encoded and appended.
+  // The search page Syntaz's search_web tool opens; the query is URL-encoded and appended.
   const searchUrl = env("NOVA_BROWSER_SEARCH_URL") ?? "https://html.duckduckgo.com/html/?q=";
   let parsed: URL;
   try {
@@ -320,7 +320,7 @@ export function getBrowserConfig(): { port: number; tokenFile: string; extension
   return { port, tokenFile, extensionId, shotDir, searchUrl };
 }
 
-/** Where the Blender MCP server finds the Nova Blender Bridge (always on 127.0.0.1). */
+/** Where the Blender MCP server finds the Syntaz Blender Bridge (always on 127.0.0.1). */
 export function getBlenderConfig(): { port: number; tokenFile: string } {
   const port = positiveInt("NOVA_BLENDER_PORT", 9890)!;
   if (port < 1024 || port > 65535) throw new ConfigError("NOVA_BLENDER_PORT must be between 1024 and 65535.");
@@ -369,7 +369,7 @@ export function configWarnings(): string[] {
   try {
     const agent = getAgentConfig();
     if (agent.enabled && agent.workspaceDir && isProduction) {
-      warnings.push("WORKSPACE_DIR is set in production: Nova Actions can read files on the SERVER's disk inside that folder. Only point it at data every user of this site may see.");
+      warnings.push("WORKSPACE_DIR is set in production: Syntaz Actions can read files on the SERVER's disk inside that folder. Only point it at data every user of this site may see.");
     }
     if (agent.allowWrites) warnings.push("WORKSPACE_ALLOW_WRITES=true: the create_file tool is enabled (each write still needs explicit approval in the UI).");
   } catch (err) {

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Nova Blender MCP server (stdio). Forwards a FIXED set of typed tools to the
-// Nova Blender Bridge add-on running inside Blender. It never sends code, only
+// Syntaz Blender MCP server (stdio). Forwards a FIXED set of typed tools to the
+// Syntaz Blender Bridge add-on running inside Blender. It never sends code, only
 // connects to 127.0.0.1, and authenticates with the token the add-on writes.
 //
-// Nova starts it with an empty environment plus exactly two variables:
+// Syntaz starts it with an empty environment plus exactly two variables:
 //   NOVA_BLENDER_PORT        bridge port (default 9890)
 //   NOVA_BLENDER_TOKEN_FILE  absolute path of the bridge's token file
 import { readFileSync } from "node:fs";
@@ -18,7 +18,7 @@ const tokenFile = process.env.NOVA_BLENDER_TOKEN_FILE ?? "";
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("NOVA_BLENDER_PORT is invalid");
 
 const NOT_RUNNING =
-  "Blender is not connected. Open Blender, enable the 'Nova Blender Bridge' add-on and press Start in the 3D View sidebar (Nova tab).";
+  "Blender is not connected. Open Blender, enable the 'Syntaz Blender Bridge' add-on and press Start in the 3D View sidebar (Syntaz tab).";
 
 class BridgeError extends Error {}
 
@@ -72,7 +72,7 @@ function bridgeCall(command, params, { timeoutMs, signal }) {
       }
       if (!msg.ok) {
         const error = String(msg.error ?? "unknown error").slice(0, 500);
-        return finish(reject, new BridgeError(error === "authentication failed" ? "Blender rejected Nova's token. Restart the bridge in Blender (Stop, then Start)." : `Blender: ${error}`));
+        return finish(reject, new BridgeError(error === "authentication failed" ? "Blender rejected Syntaz's token. Restart the bridge in Blender (Stop, then Start)." : `Blender: ${error}`));
       }
       finish(resolve, msg.result);
     });
@@ -164,7 +164,7 @@ tool(
 tool("set_active_camera", "Make an existing camera the active scene camera.", { name: name.describe("Camera object name") });
 tool(
   "render_image",
-  "Render the active camera to a PNG in Blender's fixed Nova render folder (max 1920x1080, max 128 samples). Existing files are never overwritten.",
+  "Render the active camera to a PNG in Blender's fixed Syntaz render folder (max 1920x1080, max 128 samples). Existing files are never overwritten.",
   {
     filename: z.string().regex(/^[A-Za-z0-9_-]{1,64}\.png$/).describe("File name only, e.g. preview.png"),
     resolution_x: z.number().int().min(16).max(1920).optional(),

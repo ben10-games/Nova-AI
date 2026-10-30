@@ -49,7 +49,7 @@ export type ToolDefinition = {
   recoverableErrors?: string[];
   /** May run at most once per task (e.g. building a whole scene). */
   oncePerRun?: boolean;
-  /** Nova appends this tool's real outcome to the final answer, so the model cannot misreport it. */
+  /** Syntaz appends this tool's real outcome to the final answer, so the model cannot misreport it. */
   reportInFinal?: boolean;
   /** Repeating the same call is fine (e.g. scrolling again, re-reading a live page): never refused as a duplicate. */
   repeatable?: boolean;

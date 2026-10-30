@@ -62,8 +62,8 @@ export async function GET(req: Request) {
   }
 }
 
-/** Which Nova Actions tools are available. Never includes the workspace path. */
-/** For the side panel: the site the search_web tool opens (so the user can allow Nova to read it). */
+/** Which Syntaz Actions tools are available. Never includes the workspace path. */
+/** For the side panel: the site the search_web tool opens (so the user can allow Syntaz to read it). */
 function browserStatus() {
   try {
     if (!getMcpConfig().servers.some((s) => s.id === "browser")) return null;

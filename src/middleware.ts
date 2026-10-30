@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { extensionOrigin } from "./lib/extension-origin";
 
-/** CORS only for the Nova Browser Bridge side panel, only on the API. The routes still require its pairing code. */
+/** CORS only for the Syntaz Browser Bridge side panel, only on the API. The routes still require its pairing code. */
 function corsHeaders(origin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin,
@@ -64,7 +64,7 @@ export function middleware(req: NextRequest) {
 
   return new NextResponse("Authentication required.", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Nova AI", charset="UTF-8"', "Cache-Control": "no-store" },
+    headers: { "WWW-Authenticate": 'Basic realm="Syntaz AI", charset="UTF-8"', "Cache-Control": "no-store" },
   });
 }
 

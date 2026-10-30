@@ -3,8 +3,8 @@ import "highlight.js/styles/github-dark.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Nova AI",
-  description: "Nova AI — a fast, private AI chat assistant.",
+  title: "Syntaz AI",
+  description: "Syntaz AI — a fast, private AI chat assistant.",
 };
 
 export const viewport: Viewport = {

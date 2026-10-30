@@ -256,7 +256,7 @@ export function checkStructure(raw: unknown): { spec: SceneSpec | null; problems
         metallic: isNum(m.metallic, 0, 1) ? m.metallic : 0,
         roughness: isNum(m.roughness, 0, 1) ? m.roughness : 0.5,
       })),
-      // energy is only a hint: Nova sets exposure from the scene size (see rig()).
+      // energy is only a hint: Syntaz sets exposure from the scene size (see rig()).
       lights: lights.map((l) => ({ role: l.role as LightRole, energy: isNum(l.energy, 0, 1e9) ? l.energy : 0, color: [...(l.color as number[])] as Vec3 })),
       camera: { view: cam.view as CameraView, lens_mm: cam.lens_mm as number },
     },
@@ -481,7 +481,7 @@ export function rig(spec: SceneSpec, placed: Placed[]): Rig {
   const target: Vec3 = [round((min[0] + max[0]) / 2), round((min[1] + max[1]) / 2), round(Math.max(0, (min[2] + max[2]) / 2))];
   const radius = Math.max(1, len(sub(max, min)) / 2);
 
-  // Exposure is set by Nova, not the model: area lights are scaled to their distance so the
+  // Exposure is set by Syntaz, not the model: area lights are scaled to their distance so the
   // subject receives roughly the light of a 3 W/m^2 sun (key), with fill/rim as fractions of it.
   const distance0 = radius * 2.5;
   const keyWatts = 9.4 * distance0 * distance0;
@@ -555,14 +555,14 @@ export function compile(spec: SceneSpec, placed: Placed[], sceneRig: Rig, render
       phase: "lighting",
       tool: "add_light",
       label: `${l.role} light (${l.type}) at ${fmt(l.position)}`,
-      args: { kind: l.type, name: `Nova ${l.role} light`, location: l.position, rotation_deg: aimRotation(l.position, l.target), energy: l.energy, color: l.color.map((c) => round(c)) },
+      args: { kind: l.type, name: `Syntaz ${l.role} light`, location: l.position, rotation_deg: aimRotation(l.position, l.target), energy: l.energy, color: l.color.map((c) => round(c)) },
     });
   }
   calls.push({
     phase: "camera",
     tool: "add_camera",
     label: `camera (${spec.camera.view}) at ${fmt(sceneRig.camera.position)}`,
-    args: { name: "Nova Camera", location: sceneRig.camera.position, rotation_deg: aimRotation(sceneRig.camera.position, sceneRig.camera.target), lens_mm: round(spec.camera.lens_mm), make_active: true },
+    args: { name: "Syntaz Camera", location: sceneRig.camera.position, rotation_deg: aimRotation(sceneRig.camera.position, sceneRig.camera.target), lens_mm: round(spec.camera.lens_mm), make_active: true },
   });
   calls.push({ phase: "render", tool: "render_image", dependsOn: "camera", label: `preview ${renderName}`, args: { filename: renderName, resolution_x: 960, resolution_y: 540, samples: 32 } });
   return { spec, placed, rig: sceneRig, calls, notes };

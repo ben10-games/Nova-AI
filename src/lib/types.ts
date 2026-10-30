@@ -18,7 +18,7 @@ export type ChatMessage = {
   attachments?: Attachment[];
   /** Model that produced an assistant message. */
   model?: string;
-  /** Nova Actions: the goal (user message) / the run's progress and results (assistant message). */
+  /** Syntaz Actions: the goal (user message) / the run's progress and results (assistant message). */
   kind?: "action";
   run?: ActionRun;
   /** Set when generation failed or was stopped. */

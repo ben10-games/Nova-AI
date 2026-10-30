@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nova AI</title>
+<title>Syntaz AI</title>
 <link rel="icon" href="/nova.png">
 <style>
-  /* Nova's look (shared with the side panel and Nova Lite): dark by default, light when the computer is light. */
+  /* Syntaz's look (shared with the side panel and Syntaz Lite): dark by default, light when the computer is light. */
   :root {
     --bg: #0e0e10; --card: #18181b; --raise: #232327; --hover: #2a2a2f; --line: #2a2a2e; --text: #f4f4f5; --muted: #a1a1aa; --faint: #71717a;
     --accent: #7c3aed; --accent-hover: #6d28d9; --accent-soft: #2e1f52; --accent2: #c4b5fd; --ok: #34d399; --ok-soft: #0f2a20; --warn: #f59e0b; --bad: #ef4444; --bad-text: #fca5a5; --bad-soft: #2a1215;
@@ -73,7 +73,7 @@
 </head>
 <body>
 <main>
-  <header><img src="/nova.png" alt=""><div><h1>Nova AI</h1><div class="sub" id="sub">Your AI helper in Chrome</div></div></header>
+  <header><img src="/nova.png" alt=""><div><h1>Syntaz AI</h1><div class="sub" id="sub">Your AI helper in Chrome</div></div></header>
 
   <section id="loading" class="card center muted"><span class="spin"></span> Loading…</section>
 
@@ -81,17 +81,17 @@
   <section id="welcome" hidden>
     <div class="card center">
       <img class="hero" src="/nova.png" alt="">
-      <h2 style="font-size:20px">Welcome to Nova</h2>
-      <p class="muted">Nova lives in Chrome's side panel. Ask about the page you're on, or tell it what to do: “open remix beatbox on YouTube”, “summarize this”, “fill this out”.</p>
+      <h2 style="font-size:20px">Welcome to Syntaz</h2>
+      <p class="muted">Syntaz lives in Chrome's side panel. Ask about the page you're on, or tell it what to do: “open remix beatbox on YouTube”, “summarize this”, “fill this out”.</p>
       <p class="muted small">Setting it up takes about 5 minutes.</p>
-      <button class="primary big" id="startSetup">Set up Nova</button>
+      <button class="primary big" id="startSetup">Set up Syntaz</button>
     </div>
   </section>
 
   <!-- Choose the AI (install or change) -->
   <section id="choose" hidden>
     <div class="card">
-      <h2 id="chooseTitle">Which AI should Nova use?</h2>
+      <h2 id="chooseTitle">Which AI should Syntaz use?</h2>
       <label class="choice"><input type="radio" name="ai" value="gemini" checked><b>Google Gemini</b><span class="tag">Free · recommended</span>
         <div class="muted small" style="margin:4px 0 0 26px">Fast on any computer. Needs internet and a free key from Google (2 minutes). What you ask, and the page you're on, go to Google's AI.</div></label>
       <label class="choice"><input type="radio" name="ai" value="lmstudio"><b>LM Studio on this computer</b>
@@ -105,18 +105,18 @@
       <div class="row" style="margin-top:12px"><button id="check">Check</button><span id="checkMsg" class="msg"></span></div>
     </div>
     <div class="card" id="optCard">
-      <label class="row"><input type="checkbox" id="autostart" checked style="accent-color:var(--accent)"> Start Nova by itself when I turn on my computer</label>
+      <label class="row"><input type="checkbox" id="autostart" checked style="accent-color:var(--accent)"> Start Syntaz by itself when I turn on my computer</label>
     </div>
     <div class="row spread">
       <button id="chooseBack">Back</button>
-      <button class="primary big" id="install" disabled>Install Nova</button>
+      <button class="primary big" id="install" disabled>Install Syntaz</button>
     </div>
   </section>
 
   <!-- Working (install / update) -->
   <section id="working" hidden>
     <div class="card">
-      <h2 id="workTitle">Installing Nova…</h2>
+      <h2 id="workTitle">Installing Syntaz…</h2>
       <p class="muted small" id="workHint">This takes a few minutes. You can keep using your computer.</p>
       <div class="bar"><div id="bar"></div></div>
       <ol class="steps" id="steps"></ol>
@@ -131,18 +131,18 @@
     <div class="card">
       <div class="row spread">
         <div><span class="dot" id="dot"></span><b id="runText">…</b><div class="muted small" id="runHint"></div></div>
-        <button id="startStop" class="primary">Start Nova</button>
+        <button id="startStop" class="primary">Start Syntaz</button>
       </div>
     </div>
     <div class="card" id="chromeCard">
-      <h2>Add Nova to Chrome <span class="muted small">(once)</span></h2>
+      <h2>Add Syntaz to Chrome <span class="muted small">(once)</span></h2>
       <ol class="how">
         <li>Open Chrome's extensions page: <button class="link" id="openExt">open it</button> (or type <code>chrome://extensions</code>)</li>
         <li>Turn on <b>Developer mode</b> (top right).</li>
         <li>Click <b>Load unpacked</b> and choose this folder: <br><code id="extFolder"></code> <button class="link" id="openFolder">show it</button></li>
-        <li>Click the puzzle icon → pin <b>Nova AI</b>. Then click the Nova icon: it connects by itself.</li>
+        <li>Click the puzzle icon → pin <b>Syntaz AI</b>. Then click the Syntaz icon: it connects by itself.</li>
       </ol>
-      <p class="muted small" style="margin:0">Tip: in Nova's panel, ⚙ → turn on <b>Let Nova see the page</b> so it works on every site. After an update, press ↻ on Nova in <code>chrome://extensions</code>.</p>
+      <p class="muted small" style="margin:0">Tip: in Syntaz's panel, ⚙ → turn on <b>Let Syntaz see the page</b> so it works on every site. After an update, press ↻ on Syntaz in <code>chrome://extensions</code>.</p>
     </div>
     <div class="card">
       <div class="row spread"><div><h2>Your AI</h2><div class="muted small" id="aiText"></div></div><button id="changeAi">Change</button></div>
@@ -150,15 +150,15 @@
     <div class="card">
       <div class="row spread"><div><h2>Updates</h2><div class="muted small" id="updText"></div></div><button id="update" hidden class="primary">Update now</button></div>
     </div>
-    <footer><span id="ver"></span><button class="link danger" id="toUninstall">Uninstall Nova</button></footer>
+    <footer><span id="ver"></span><button class="link danger" id="toUninstall">Uninstall Syntaz</button></footer>
   </section>
 
   <!-- Uninstall -->
   <section id="uninstall" hidden>
     <div class="card">
-      <h2>Uninstall Nova?</h2>
-      <p class="muted">This stops Nova and removes its shortcuts and startup entry from this computer.</p>
-      <label class="row" id="removeFilesRow"><input type="checkbox" id="removeFiles" checked style="accent-color:var(--accent)"> Also delete Nova's files (the Nova folder and your saved key)</label>
+      <h2>Uninstall Syntaz?</h2>
+      <p class="muted">This stops Syntaz and removes its shortcuts and startup entry from this computer.</p>
+      <label class="row" id="removeFilesRow"><input type="checkbox" id="removeFiles" checked style="accent-color:var(--accent)"> Also delete Syntaz's files (the Syntaz folder and your saved key)</label>
       <p class="muted small" id="devNote" hidden>This is a developer copy, so its files are never deleted from here.</p>
       <div class="row spread" style="margin-top:14px"><button id="uninstallBack">Cancel</button><button class="primary" id="doUninstall" style="background:var(--bad);border-color:var(--bad)">Uninstall</button></div>
     </div>
@@ -166,8 +166,8 @@
 
   <section id="removed" hidden>
     <div class="card center">
-      <h2 style="font-size:18px">Nova was removed</h2>
-      <p class="muted">Last step: in Chrome, open <code>chrome://extensions</code> and click <b>Remove</b> on Nova.</p>
+      <h2 style="font-size:18px">Syntaz was removed</h2>
+      <p class="muted">Last step: in Chrome, open <code>chrome://extensions</code> and click <b>Remove</b> on Syntaz.</p>
       <button id="removedExt">Open Chrome's extensions</button>
       <p class="muted small">You can close this window.</p>
     </div>
@@ -179,7 +179,7 @@ const $ = (id) => document.getElementById(id);
 const SCREENS = ["loading", "welcome", "choose", "working", "home", "uninstall", "removed"];
 const show = (name) => SCREENS.forEach((s) => ($(s).hidden = s !== name));
 async function call(route, body = {}) {
-  const res = await fetch(`/api/${route}`, { method: "POST", headers: { "Content-Type": "application/json", "X-Nova-Secret": secret }, body: JSON.stringify(body) });
+  const res = await fetch(`/api/${route}`, { method: "POST", headers: { "Content-Type": "application/json", "X-Syntaz-Secret": secret }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -197,9 +197,9 @@ function render() {
   if (!st.installed) return go("welcome");
   go("home");
   $("dot").className = `dot ${st.running ? "on" : ""}`;
-  $("runText").textContent = st.running ? "Nova is running" : "Nova is stopped";
-  $("runHint").textContent = st.running ? "Click the Nova icon in Chrome to use it." : "Start it to use Nova in Chrome.";
-  $("startStop").textContent = st.running ? "Stop Nova" : "Start Nova";
+  $("runText").textContent = st.running ? "Syntaz is running" : "Syntaz is stopped";
+  $("runHint").textContent = st.running ? "Click the Syntaz icon in Chrome to use it." : "Start it to use Syntaz in Chrome.";
+  $("startStop").textContent = st.running ? "Stop Syntaz" : "Start Syntaz";
   $("startStop").className = st.running ? "" : "primary";
   $("extFolder").textContent = st.extensionFolder;
   $("aiText").textContent = st.settings ? `${st.settings.provider}${st.settings.model ? ` · ${st.settings.model}` : ""}` : "Not set";
@@ -212,7 +212,7 @@ function render() {
 function renderJob() {
   const j = st.job;
   go("working");
-  $("workTitle").textContent = j.status === "done" ? (j.kind === "update" ? "Nova is up to date ✓" : "Nova is installed ✓") : j.status === "failed" ? "That didn't work" : j.kind === "update" ? "Updating Nova…" : "Installing Nova…";
+  $("workTitle").textContent = j.status === "done" ? (j.kind === "update" ? "Syntaz is up to date ✓" : "Syntaz is installed ✓") : j.status === "failed" ? "That didn't work" : j.kind === "update" ? "Updating Syntaz…" : "Installing Syntaz…";
   $("workHint").hidden = j.status !== "running";
   $("bar").style.width = `${Math.round((j.step / j.steps.length) * 100)}%`;
   $("steps").replaceChildren(...j.steps.map((name, i) => {
@@ -244,9 +244,9 @@ async function refresh() {
 
 function openChoose(m) {
   mode = m;
-  $("chooseTitle").textContent = m === "change" ? "Change Nova's AI" : "Which AI should Nova use?";
+  $("chooseTitle").textContent = m === "change" ? "Change Syntaz's AI" : "Which AI should Syntaz use?";
   $("optCard").hidden = m === "change";
-  $("install").textContent = m === "change" ? "Save" : "Install Nova";
+  $("install").textContent = m === "change" ? "Save" : "Install Syntaz";
   $("install").disabled = true;
   $("checkMsg").textContent = "";
   $("key").value = "";
@@ -286,7 +286,7 @@ $("check").onclick = async () => {
   try {
     const r = await call("check", { provider, key: $("key").value });
     $("checkMsg").className = `msg ${r.ok ? "ok" : "bad"}`;
-    $("checkMsg").textContent = r.ok ? (provider === "gemini" ? `✓ The key works. Nova will use ${r.model}.` : "✓ LM Studio is running.") : r.error;
+    $("checkMsg").textContent = r.ok ? (provider === "gemini" ? `✓ The key works. Syntaz will use ${r.model}.` : "✓ LM Studio is running.") : r.error;
     $("install").disabled = !r.ok;
   } finally {
     $("check").disabled = false;
@@ -320,7 +320,7 @@ $("doUninstall").onclick = async () => {
   await call("uninstall", { removeFiles: !st.devCopy && $("removeFiles").checked });
   go("removed");
 };
-addEventListener("pagehide", () => fetch("/api/bye", { method: "POST", keepalive: true, headers: { "X-Nova-Secret": secret } }));
+addEventListener("pagehide", () => fetch("/api/bye", { method: "POST", keepalive: true, headers: { "X-Syntaz-Secret": secret } }));
 refresh();
 setInterval(refresh, 2000);
 </script>

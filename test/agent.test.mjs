@@ -1,4 +1,4 @@
-// Nova Actions integration tests: the production build runs against a scripted
+// Syntaz Actions integration tests: the production build runs against a scripted
 // mock model, with a throwaway workspace on disk. No real model or account is used.
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
@@ -406,7 +406,7 @@ describe("model and provider failures", () => {
     assert.ok(!msg.includes("10.0.0.5"), msg);
   });
 
-  test("free-tier rate limits: Nova waits as the provider asks and carries on; a used-up daily limit is said plainly", async () => {
+  test("free-tier rate limits: Syntaz waits as the provider asks and carries on; a used-up daily limit is said plainly", async () => {
     const slowDown = { status: 429, body: JSON.stringify({ error: { code: 429, message: "Resource has been exhausted", details: [{ "@type": "type.googleapis.com/google.rpc.RetryInfo", retryDelay: "1s" }] } }) };
     await mock.script([slowDown, PLAN, slowDown, finish("All good."), finish("All good.")]); // (answering without a tool is questioned once)
     const t0 = Date.now();
@@ -461,7 +461,7 @@ describe("request validation", () => {
   test("rejects cross-site requests", async () => {
     assert.equal((await post(ro, { goal: "hi" }, { "Sec-Fetch-Site": "cross-site" })).status, 403);
   });
-  test("returns 404 when Nova Actions is disabled", async () => {
+  test("returns 404 when Syntaz Actions is disabled", async () => {
     assert.equal((await post(disabled, { goal: "hi" })).status, 404);
   });
   test("status lists tools without revealing the workspace path", async () => {

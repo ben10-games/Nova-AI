@@ -10,12 +10,12 @@ export const runtime = "nodejs";
 const LOOPBACK = /^(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
 
 /**
- * One-click pairing for the Nova side panel: hands the pairing code to the Nova extension only
- * (its fixed origin, which web pages can't fake) and only on Nova's own computer address. Anything
+ * One-click pairing for the Syntaz side panel: hands the pairing code to the Syntaz extension only
+ * (its fixed origin, which web pages can't fake) and only on Syntaz's own computer address. Anything
  * that could send a forged origin from this computer can already read the code's file.
  */
 export async function GET(req: Request) {
-  if (req.headers.get("origin") !== extensionOrigin()) return jsonError("Only the Nova extension can pair.", 403);
+  if (req.headers.get("origin") !== extensionOrigin()) return jsonError("Only the Syntaz extension can pair.", 403);
   if (!LOOPBACK.test(req.headers.get("host") ?? "")) return jsonError("Pairing works only on this computer (127.0.0.1).", 403);
   if (process.env.BASIC_AUTH_USER || process.env.BASIC_AUTH_PASSWORD) return jsonError("Automatic pairing is off while basic auth is on.", 403);
   let tokenFile: string;
@@ -43,6 +43,6 @@ export async function GET(req: Request) {
     }
     token = read();
   }
-  if (!token) return jsonError("Nova's browser server hasn't started yet. Try again in a moment.", 503);
+  if (!token) return jsonError("Syntaz's browser server hasn't started yet. Try again in a moment.", 503);
   return Response.json({ token }, { headers: { "Cache-Control": "no-store" } });
 }

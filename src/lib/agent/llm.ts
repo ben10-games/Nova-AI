@@ -137,7 +137,7 @@ export const PLAN_SCHEMA = {
 /**
  * `argumentsAsText`: providers that enforce the schema strictly (e.g. Google Gemini) drop or skip fields an
  * open "object" doesn't list (every call became `click({})`). For them the arguments are a JSON string the
- * model writes freely, like OpenAI tool calls, and Nova parses it.
+ * model writes freely, like OpenAI tool calls, and Syntaz parses it.
  */
 export function stepSchema(toolNames: string[], argumentsAsText = false) {
   return {

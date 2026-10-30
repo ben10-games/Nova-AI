@@ -20,7 +20,7 @@ import {
 } from "./scene";
 
 /**
- * blender_build_scene: inspect -> design (model) -> validate + lay out (Nova) ->
+ * blender_build_scene: inspect -> design (model) -> validate + lay out (Syntaz) ->
  * compile -> ONE approval -> build phase by phase with the real Blender MCP tools
  * -> verify the real scene against the design -> honest report.
  * Only the approved calls run; nothing is deleted.
@@ -34,7 +34,7 @@ const MAX_OBSTACLES = 20;
 const plans = new WeakMap<object, CompiledPlan>();
 
 const DESIGN_SYSTEM = [
-  "You design 3D scenes for Blender as JSON. Decide WHAT is in the scene; Nova computes exact positions.",
+  "You design 3D scenes for Blender as JSON. Decide WHAT is in the scene; Syntaz computes exact positions.",
   "Units: metres. size = [width, depth, height] of each object's real-world bounding box (e.g. sofa [2.0, 0.9, 0.8]).",
   'Placement by relation: exactly one main object has relation "anchor"; every other object is "in_front_of", "behind", "left_of", "right_of" or "on_top_of" its reference (an object id), with gap_m the clear space between them.',
   'A floor or ground is ONE object with relation "floor_under_all" (shape box or plane); it is sized and placed under everything automatically.',
@@ -46,7 +46,7 @@ function parseJson(output: string): Record<string, unknown> {
   try {
     return JSON.parse(output);
   } catch {
-    throw new ToolError("Blender returned data Nova could not read.");
+    throw new ToolError("Blender returned data Syntaz could not read.");
   }
 }
 
@@ -98,7 +98,7 @@ async function design(brief: string, obstacles: Obstacle[], ctx: ToolContext, re
     if (cleared.offset) notes.push(`Moved the whole design by [${cleared.offset.join(", ")}] m so it doesn't intersect existing objects (nothing was deleted).`);
     const sceneRig = rig(spec, cleared.placed);
     if (!sceneRig.camera.framed) notes.push("Warning: the camera could not frame every object.");
-    notes.push("Light strengths are set by Nova from the scene size (the model chooses which lights).");
+    notes.push("Light strengths are set by Syntaz from the scene size (the model chooses which lights).");
     return { plan: compile(spec, cleared.placed, sceneRig, renderName, notes), problems: [], attempts: attempt };
   }
   return { plan: null, problems, attempts: MAX_DESIGN_ATTEMPTS };
@@ -155,7 +155,7 @@ export function blenderBuildTool(tools: Map<string, ToolDefinition>): ToolDefini
       const requested = typeof args.preview_filename === "string" ? args.preview_filename.trim() : "";
       if (requested && !/^[A-Za-z0-9_-]{1,64}\.png$/.test(requested)) throw new ToolError("preview_filename must look like name.png (letters, digits, - and _ only).");
       const { plan, problems, attempts } = await design(String(args.brief), obstacles, ctx, requested || `nova-scene-${Date.now()}.png`);
-      if (!plan) throw new ToolError(`Nova could not produce a valid scene design after ${attempts} attempts, so nothing was built. Remaining problems:\n- ${problems.join("\n- ")}`);
+      if (!plan) throw new ToolError(`Syntaz could not produce a valid scene design after ${attempts} attempts, so nothing was built. Remaining problems:\n- ${problems.join("\n- ")}`);
       // Every compiled call must satisfy the real Blender tool's schema before the user is asked.
       for (const call of plan.calls) {
         const check = validateArgs(mcp(call.tool).parameters, call.args);
@@ -255,7 +255,7 @@ export function blenderBuildTool(tools: Map<string, ToolDefinition>): ToolDefini
           ? `DIFFERENCES from the design found when inspecting Blender:\n- ${deviations.join("\n- ")}`
           : "Verification: every created object matches its designed size, position and colour, and no objects intersect.",
         renderFile ? `Preview render: ${renderFile}` : "No preview was rendered.",
-        "Visual check: Nova did not look at the render image; it verified the scene by measuring the objects in Blender. Open the preview to judge how it looks.",
+        "Visual check: Syntaz did not look at the render image; it verified the scene by measuring the objects in Blender. Open the preview to judge how it looks.",
       ].filter(Boolean);
       if (!ok) throw new ToolError(report.join("\n"));
       return { output: report.join("\n") };

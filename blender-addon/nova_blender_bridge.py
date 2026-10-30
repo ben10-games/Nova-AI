@@ -1,5 +1,5 @@
-# Nova Blender Bridge - a small, local, token-authenticated bridge between
-# Nova AI and Blender. It exposes ONLY the fixed commands below: there is no
+# Syntaz Blender Bridge - a small, local, token-authenticated bridge between
+# Syntaz AI and Blender. It exposes ONLY the fixed commands below: there is no
 # code execution (no exec/eval), no network access and no file access other
 # than writing renders into one fixed folder and its own token file.
 #
@@ -13,12 +13,12 @@
 # SPDX-License-Identifier: MIT
 
 bl_info = {
-    "name": "Nova Blender Bridge",
-    "author": "Nova AI",
+    "name": "Syntaz Blender Bridge",
+    "author": "Syntaz AI",
     "version": (0, 1, 0),
     "blender": (4, 2, 0),
-    "location": "View3D > Sidebar > Nova",
-    "description": "Local, authenticated bridge for Nova AI with fixed commands (no code execution)",
+    "location": "View3D > Sidebar > Syntaz",
+    "description": "Local, authenticated bridge for Syntaz AI with fixed commands (no code execution)",
     "category": "Interface",
 }
 
@@ -62,7 +62,7 @@ LIGHT_TYPES = ("POINT", "SUN", "SPOT", "AREA")
 
 
 class BridgeError(Exception):
-    """An error whose message is safe to send back to Nova."""
+    """An error whose message is safe to send back to Syntaz."""
 
 
 # ---------------------------------------------------------------------------
@@ -145,7 +145,7 @@ def _round(values, n=4):
 def _undo(message):
     # Undo steps need a window; in background mode this is simply skipped.
     try:
-        bpy.ops.ed.undo_push(message=f"Nova: {message}")
+        bpy.ops.ed.undo_push(message=f"Syntaz: {message}")
     except Exception:
         pass
 
@@ -311,7 +311,7 @@ def cmd_add_light(params):
     kind = params.get("kind", "POINT")
     if kind not in LIGHT_TYPES:
         raise BridgeError(f"kind must be one of: {', '.join(LIGHT_TYPES)}")
-    name = _name(params, "name") or f"Nova {kind.title()} Light"
+    name = _name(params, "name") or f"Syntaz {kind.title()} Light"
     location = _vec(params, "location", 3, [4, -4, 6])
     rotation = _vec(params, "rotation_deg", 3, [0, 0, 0], -36000, 36000)
     energy = _num(params, "energy", 1000.0 if kind != "SUN" else 3.0, 0.0, 1e6)
@@ -329,7 +329,7 @@ def cmd_add_light(params):
 
 def cmd_add_camera(params):
     _check_keys(params, ["name", "location", "rotation_deg", "lens_mm", "make_active"])
-    name = _name(params, "name") or "Nova Camera"
+    name = _name(params, "name") or "Syntaz Camera"
     location = _vec(params, "location", 3, [7, -7, 5])
     rotation = _vec(params, "rotation_deg", 3, [63, 0, 45], -36000, 36000)
     lens = _num(params, "lens_mm", 50.0, 1.0, 5000.0)
@@ -624,8 +624,8 @@ def _prefs():
 
 class NOVA_OT_bridge_start(bpy.types.Operator):
     bl_idname = "nova.bridge_start"
-    bl_label = "Start Nova Bridge"
-    bl_description = "Start the local Nova bridge (127.0.0.1, token-authenticated)"
+    bl_label = "Start Syntaz Bridge"
+    bl_description = "Start the local Syntaz bridge (127.0.0.1, token-authenticated)"
 
     def execute(self, context):
         prefs = _prefs()
@@ -634,26 +634,26 @@ class NOVA_OT_bridge_start(bpy.types.Operator):
         except OSError as e:
             self.report({"ERROR"}, f"Could not start: {e}")
             return {"CANCELLED"}
-        self.report({"INFO"}, "Nova bridge started")
+        self.report({"INFO"}, "Syntaz bridge started")
         return {"FINISHED"}
 
 
 class NOVA_OT_bridge_stop(bpy.types.Operator):
     bl_idname = "nova.bridge_stop"
-    bl_label = "Stop Nova Bridge"
+    bl_label = "Stop Syntaz Bridge"
 
     def execute(self, context):
         stop_bridge()
-        self.report({"INFO"}, "Nova bridge stopped")
+        self.report({"INFO"}, "Syntaz bridge stopped")
         return {"FINISHED"}
 
 
 class NOVA_PT_bridge(bpy.types.Panel):
-    bl_label = "Nova Bridge"
+    bl_label = "Syntaz Bridge"
     bl_idname = "NOVA_PT_bridge"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Nova"
+    bl_category = "Syntaz"
 
     def draw(self, context):
         layout = self.layout
@@ -662,7 +662,7 @@ class NOVA_PT_bridge(bpy.types.Panel):
         layout.operator("nova.bridge_stop" if running else "nova.bridge_start")
         box = layout.box()
         box.label(text="Fixed commands only - no code execution.")
-        box.label(text="Nova asks before every change or render.")
+        box.label(text="Syntaz asks before every change or render.")
 
 
 _classes = (NovaBridgePreferences, NOVA_OT_bridge_start, NOVA_OT_bridge_stop, NOVA_PT_bridge)

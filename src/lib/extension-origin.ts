@@ -1,5 +1,5 @@
 /**
- * Origin of the Nova Browser Bridge extension (fixed id from the public key in
+ * Origin of the Syntaz Browser Bridge extension (fixed id from the public key in
  * chrome-extension/manifest.json). No imports: also used by the middleware.
  */
 export const DEFAULT_EXTENSION_ID = "njhcnnbpmgoojpeomkogbkikggecmacm";

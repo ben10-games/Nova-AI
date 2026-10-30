@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// The Nova window: install, start/stop, change the AI, update and uninstall Nova, with buttons instead of a
+// The Syntaz window: install, start/stop, change the AI, update and uninstall Syntaz, with buttons instead of a
 // command prompt. A small server on this computer only (127.0.0.1, random port, random secret per launch)
-// shows setup/app/index.html in a Chrome/Edge app window with the Nova logo.
-//   node setup/nova-app.mjs               open the Nova window (and start Nova if it's installed)
-//   node setup/nova-app.mjs --background  just start Nova (used when the computer starts)
+// shows setup/app/index.html in a Chrome/Edge app window with the Syntaz logo.
+//   node setup/nova-app.mjs               open the Syntaz window (and start Syntaz if it's installed)
+//   node setup/nova-app.mjs --background  just start Syntaz (used when the computer starts)
 //   node setup/nova-app.mjs --uninstall   open the window on the uninstall page
 import { spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
@@ -74,17 +74,17 @@ async function api(route, body) {
     }
     case "install":
       if (!pending) return { ok: false, error: "Check the AI first." };
-      if (job?.status === "running") return { ok: false, error: "Nova is busy. Wait for it to finish." };
-      startJob("install", ["Saving your settings", "Downloading Nova's parts", "Building Nova", "Adding the Nova shortcuts", "Starting Nova"], async ({ log, next, note }) => {
+      if (job?.status === "running") return { ok: false, error: "Syntaz is busy. Wait for it to finish." };
+      startJob("install", ["Saving your settings", "Downloading Syntaz's parts", "Building Syntaz", "Adding the Syntaz shortcuts", "Starting Syntaz"], async ({ log, next, note }) => {
         lib.writeEnv(pending);
         next(1);
-        if (!(await lib.installPackages(log))) return "Downloading Nova's parts failed. Check your internet connection and try again.";
+        if (!(await lib.installPackages(log))) return "Downloading Syntaz's parts failed. Check your internet connection and try again.";
         next(2);
-        if (!(await lib.build(log))) return "Building Nova failed. Try again; if it keeps failing, send the details to whoever gave you Nova.";
+        if (!(await lib.build(log))) return "Building Syntaz failed. Try again; if it keeps failing, send the details to whoever gave you Syntaz.";
         next(3);
         lib.createShortcuts({ autostart: body.autostart !== false }).forEach((s) => note(s));
         next(4);
-        if (!(await lib.startNova())) return "Nova was installed but didn't start. Click Start Nova.";
+        if (!(await lib.startNova())) return "Syntaz was installed but didn't start. Click Start Syntaz.";
         next(5);
         return null;
       });
@@ -99,20 +99,20 @@ async function api(route, body) {
     case "stop":
       return { ok: await lib.stopNova() };
     case "update":
-      if (job?.status === "running") return { ok: false, error: "Nova is busy. Wait for it to finish." };
+      if (job?.status === "running") return { ok: false, error: "Syntaz is busy. Wait for it to finish." };
       if (lib.isDevCopy()) return { ok: false, error: "This is a developer copy: update it with git pull." };
-      startJob("update", ["Stopping Nova", "Downloading the newest Nova", "Downloading Nova's parts", "Building Nova", "Starting Nova"], async ({ log, next }) => {
+      startJob("update", ["Stopping Syntaz", "Downloading the newest Syntaz", "Downloading Syntaz's parts", "Building Syntaz", "Starting Syntaz"], async ({ log, next }) => {
         await lib.stopNova();
         next(1);
         const d = await lib.downloadUpdate(log);
         if (!d.ok) return d.error;
         next(2);
-        if (!(await lib.installPackages(log))) return "Downloading Nova's parts failed. Check your internet connection and try again.";
+        if (!(await lib.installPackages(log))) return "Downloading Syntaz's parts failed. Check your internet connection and try again.";
         next(3);
-        if (!(await lib.build(log))) return "Building Nova failed. Try updating again.";
+        if (!(await lib.build(log))) return "Building Syntaz failed. Try updating again.";
         lib.createShortcuts({ autostart: false });
         next(4);
-        if (!(await lib.startNova())) return "Nova was updated but didn't start. Click Start Nova.";
+        if (!(await lib.startNova())) return "Syntaz was updated but didn't start. Click Start Syntaz.";
         next(5);
         return null;
       });
@@ -146,7 +146,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   const m = /^\/api\/([a-z-]+)$/.exec(url.pathname);
-  if (!m || req.method !== "POST" || req.headers["x-nova-secret"] !== secret) {
+  if (!m || req.method !== "POST" || req.headers["x-syntaz-secret"] !== secret) {
     res.writeHead(m ? 403 : 404).end();
     return;
   }
@@ -172,7 +172,7 @@ const address = `http://127.0.0.1:${server.address().port}/#${secret}`;
 mkdirSync(lib.dataDir, { recursive: true });
 writeFileSync(path.join(lib.dataDir, "window.json"), JSON.stringify({ pid: process.pid }));
 
-if (lib.isInstalled()) lib.startNova(); // opening Nova's window also starts Nova
+if (lib.isInstalled()) lib.startNova(); // opening Syntaz's window also starts Syntaz
 
 if (lib.testing) {
   process.stdout.write(`NOVA_APP_URL=${address}\n`);
@@ -180,7 +180,7 @@ if (lib.testing) {
   const browser = lib.findBrowser();
   if (browser) {
     // Its own small window (no tabs or address bar), with a separate profile so it never touches your Chrome
-    // (kept outside the Nova folder, so uninstalling can delete that folder while the window is open).
+    // (kept outside the Syntaz folder, so uninstalling can delete that folder while the window is open).
     spawn(browser, [`--app=${address}`, `--user-data-dir=${path.join(os.tmpdir(), "nova-ai-window")}`, "--no-first-run", "--no-default-browser-check", "--window-size=760,720"], { detached: true, stdio: "ignore" }).unref();
   } else lib.open(address);
 }

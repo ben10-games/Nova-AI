@@ -81,18 +81,10 @@ export const AlertIcon = (p: P) => (
   <svg {...base} {...p}><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16.5v.01" /></svg>
 );
 
-export function NovaLogo({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`grid place-items-center rounded-[28%] bg-gradient-to-br from-nova-400 via-nova-600 to-nova-700 text-white shadow-md shadow-nova-700/30 ring-1 ring-inset ring-white/15 ${className}`}
-      aria-hidden
-    >
-      <svg width="58%" height="58%" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2.5l2 6.5 6.5 2-6.5 2-2 6.5-2-6.5L3.5 11l6.5-2z" />
-        <circle cx="19" cy="19" r="1.5" opacity="0.85" />
-      </svg>
-    </div>
-  );
+/** The Syntaz logo (the same drawing as src/app/icon.svg, served by Next at /icon.svg). */
+export function SyntazLogo({ className = "" }: { className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/icon.svg" alt="" aria-hidden className={`shrink-0 rounded-[25%] shadow-md shadow-nova-700/30 ${className}`} />;
 }
 export const BoltIcon = (p: P) => (
   <svg {...base} {...p}><path d="M13 3 4 14h7l-1 7 9-11h-7z" /></svg>

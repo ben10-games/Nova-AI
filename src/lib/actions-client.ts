@@ -55,7 +55,7 @@ export async function streamAction(goal: string, model: string | null, onEvent: 
     });
   } catch (err) {
     if (signal.aborted) throw err;
-    throw new Error("Could not reach the Nova AI server. Check your connection and try again.");
+    throw new Error("Could not reach the Syntaz AI server. Check your connection and try again.");
   }
   if (!res.ok || !res.body) {
     let message = `Request failed (HTTP ${res.status}).`;

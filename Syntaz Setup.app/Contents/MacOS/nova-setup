@@ -1,0 +1,10 @@
+#!/bin/bash
+# Syntaz Setup for macOS: opens the Syntaz window (install, update, uninstall).
+DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+if ! command -v node >/dev/null 2>&1; then
+  answer=$(osascript -e 'button returned of (display dialog "Syntaz needs Node.js (free). Click Download, install the macOS Installer (.pkg), then open Syntaz Setup again." buttons {"Cancel", "Download"} default button "Download" with title "Syntaz Setup")' 2>/dev/null)
+  [ "$answer" = "Download" ] && open "https://nodejs.org/en/download"
+  exit 0
+fi
+nohup node "$DIR/setup/nova-app.mjs" >/dev/null 2>&1 &

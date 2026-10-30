@@ -22,7 +22,7 @@ export type RunOptions = {
   emit: (event: AgentEvent) => void;
   /** Resolves when the user approves or denies the call (or it times out). */
   requestApproval: (callId: string) => Promise<ApprovalDecision>;
-  /** The user asked Nova to DO something (e.g. in the browser): answering without any tool is challenged once. */
+  /** The user asked Syntaz to DO something (e.g. in the browser): answering without any tool is challenged once. */
   expectTools?: boolean;
   /** "browser": a web task from the side panel; the workspace overview is skipped. */
   focus?: "browser";
@@ -294,7 +294,7 @@ function systemPrompt(tools: ToolDefinition[], mode: "json" | "native", workspac
   const browserOnly = browser && tools.every((t) => t.name.startsWith("mcp__browser__"));
   if (browserOnly) {
     return [
-      "You are Nova Actions, an assistant that completes the user's goal step by step in the user's Chrome, using ONLY the tools listed below.",
+      "You are Syntaz Actions, an assistant that completes the user's goal step by step in the user's Chrome, using ONLY the tools listed below.",
       "",
       "Available tools:",
       toolCatalog(tools),
@@ -313,7 +313,7 @@ function systemPrompt(tools: ToolDefinition[], mode: "json" | "native", workspac
     ].join("\n");
   }
   return [
-    "You are Nova Actions, an assistant that completes the user's goal step by step using ONLY the tools listed below.",
+    "You are Syntaz Actions, an assistant that completes the user's goal step by step using ONLY the tools listed below.",
     "",
     "Available tools:",
     tools.length ? toolCatalog(tools) : "(none)",
@@ -357,7 +357,7 @@ function planPrompt(tools: ToolDefinition[], workspace: boolean): string {
 
 /** Keeps the transcript within the model's context by shortening older observations. */
 function fitObservations(entries: TranscriptEntry[], contextLength: number | null, pinned: string | null, fixedChars = 7_500): TranscriptEntry[] {
-  // What is left of the context after Nova's own instructions and the task (`fixedChars`) and room for the
+  // What is left of the context after Syntaz's own instructions and the task (`fixedChars`) and room for the
   // reply, at a cautious ~2.7 characters per token (page JSON tokenizes worse than prose).
   const budget = Math.max(3_000, Math.min(((contextLength ?? 32_768) - 1_200) * 2.7 - fixedChars, ((contextLength ?? 32_768) - 2_500) * 3 * 0.6));
   let total = entries.reduce((n, e) => n + Math.min(e.output.length, OBSERVATION_CHARS), 0);
@@ -397,8 +397,8 @@ function buildMessages(
       : text;
   for (const e of entries) {
     if (e.tool === "work_out") {
-      // Nova's own preparation, not a tool the model can call.
-      msgs.push({ role: "user", content: `Nova worked out the answer in advance:\n${e.output}` });
+      // Syntaz's own preparation, not a tool the model can call.
+      msgs.push({ role: "user", content: `Syntaz worked out the answer in advance:\n${e.output}` });
       continue;
     }
     const observation = observationText(e);
@@ -527,10 +527,10 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
       outcomes.set(`${def.name}|${what}`, `${ok ? "✔" : "✘"} ${def.name}: ${first}`);
     };
     const withOutcomes = (answer: string) => {
-      // The model cannot produce real image links; remove any that point outside Nova.
+      // The model cannot produce real image links; remove any that point outside Syntaz.
       const cleaned = answer.replace(/!\[[^\]]*\]\((?:https?:)?\/\/[^)]*\)/g, "").trim();
       if (outcomes.size === 0) return cleaned;
-      return `${cleaned}\n\n---\n**Checked by Nova (from the actual tool results):**\n${[...outcomes.values()].map((o) => `- ${o}`).join("\n")}`;
+      return `${cleaned}\n\n---\n**Checked by Syntaz (from the actual tool results):**\n${[...outcomes.values()].map((o) => `- ${o}`).join("\n")}`;
     };
 
     // Give the model a view of the workspace up front. This is a real, visible tool call
@@ -595,7 +595,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
       try {
         meaning = withoutUnaskedSubmit(await interpretRequest(ai, model.id, userRequest, pageText, elementsText, signal), userRequest);
         emit({ type: "tool_result", callId, ok: true, output: meaning, durationMs: Date.now() - t0, executed: true });
-        emit({ type: "notice", message: `Nova understood: ${meaning}` });
+        emit({ type: "notice", message: `Syntaz understood: ${meaning}` });
         task = `${goal}\n\nWhat this means on this page: ${meaning}`;
       } catch (err) {
         if (signal.aborted) throw err;
@@ -604,7 +604,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
     }
     const requestForWork = `${userRequest}${meaning ? `\nWhat it means here: ${meaning}` : ""}`;
 
-    // "open remix beatbox on YouTube": the first step is obvious, so Nova proposes it instead of hoping
+    // "open remix beatbox on YouTube": the first step is obvious, so Syntaz proposes it instead of hoping
     // the model picks the right tool (measured: small models often wander off to the site's own search box).
     let firstStep: Decision | null = null;
     const siteAsk = opts.focus === "browser" && registry.tools.has("mcp__browser__site_search") ? siteRequest(userRequest) : null;
@@ -709,7 +709,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
       let decision: Decision;
       const proposed = iteration === 0 ? firstStep : null;
       if (proposed) {
-        // Nova's own obvious first step (e.g. "…on YouTube" → search YouTube); still approved like any action.
+        // Syntaz's own obvious first step (e.g. "…on YouTube" → search YouTube); still approved like any action.
         decision = proposed;
       } else if (mode === "native") {
         decision = await nativeDecision(ai, model.id, messages, tools, signal);
@@ -738,7 +738,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
         // Answering about files without opening any is usually a guess from file names. Ask once.
         if (!finishChecked && toolSteps === 0 && rejections === 0 && opts.expectTools) {
           finishChecked = true;
-          emit({ type: "notice", message: "Nova tried to answer without doing anything; asking it to use the tools for this request." });
+          emit({ type: "notice", message: "Syntaz tried to answer without doing anything; asking it to use the tools for this request." });
           corrections.push(
             "The user asked you to DO something, but you are finishing without using any tool. Do not describe how the user could do it: use the tools (for websites, the mcp__browser__ tools) to actually do it, then finish with what really happened. Only if no tool can do it, finish again and say so honestly.",
           );
@@ -746,7 +746,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
         }
         if (!finishChecked && toolSteps === 0 && knowledge.examined.size === 0 && knowledge.unexaminedReadable().length > 0) {
           finishChecked = true;
-          emit({ type: "notice", message: "Nova tried to answer without using any tool; asking it to check whether the goal needs files or another application's tools." });
+          emit({ type: "notice", message: "Syntaz tried to answer without using any tool; asking it to check whether the goal needs files or another application's tools." });
           corrections.push(
             "You are finishing without having used any tool. If the goal is about workspace files, read or summarize the relevant files first (do not guess contents from file names). If it is about another application such as Blender, use that application's mcp__ tools. If the goal truly needs no tool, finish again with your answer.",
           );
@@ -882,7 +882,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
               preview = `⚠ ${await def.precheck(confirmed, { ...toolCtx, signal })}`;
               validated.value = confirmed;
               escalated = true;
-              emit({ type: "notice", message: "This action submits, sends, buys or deletes something: Nova is asking you directly." });
+              emit({ type: "notice", message: "This action submits, sends, buys or deletes something: Syntaz is asking you directly." });
             } catch (again) {
               if (signal.aborted) throw again;
             }
@@ -954,7 +954,7 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
             // Nothing happened in the application; let the model take ONE different step to fix it.
             recoveries++;
             failedCalls.add(key);
-            emit({ type: "notice", message: `That step failed but can be fixed (${code}); Nova will choose a different next step (attempt ${recoveries} of ${MAX_RECOVERIES}).` });
+            emit({ type: "notice", message: `That step failed but can be fixed (${code}); Syntaz will choose a different next step (attempt ${recoveries} of ${MAX_RECOVERIES}).` });
             corrections.push(`The last call failed with [${code}]: ${message.slice(0, 300)}\nNothing was changed. Choose a DIFFERENT next step that fixes this (for example call list_elements again and use its ids), or finish and explain.`);
           } else halted = `${def.source?.tool ?? def.name}: ${message.slice(0, 300)}`;
         }
@@ -965,9 +965,9 @@ export async function runAgent(opts: RunOptions): Promise<RunStatus> {
     emit({
       type: "notice",
       message: halted
-        ? `A step failed, so Nova stopped instead of continuing (${halted}). Writing up what was done and what remains…`
+        ? `A step failed, so Syntaz stopped instead of continuing (${halted}). Writing up what was done and what remains…`
         : stuck
-        ? "The model kept repeating a call that was refused, so Nova stopped early. Writing up what was found and what remains…"
+        ? "The model kept repeating a call that was refused, so Syntaz stopped early. Writing up what was found and what remains…"
         : `Used all ${agent.maxSteps} tool steps. Writing up what was found and what remains…`,
     });
     const gathered = entries

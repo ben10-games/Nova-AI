@@ -1,4 +1,4 @@
-// Nova browser bridge protocol checker, shared by the browser MCP server (Node, via require)
+// Syntaz browser bridge protocol checker, shared by the browser MCP server (Node, via require)
 // and the extension's service worker (via importScripts). Both sides validate every request
 // against protocol.json with this same code, so they cannot drift apart silently.
 (function (root) {

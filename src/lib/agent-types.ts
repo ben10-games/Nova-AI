@@ -1,4 +1,4 @@
-/** Types shared by the Nova Actions server runner and the browser UI. */
+/** Types shared by the Syntaz Actions server runner and the browser UI. */
 
 /** "external" = runs on an MCP server; always needs approval. */
 export type ToolRisk = "read" | "write" | "external";

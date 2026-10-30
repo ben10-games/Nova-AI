@@ -5,7 +5,7 @@ const send = (msg) => chrome.runtime.sendMessage(msg);
 let localError = ""; // input errors stay visible until the next action
 
 async function currentOrigin() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true }); // activeTab grants this after the Nova icon is clicked on this tab
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true }); // activeTab grants this after the Syntaz icon is clicked on this tab
   try {
     const u = new URL(tab.url);
     return /^https?:$/.test(u.protocol) ? u.origin : null;
@@ -24,7 +24,7 @@ async function refresh() {
   $("token").placeholder = s.paired ? "Saved (leave empty to keep)" : "64-character code";
   $("connect").disabled = s.status !== "disconnected";
   $("disconnect").disabled = s.status === "disconnected";
-  $("pause").textContent = s.paused ? "Resume Nova" : "Pause Nova";
+  $("pause").textContent = s.paused ? "Resume Syntaz" : "Pause Syntaz";
   $("history").replaceChildren(
     ...s.history.slice(0, 50).map((h) => {
       const li = document.createElement("li");
@@ -43,7 +43,7 @@ async function refresh() {
     const ok = await chrome.permissions.contains({ origins: [`${origin}/*`] });
     $("allowSite").disabled = ok;
     $("allowSite").textContent = ok ? "Allowed on this site" : "Allow on this site";
-    $("siteNote").textContent = ok ? `Nova can read and (with your approval) use ${origin}.` : `Nova can't access ${origin} yet.`;
+    $("siteNote").textContent = ok ? `Syntaz can read and (with your approval) use ${origin}.` : `Syntaz can't access ${origin} yet.`;
   } else {
     $("allowSite").disabled = true;
     $("siteNote").textContent = "This page can't be used by extensions.";

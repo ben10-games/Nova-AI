@@ -1,4 +1,4 @@
-// Nova page watcher - injected (isolated world) into the active tab while the side panel
+// Syntaz page watcher - injected (isolated world) into the active tab while the side panel
 // is open and allowed to read it. It only notices that the page changed and tells the
 // panel; it never reads or sends page text itself. It stops as soon as the panel is gone.
 (() => {

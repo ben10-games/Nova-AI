@@ -1,5 +1,5 @@
-// Nova's visible cursor - injected (isolated world) next to page-lib.js. It only DRAWS where
-// Nova is acting; the real clicks and typing are done by background.js through page-lib.js.
+// Syntaz's visible cursor - injected (isolated world) next to page-lib.js. It only DRAWS where
+// Syntaz is acting; the real clicks and typing are done by background.js through page-lib.js.
 // The overlay lives in a closed shadow root on <html>, is fixed to the viewport, ignores all
 // pointer events (pointer-events:none) and takes no layout space, so it can't intercept or
 // imitate page controls. It removes itself when idle and never exists twice on a page.
@@ -56,7 +56,7 @@
     const tag = document.createElement("div");
     tag.className = "tag";
     const name = document.createElement("span");
-    name.textContent = "Nova";
+    name.textContent = "Syntaz";
     const what = document.createElement("span");
     what.className = "what";
     const caret = document.createElement("span");

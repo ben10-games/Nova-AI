@@ -54,8 +54,8 @@ function ApprovalCard({ call, onDecision }: { call: ToolCallView; onDecision: Pr
       <p className="flex items-center gap-2 text-sm font-medium text-amber-100">
         <ShieldIcon width={16} height={16} />
         {call.source?.kind === "mcp"
-          ? `Nova wants to use the MCP tool "${call.source.tool}" on server "${call.source.server}". Review it before allowing.`
-          : "Nova wants to make a change. Review it before allowing."}
+          ? `Syntaz wants to use the MCP tool "${call.source.tool}" on server "${call.source.server}". Review it before allowing.`
+          : "Syntaz wants to make a change. Review it before allowing."}
       </p>
       {call.preview && (
         <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-ink-950/70 p-3 font-mono text-xs leading-relaxed text-zinc-300">
@@ -157,7 +157,7 @@ function ActionRunView({ run, live, onDecision }: Props) {
       <div className="flex flex-wrap items-center gap-2">
         <span className="flex items-center gap-1.5 text-sm font-semibold text-zinc-100">
           <BoltIcon width={15} height={15} className="text-nova-300" />
-          Nova Action
+          Syntaz Action
         </span>
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`} role="status">
           {status.label}

@@ -1,12 +1,12 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Nova Setup
+title Syntaz Setup
 set "NODE="
 where node >nul 2>nul && set "NODE=node"
 if not defined NODE if exist "%ProgramFiles%\nodejs\node.exe" set "NODE=%ProgramFiles%\nodejs\node.exe"
 if defined NODE goto run
-echo Getting Nova ready: installing Node.js, which Nova runs on.
+echo Getting Syntaz ready: installing Node.js, which Syntaz runs on.
 echo This takes a minute. Click Yes if Windows asks.
 where winget >nul 2>nul || goto manual
 winget install -e --id OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements >nul 2>nul

@@ -1,11 +1,11 @@
-// Nova Browser Bridge - helpers injected into the page's ISOLATED world (not the page's
+// Syntaz Browser Bridge - helpers injected into the page's ISOLATED world (not the page's
 // own JavaScript context). They are part of the extension; the model never supplies code.
 (() => {
   const VERSION = 12;
   if (window.__nova && window.__nova.v === VERSION) return;
   const previous = window.__nova; // an older copy (extension updated): keep its element snapshot
 
-  // Fields Nova must never read or type into.
+  // Fields Syntaz must never read or type into.
   const SENSITIVE_HINT = /(pass(word)?|passwd|pwd|card.?(number|no)?|cc-?(num|number|csc|exp)|cvv|cvc|csc|iban|ssn|social.?security|otp|one.?time|2fa|totp|token|secret|security.?code|\bpin\b)/i;
   // Labels of elements whose activation usually has consequences.
   const CONSEQUENTIAL = /\b(buy|purchase|pay|payment|checkout|check out|order|place order|send|submit|post|publish|delete|remove|confirm|sign in|log ?in|sign up|register|subscribe|unsubscribe|transfer|donate|book|reserve|apply|save|upload|check( my)? answers?|next( question| problem)?|skip|turn in|hand in)\b/i;
@@ -171,7 +171,7 @@
     el.focus();
     if (math) {
       // Math editors read keystrokes from a hidden textarea and then empty it.
-      if (mathShown(math)) return { error: "field_not_empty", message: "That math answer box already has something in it. Nova does not erase answers; clear it first (or ask the user to)." };
+      if (mathShown(math)) return { error: "field_not_empty", message: "That math answer box already has something in it. Syntaz does not erase answers; clear it first (or ask the user to)." };
       if (MIXED_NUMBER.test(text)) {
         // Typed into a math editor, "2 1/3" becomes 21/3 (the space is dropped and "/" takes the digits before it).
         return {
@@ -204,8 +204,8 @@
         return {
           error: "unsupported_widget",
           message: shown
-            ? `The math answer box shows "${shown.slice(0, 60)}" instead of the answer, so Nova cannot confirm it was entered correctly. Please check or type it yourself.`
-            : "This math answer box did not accept typed input from Nova (unsupported editor). Nothing was entered; please type the answer yourself.",
+            ? `The math answer box shows "${shown.slice(0, 60)}" instead of the answer, so Syntaz cannot confirm it was entered correctly. Please check or type it yourself.`
+            : "This math answer box did not accept typed input from Syntaz (unsupported editor). Nothing was entered; please type the answer yourself.",
         };
       }
       typedBy(el);
@@ -213,7 +213,7 @@
     }
     if (!el.isContentEditable && el.tagName !== "INPUT" && el.tagName !== "TEXTAREA") {
       // e.g. a canvas- or script-drawn editor that only says role="textbox": no legitimate way to type into it.
-      return { error: "unsupported_widget", message: "That field is a custom widget that doesn't take typed text from Nova (it is not a real input). Nothing was typed; please enter it yourself." };
+      return { error: "unsupported_widget", message: "That field is a custom widget that doesn't take typed text from Syntaz (it is not a real input). Nothing was typed; please enter it yourself." };
     }
     if (el.isContentEditable) {
       el.textContent = text;
@@ -232,7 +232,7 @@
     return { ok: true, verified, field: el.tagName.toLowerCase() };
   }
 
-  /** Fields Nova typed into on this page: only their values may be read back. */
+  /** Fields Syntaz typed into on this page: only their values may be read back. */
   function typedBy(el) {
     (window.__nova.typed = window.__nova.typed || new WeakSet()).add(el);
   }
@@ -305,12 +305,12 @@
     if (!el || !el.isConnected) return { error: "stale_element", message: "That element is no longer on the page. List the elements again." };
     if (!visible(mathEditorOf(el) || el)) return { error: "not_visible", message: "That element is not visible." };
     if (el.disabled && !opts.allowDisabled) return { error: "disabled", message: "That element is disabled: the page does not accept input there right now." };
-    if (inCaptcha(el)) return { error: "captcha", message: "Nova does not interact with CAPTCHAs. Please complete it yourself." };
+    if (inCaptcha(el)) return { error: "captcha", message: "Syntaz does not interact with CAPTCHAs. Please complete it yourself." };
     return { el };
   }
 
   /**
-   * The page's readable text for Nova: the main content when the page marks it, without
+   * The page's readable text for Syntaz: the main content when the page marks it, without
    * anything the user is typing (fields, editors) or sensitive elements, card numbers and
    * tokens blanked, cut at a line boundary. Field values are never part of innerText.
    */
@@ -432,7 +432,7 @@
     }
     const caption = [...document.querySelectorAll(".ytp-caption-segment")].map((e) => e.innerText).join(" ").replace(/\s+/g, " ").trim();
     if (caption) return { ...base, source: "captions", text: redact(caption) };
-    return { ...base, source: "none", opened_panel: opened, message: "This video has no transcript or captions Nova can read (it may be music without words, or the video has none). Nova can't hear the sound itself." };
+    return { ...base, source: "none", opened_panel: opened, message: "This video has no transcript or captions Syntaz can read (it may be music without words, or the video has none). Syntaz can't hear the sound itself." };
   }
 
   window.__nova = {

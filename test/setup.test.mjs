@@ -60,7 +60,7 @@ test("setup with a free Gemini key: checks the key, picks a model that answers, 
     assert.equal(code, 0, out);
     assert.match(out, /doesn't look like an API key/);
     assert.match(out, /Google says this key doesn't work/);
-    assert.match(out, /✔ The key works\. Nova will use gemini-3\.6-flash\./);
+    assert.match(out, /✔ The key works\. Syntaz will use gemini-3\.6-flash\./);
     assert.ok(!out.includes(GOOD), "the key is never shown");
     const env = readFileSync(path.join(dir, ".env.local"), "utf8");
     for (const line of [`AI_BASE_URL=${g.base}`, `AI_API_KEY=${GOOD}`, "AI_PROVIDER=openai-compatible", "AI_PROVIDER_NAME=Google Gemini", "AI_MODEL=gemini-3.6-flash", "AI_MODELS=gemini-3.6-flash", "AI_REASONING_EFFORT=", "MCP_SERVERS=browser", "NOVA_ACTIONS_ENABLED=true", "WORKSPACE_DIR="]) {

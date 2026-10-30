@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nova Lite</title>
-<!-- Nova Lite: Nova in one file. Open it in any browser, paste a free Gemini key, and chat (pictures too).
-     Nothing to install. Talks only to Google's Gemini API, directly from this page. The full Nova (with the
+<title>Syntaz Lite</title>
+<!-- Syntaz Lite: Syntaz in one file. Open it in any browser, paste a free Gemini key, and chat (pictures too).
+     Nothing to install. Talks only to Google's Gemini API, directly from this page. The full Syntaz (with the
      Chrome extension) can also act on websites; this file can't. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238b9cff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23d946ef%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22url%28%23g%29%22/%3E%3Cpath d=%22M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Cpath fill=%22%23fff%22 d=%22M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z%22/%3E%3C/svg%3E">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://generativelanguage.googleapis.com; base-uri 'none'; form-action 'none'">
 <style>
-  /* Nova's look (same as the Nova web app): dark by default, light when the computer uses light mode. */
+  /* Syntaz's look (same as the Syntaz web app): dark by default, light when the computer uses light mode. */
   :root {
     --bg: #0e0e10; --side: #141416; --card: #18181b; --raise: #232327; --hover: #2a2a2f; --line: #2a2a2e;
     --text: #f4f4f5; --muted: #a1a1aa; --faint: #71717a; --accent: #7c3aed; --accent-hover: #6d28d9; --accent-soft: #2e1f52; --accent-text: #c4b5fd;
@@ -73,7 +73,7 @@
   .msg.user { justify-content: flex-end; }
   .msg.user .b { background: var(--raise); border-radius: 18px 18px 4px 18px; padding: 10px 15px; max-width: 80%; white-space: pre-wrap; overflow-wrap: anywhere; }
   .msg.user img { max-width: 200px; max-height: 150px; border-radius: 10px; display: block; margin-top: 8px; }
-  .msg.ai::before { content: ""; flex: 0 0 28px; height: 28px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E") center/contain no-repeat; margin-top: 2px; }
+  .msg.ai::before { content: ""; flex: 0 0 28px; height: 28px; background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238b9cff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23d946ef%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22url%28%23g%29%22/%3E%3Cpath d=%22M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Cpath fill=%22%23fff%22 d=%22M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z%22/%3E%3C/svg%3E") center/contain no-repeat; margin-top: 2px; }
   .msg.ai .col { min-width: 0; flex: 1; }
   .msg.ai .b { overflow-wrap: anywhere; }
   .msg.ai .b p { margin: 0 0 12px; }
@@ -155,9 +155,9 @@
 <body>
 <div class="setup-wrap" id="setup" hidden>
   <section class="setup">
-    <img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E">
-    <h1>Welcome to Nova Lite</h1>
-    <p class="note">Chat with Nova right here — nothing to install. It runs on Google's free Gemini AI, so you need a free key once:</p>
+    <img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238b9cff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23d946ef%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22url%28%23g%29%22/%3E%3Cpath d=%22M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Cpath fill=%22%23fff%22 d=%22M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z%22/%3E%3C/svg%3E">
+    <h1>Welcome to Syntaz Lite</h1>
+    <p class="note">Chat with Syntaz right here — nothing to install. It runs on Google's free Gemini AI, so you need a free key once:</p>
     <ol class="steps">
       <li><span class="n">1</span><div><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"><b>Open Google AI Studio</b></a> and sign in with Google.</div></li>
       <li><span class="n">2</span><div>Click <b>Create API key</b>, then <b>Copy</b>.</div></li>
@@ -178,7 +178,7 @@
 
 <div style="display:contents" id="app" hidden>
   <aside id="chats">
-    <div class="brand"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E"><b>Nova Lite</b><button class="icon" id="closeChats" title="Close" aria-label="Close chats" hidden><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="brand"><img alt="" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238b9cff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23d946ef%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22url%28%23g%29%22/%3E%3Cpath d=%22M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Cpath fill=%22%23fff%22 d=%22M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z%22/%3E%3C/svg%3E"><b>Syntaz Lite</b><button class="icon" id="closeChats" title="Close" aria-label="Close chats" hidden><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <button class="primary" id="newChat"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New chat</button>
     <div class="side-title">Your chats</div>
     <div id="chatList"></div>
@@ -189,12 +189,12 @@
     </div>
   </aside>
   <main>
-    <div class="topbar"><button class="icon" id="toggleChats" title="Chats" aria-label="Chats"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E"><b>Nova Lite</b><button class="icon" id="newChatTop" title="New chat" aria-label="New chat"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+    <div class="topbar"><button class="icon" id="toggleChats" title="Chats" aria-label="Chats"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><img alt="" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238b9cff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23d946ef%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22url%28%23g%29%22/%3E%3Cpath d=%22M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Cpath fill=%22%23fff%22 d=%22M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z%22/%3E%3C/svg%3E"><b>Syntaz Lite</b><button class="icon" id="newChatTop" title="New chat" aria-label="New chat"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
     <div id="messages"><div class="inner" id="list"></div></div>
     <footer>
       <div class="box" id="drop">
         <div class="thumbs" id="thumbs"></div>
-        <textarea id="input" rows="1" placeholder="Ask Nova anything…" aria-label="Message"></textarea>
+        <textarea id="input" rows="1" placeholder="Ask Syntaz anything…" aria-label="Message"></textarea>
         <div class="row">
           <button class="icon" id="attach" title="Add a picture or text file" aria-label="Add a picture or text file"><svg class="i" viewBox="0 0 24 24"><path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
           <input type="file" id="file" multiple accept="image/*,.txt,.md,.csv,.json,.html,.css,.js,.py,.java,.c,.cpp,.ts" hidden>
@@ -207,7 +207,7 @@
           <button id="stop" title="Stop" aria-label="Stop" hidden><svg class="i" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
         </div>
       </div>
-      <div class="hint">Nova can make mistakes — check important answers. Drop or paste pictures into the box.</div>
+      <div class="hint">Syntaz can make mistakes — check important answers. Drop or paste pictures into the box.</div>
     </footer>
   </main>
 </div>
@@ -215,7 +215,7 @@
 <script>
 "use strict";
 const API = "https://generativelanguage.googleapis.com/v1beta/models";
-const SYSTEM = "You are Nova, a friendly, helpful assistant. Answer clearly and briefly unless the user asks for detail. Use Markdown for lists and code. If you are not sure, say so.";
+const SYSTEM = "You are Syntaz, a friendly, helpful assistant. Answer clearly and briefly unless the user asks for detail. Use Markdown for lists and code. If you are not sure, say so.";
 const $ = (id) => document.getElementById(id);
 const store = {
   get(k, d) { try { const v = localStorage.getItem(`nova-lite:${k}`) ?? sessionStorage.getItem(`nova-lite:${k}`); return v === null ? d : JSON.parse(v); } catch { return d; } },
@@ -388,7 +388,7 @@ function renderMessages() {
   if (!chat.messages.length) {
     const empty = document.createElement("div");
     empty.className = "empty";
-    empty.innerHTML = `<img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b9cff'/%3E%3Cstop offset='1' stop-color='%23d946ef'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M16 6.5l2.4 7.1 7.1 2.4-7.1 2.4L16 25.5l-2.4-7.1L6.5 16l7.1-2.4z'/%3E%3C/svg%3E"><h1>What can I help you with?</h1><p>Ask anything, or start with one of these:</p><div class="cards"></div>`;
+    empty.innerHTML = `<img class="logo" alt="" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238b9cff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23d946ef%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22url%28%23g%29%22/%3E%3Cpath d=%22M20.6 11.2c-.9-1.5-2.6-2.4-4.7-2.4-2.8 0-4.8 1.5-4.8 3.6 0 4.6 10 2.7 10 7.6 0 2.2-2.1 3.8-5 3.8-2.3 0-4.2-1-5.1-2.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Cpath fill=%22%23fff%22 d=%22M25 4.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z%22/%3E%3C/svg%3E"><h1>What can I help you with?</h1><p>Ask anything, or start with one of these:</p><div class="cards"></div>`;
     for (const idea of IDEAS) {
       const card = document.createElement("button");
       card.innerHTML = `<span class="ico"><svg class="i" viewBox="0 0 24 24">${idea.icon}</svg></span><span><b></b><span class="d"></span></span>`;
@@ -539,7 +539,7 @@ async function ask(bubble, attempt = 0) {
     const body = await res.text();
     const why = explain(res.status, body);
     if (why.wait && attempt === 0 && why.wait <= 60) {
-      bubble.innerHTML = `<span class="note">Google asked Nova to wait ${why.wait} seconds (free tier limit)… trying again then.</span>`;
+      bubble.innerHTML = `<span class="note">Google asked Syntaz to wait ${why.wait} seconds (free tier limit)… trying again then.</span>`;
       await new Promise((r, j) => { const t = setTimeout(r, why.wait * 1000); controller.signal.addEventListener("abort", () => { clearTimeout(t); j(new DOMException("aborted", "AbortError")); }); });
       return ask(bubble, 1);
     }
@@ -578,7 +578,7 @@ async function send() {
   const files = pending.filter((p) => p.kind === "text");
   const images = pending.filter((p) => p.kind === "image").map((p) => ({ mime: p.mime, data: p.data }));
   const text = [typed || (images.length ? "What is in this picture?" : ""), ...files.map((f) => `\n\nFile "${f.name}":\n\`\`\`\n${f.text}\n\`\`\``)].join("");
-  // `shown`: what you typed and the file names (the file contents go to Nova, not on screen).
+  // `shown`: what you typed and the file names (the file contents go to Syntaz, not on screen).
   const shown = [typed, files.length ? `📄 ${files.map((f) => f.name).join(", ")}` : ""].filter(Boolean).join("\n");
   const userMsg = { role: "user", text, shown, ...(images.length ? { images } : {}) };
   chat.messages.push(userMsg);

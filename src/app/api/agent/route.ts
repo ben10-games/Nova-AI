@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 
 const MAX_GOAL_CHARS = 4_000;
 
-/** Starts a Nova Actions run and streams its progress as NDJSON events. */
+/** Starts a Syntaz Actions run and streams its progress as NDJSON events. */
 export async function POST(req: Request) {
   const denied = checkClient(req);
   if (denied) return denied;
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     console.error("[agent] configuration error:", err instanceof Error ? err.message : err);
     return jsonError("The AI service is not configured on the server.", 503);
   }
-  if (!agent.enabled) return jsonError("Nova Actions is disabled on this server.", 404);
+  if (!agent.enabled) return jsonError("Syntaz Actions is disabled on this server.", 404);
 
   const client = clientKey(req, rate.trustProxy);
   const limited = checkRateLimit(`chat:${client}`, rate.max, rate.windowMs);
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     return jsonError("Request body is not valid JSON.", 400);
   }
   if (!body || typeof body !== "object") return jsonError("Request body must be a JSON object.", 400);
-  if (typeof body.goal !== "string" || !body.goal.trim()) return jsonError("Describe the goal for Nova Actions.", 400);
+  if (typeof body.goal !== "string" || !body.goal.trim()) return jsonError("Describe the goal for Syntaz Actions.", 400);
   if (body.goal.length > MAX_GOAL_CHARS) return jsonError(`The goal is too long (max ${MAX_GOAL_CHARS} characters).`, 400);
   if (body.model !== undefined && body.model !== null && (typeof body.model !== "string" || body.model.length > 256)) {
     return jsonError("Invalid model ID.", 400);

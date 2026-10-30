@@ -1,4 +1,4 @@
-/* Nova's look (shared with Nova Lite and the Nova window): dark by default, light when Chrome/the computer is light. */
+/* Syntaz's look (shared with Syntaz Lite and the Syntaz window): dark by default, light when Chrome/the computer is light. */
 :root {
   color-scheme: dark;
   --bg: #0e0e10;
@@ -170,7 +170,7 @@ body:has(#empty:not([hidden])) .quick { display: none; }
 .steps details pre { white-space: pre-wrap; max-height: 180px; overflow-y: auto; }
 .steps details img { max-width: 100%; border-radius: 8px; margin-top: 4px; }
 .approval { border: 1.5px solid var(--accent); background: var(--card); border-radius: 14px; padding: 12px; display: grid; gap: 8px; box-shadow: var(--shadow); }
-.approval::before { content: "Nova wants to:"; font-size: 11.5px; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: .04em; }
+.approval::before { content: "Syntaz wants to:"; font-size: 11.5px; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: .04em; }
 .approval[data-decided]::before, .approval.auto::before { content: none; }
 .approval .what { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
 .approval .perm { font-size: 12px; color: var(--warn); }

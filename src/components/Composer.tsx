@@ -137,7 +137,7 @@ export default function Composer({ streaming, disabled, onSend, onStop, focusKey
             }
           }}
           rows={1}
-          placeholder={dragging ? "Drop files to attach" : actionMode ? "Describe a goal, e.g. “Summarize the notes in my workspace”" : "Message Nova…"}
+          placeholder={dragging ? "Drop files to attach" : actionMode ? "Describe a goal, e.g. “Summarize the notes in my workspace”" : "Message Syntaz…"}
           aria-label="Message"
           className="block max-h-[240px] min-h-[52px] w-full resize-none bg-transparent px-4 pb-1 pt-3.5 text-[15px] leading-relaxed text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus-visible:outline-none"
         />
@@ -164,7 +164,7 @@ export default function Composer({ streaming, disabled, onSend, onStop, focusKey
                   aria-checked={mode === m}
                   disabled={streaming}
                   onClick={() => onModeChange(m)}
-                  title={m === "chat" ? "Chat: ask questions" : "Actions: give Nova a goal to complete with tools"}
+                  title={m === "chat" ? "Chat: ask questions" : "Actions: give Syntaz a goal to complete with tools"}
                   className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
                     mode === m ? "bg-ink-600 text-zinc-50" : "text-zinc-400 hover:text-zinc-100"
                   }`}
@@ -230,7 +230,7 @@ export default function Composer({ streaming, disabled, onSend, onStop, focusKey
             Message is too long ({text.length.toLocaleString("en-US")} / {MAX_CHARS.toLocaleString("en-US")} characters).
           </span>
         ) : (
-          <>Nova can make mistakes. Check important information.</>
+          <>Syntaz can make mistakes. Check important information.</>
         )}
       </p>
     </form>

@@ -1,5 +1,5 @@
-// Nova Browser Bridge - service worker.
-// Connects OUT to Nova on 127.0.0.1 only after the user presses Connect, authenticates with
+// Syntaz Browser Bridge - service worker.
+// Connects OUT to Syntaz on 127.0.0.1 only after the user presses Connect, authenticates with
 // the pairing code, and runs a fixed set of commands. It never executes code sent to it.
 
 importScripts("protocol-check.js");
@@ -15,7 +15,7 @@ const state = { ws: null, status: "disconnected", paused: false, error: "", retr
 const cancelled = new Set();
 /** Requests being worked on: id -> { command, tabId } (Stop/Disconnect cancel all of them). */
 const inflight = new Map();
-/** Tabs where Nova's cursor may be showing (cleared on Stop/Disconnect). */
+/** Tabs where Syntaz's cursor may be showing (cleared on Stop/Disconnect). */
 const cursorTabs = new Set();
 const ACTIONS = new Set(["click", "click_target", "type_text", "fill_field", "select_option", "scroll", "press_key"]);
 
@@ -52,30 +52,30 @@ async function connect() {
   const { intent } = await chrome.storage.session.get("intent");
   if (!intent || state.ws) return;
   const { token, port } = await settings();
-  if (!/^[0-9a-f]{64}$/.test(token)) return setStatus("disconnected", "Enter the pairing code from Nova first.");
+  if (!/^[0-9a-f]{64}$/.test(token)) return setStatus("disconnected", "Enter the pairing code from Syntaz first.");
   clearTimeout(state.timer);
   setStatus("connecting");
   let ws;
   try {
     ws = new WebSocket(`ws://127.0.0.1:${Number(port)}`);
   } catch {
-    return scheduleReconnect("Could not open a connection to Nova.");
+    return scheduleReconnect("Could not open a connection to Syntaz.");
   }
   state.ws = ws;
   const protocol = await PROTOCOL;
-  // The protocol version and command list let Nova tell an outdated extension from a broken one.
+  // The protocol version and command list let Syntaz tell an outdated extension from a broken one.
   ws.onopen = () => ws.send(JSON.stringify({ type: "hello", token, version: VERSION, protocol: protocol.version, commands: Object.keys(COMMANDS) }));
   ws.onmessage = (event) => onMessage(ws, event.data);
   ws.onclose = (event) => {
     if (state.ws === ws) state.ws = null;
     const reason =
       event.code === 4001
-        ? "Nova rejected the pairing code."
+        ? "Syntaz rejected the pairing code."
         : event.code === 4003
-          ? "Nova rejected this extension."
+          ? "Syntaz rejected this extension."
           : event.code === 4004
-            ? state.mismatch || "Nova and this extension use different protocol versions: restart Nova and reload the extension."
-            : "Nova is not reachable (is it running?).";
+            ? state.mismatch || "Syntaz and this extension use different protocol versions: restart Syntaz and reload the extension."
+            : "Syntaz is not reachable (is it running?).";
     if (event.code === 4001 || event.code === 4003 || event.code === 4004) {
       chrome.storage.session.set({ intent: false });
       setStatus("disconnected", reason);
@@ -112,8 +112,8 @@ function onMessage(ws, data) {
     PROTOCOL.then((p) => {
       state.mismatch =
         typeof msg.protocol === "number" && msg.protocol < p.version
-          ? `Nova's browser server is older than this extension (protocol ${msg.protocol} vs ${p.version}): stop Nova (Ctrl+C) and start it again.`
-          : `This extension is older than Nova (protocol ${p.version} vs ${msg.protocol}): reload it in chrome://extensions (Nova AI → ↻).`;
+          ? `Syntaz's browser server is older than this extension (protocol ${msg.protocol} vs ${p.version}): stop Syntaz (Ctrl+C) and start it again.`
+          : `This extension is older than Syntaz (protocol ${p.version} vs ${msg.protocol}): reload it in chrome://extensions (Syntaz AI → ↻).`;
     });
   } else if (msg.type === "welcome") {
     state.retry = 0;
@@ -139,7 +139,7 @@ async function handleRequest(ws, msg) {
   const send = (payload) => ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify({ type: "response", id, ...payload }));
   if (state.paused) {
     await record({ command, target: summarize(command, params), outcome: "refused: paused" });
-    return send({ ok: false, error: { code: "paused", message: "The user paused Nova in the browser extension." } });
+    return send({ ok: false, error: { code: "paused", message: "The user paused Syntaz in the browser extension." } });
   }
   const fn = COMMANDS[command];
   if (!fn) return send({ ok: false, error: { code: "unknown_command", message: `Unknown command: ${String(command).slice(0, 40)}` } });
@@ -227,10 +227,10 @@ async function resolveTab(tabId) {
 function mapScriptError(err) {
   const m = String(err && err.message ? err.message : err);
   if (/chrome:\/\/|chrome-extension:|extensions gallery|webstore|cannot be scripted|devtools/i.test(m)) {
-    return new BridgeError("restricted_page", "This page is protected by Chrome (settings, extensions, Web Store, etc.); Nova cannot access it.");
+    return new BridgeError("restricted_page", "This page is protected by Chrome (settings, extensions, Web Store, etc.); Syntaz cannot access it.");
   }
   if (/Cannot access|host permission|permission/i.test(m)) {
-    return new BridgeError("permission_required", "Nova doesn't have access to this site. Click the Nova extension icon on this tab and press \"Allow on this site\".");
+    return new BridgeError("permission_required", "Syntaz doesn't have access to this site. Click the Syntaz extension icon on this tab and press \"Allow on this site\".");
   }
   return new BridgeError("script_failed", `Could not run on this page: ${m.slice(0, 160)}`);
 }
@@ -260,7 +260,7 @@ async function waitForLoad(tabId, id, timeoutMs = 20_000) {
   throw new BridgeError("timeout", "The page did not finish loading in time.");
 }
 
-/** Reads the page after an action so Nova reports what actually happened. */
+/** Reads the page after an action so Syntaz reports what actually happened. */
 async function pageState(tabId, expectText) {
   try {
     const info = await run(tabId, inspectPage, [0, expectText || ""]);
@@ -430,7 +430,7 @@ function clickElement(snapshotId, elementId, confirmed) {
   if (found.error) return found;
   const el = found.el;
   const label = N.lib.labelOf(el);
-  if (N.lib.isSensitive(el)) return { error: "sensitive_field", message: "Nova does not interact with password, payment or security-code fields." };
+  if (N.lib.isSensitive(el)) return { error: "sensitive_field", message: "Syntaz does not interact with password, payment or security-code fields." };
   if (N.lib.consequential(el) && !confirmed) {
     return { error: "needs_confirmation", message: `"${label}" looks like it submits, sends, buys or deletes something. Ask the user first; only with their explicit agreement call again with confirm_consequential=true.` };
   }
@@ -456,7 +456,7 @@ function typeIntoElement(snapshotId, elementId, text, submit, confirmed) {
   if (found.error) return found;
   const el = found.el;
   if (L.kind(el) !== "field") return { error: "not_a_field", message: "That element is not a text field." };
-  if (L.isSensitive(el)) return { error: "sensitive_field", message: "Nova never types into password, payment, one-time-code or other secret fields." };
+  if (L.isSensitive(el)) return { error: "sensitive_field", message: "Syntaz never types into password, payment, one-time-code or other secret fields." };
   if (submit && !confirmed) return { error: "needs_confirmation", message: "Pressing Enter submits the form. Ask the user first; only with their explicit agreement call again with confirm_consequential=true." };
   const C = window.__novaCursor;
   if (C) C.typing(true);
@@ -504,11 +504,11 @@ function resolveByDescription(want, hint) {
   // Real CAPTCHAs (Google/hCaptcha/Cloudflare widgets, "verify you are human" pages) are never touched.
   // Recognised by the page's structure, not by words: a game or demo that only looks like one is fine.
   if (/robot|captcha|human/i.test(String(hint)) && L.captcha()) {
-    return { error: "captcha", message: "That is a CAPTCHA (an \"I'm not a robot\" check). Nova never clicks or solves CAPTCHAs: please complete it yourself in the page, then ask Nova to continue. Nothing was clicked." };
+    return { error: "captcha", message: "That is a CAPTCHA (an \"I'm not a robot\" check). Syntaz never clicks or solves CAPTCHAs: please complete it yourself in the page, then ask Syntaz to continue. Nothing was clicked." };
   }
   const what = want === "field" ? "field" : "link or button";
   const whats = want === "field" ? "fields" : "links or buttons";
-  if (!candidates.length) return { error: want === "field" ? "no_field" : "no_clickable", message: `There is no ${what} on this page that Nova can use.` };
+  if (!candidates.length) return { error: want === "field" ? "no_field" : "no_clickable", message: `There is no ${what} on this page that Syntaz can use.` };
   // "Search box" for a field labelled "Search": generic words are dropped when nothing matches as written.
   const GENERIC = /\s+(box|field|input|text ?box|button|btn|link|checkbox|check box|list|drop-?down|menu|tab)$/;
   let h = norm(hint);
@@ -555,7 +555,7 @@ function resolveByDescription(want, hint) {
     }
   }
   if (!matches.length) {
-    const note = L.captcha() ? " This page also shows a CAPTCHA, which Nova never clicks or solves." : "";
+    const note = L.captcha() ? " This page also shows a CAPTCHA, which Syntaz never clicks or solves." : "";
     // Point to the right tool when the hint names a text field.
     // Clicking a text field or drop-down means putting the cursor in it (as a person would): focused, nothing changed.
     if (want !== "field") {
@@ -620,7 +620,7 @@ function locateTarget(snapshotId, elementId, action, confirmed, submit, peek) {
   if (found.error) return found;
   const el = found.el;
   const kind = L.kind(el);
-  if (action !== "scroll" && L.isSensitive(el)) return { error: "sensitive_field", message: "Nova does not interact with password, payment or security-code fields." };
+  if (action !== "scroll" && L.isSensitive(el)) return { error: "sensitive_field", message: "Syntaz does not interact with password, payment or security-code fields." };
   const label = L.labelOf(L.mathEditorOf(el) || el) || L.fieldContext(el) || elementId;
   if (action === "click") {
     if (L.consequential(el) && !confirmed) {
@@ -672,7 +672,7 @@ function pressKey(snapshotId, elementId, key, confirmed) {
     if (found.error) return found;
     el = found.el;
   }
-  if (L.isSensitive(el)) return { error: "sensitive_field", message: "Nova does not interact with password, payment or security-code fields." };
+  if (L.isSensitive(el)) return { error: "sensitive_field", message: "Syntaz does not interact with password, payment or security-code fields." };
   const form = el.form || (el.closest && el.closest("form"));
   if (key === "Enter" && form && el.tagName !== "TEXTAREA" && !confirmed) {
     return { error: "needs_confirmation", message: "Pressing Enter here submits the form. Not done. Only if the user explicitly asked to submit it, call again with confirm_consequential=true." };
@@ -761,7 +761,7 @@ function scrollReport(before) {
   return window.__nova.lib.scrollReport(before);
 }
 
-/** Reads a field: its value only if Nova typed into it on this page (to verify), otherwise just whether it has content. */
+/** Reads a field: its value only if Syntaz typed into it on this page (to verify), otherwise just whether it has content. */
 function readTranscript(maxChars) {
   return window.__nova.lib.videoTranscript(maxChars);
 }
@@ -773,12 +773,12 @@ function readField(snapshotId, elementId) {
   if (found.error) return found;
   const el = found.el;
   if (L.kind(el) !== "field") return { error: "not_a_field", message: "That element is not a text field." };
-  if (L.isSensitive(el)) return { error: "sensitive_field", message: "Nova never reads password, payment, one-time-code or other secret fields." };
+  if (L.isSensitive(el)) return { error: "sensitive_field", message: "Syntaz never reads password, payment, one-time-code or other secret fields." };
   const math = L.mathEditorOf(el);
   const value = math ? L.mathShown(math) : el.isContentEditable ? el.textContent : el.value;
   const out = { label: L.labelOf(math || el), disabled: !!el.disabled, read_only: !!el.readOnly, has_value: !!value, length: value.length };
-  if (N.typed && N.typed.has(el)) out.value = value.slice(0, 500); // only what Nova itself entered
-  else out.note = "Nova shows values only for fields it typed into itself.";
+  if (N.typed && N.typed.has(el)) out.value = value.slice(0, 500); // only what Syntaz itself entered
+  else out.note = "Syntaz shows values only for fields it typed into itself.";
   return out;
 }
 
@@ -795,7 +795,7 @@ function fieldStillHas(snapshotId, elementId, text) {
 }
 
 // ---------------------------------------------------------------------------
-// Commands (arguments are validated again here; Nova validated them first)
+// Commands (arguments are validated again here; Syntaz validated them first)
 // ---------------------------------------------------------------------------
 
 const int = (v) => (Number.isInteger(v) ? v : undefined);
@@ -838,8 +838,8 @@ function progress(id, command, phase, extra = {}) {
 }
 
 function checkCancelled(id) {
-  if (cancelled.has(id)) throw new BridgeError("cancelled", "Stopped by the user before Nova acted. Nothing was done.");
-  if (state.paused) throw new BridgeError("paused", "The user paused Nova in the browser extension. Nothing was done.");
+  if (cancelled.has(id)) throw new BridgeError("cancelled", "Stopped by the user before Syntaz acted. Nothing was done.");
+  if (state.paused) throw new BridgeError("paused", "The user paused Syntaz in the browser extension. Nothing was done.");
 }
 
 async function cursorSettings() {
@@ -939,7 +939,7 @@ const COMMANDS = {
 
   async list_tabs() {
     if (!(await hasTabsPermission())) {
-      throw new BridgeError("permission_required", "Tab listing is off. Click the Nova extension icon and press \"Allow tab access\".");
+      throw new BridgeError("permission_required", "Tab listing is off. Click the Syntaz extension icon and press \"Allow tab access\".");
     }
     const tabs = await chrome.tabs.query({});
     return { tabs: tabs.slice(0, 50).map((t) => ({ tab_id: t.id, title: (t.title || "").slice(0, 120), url: sanitizeUrl(t.url || ""), active: t.active, window_id: t.windowId })) };
@@ -968,7 +968,7 @@ const COMMANDS = {
     return { tab_id: tab.id, requested: sanitizeUrl(url), page };
   },
 
-  /** Opens a search page (URL built by Nova from its configured engine) and reads the result links. */
+  /** Opens a search page (URL built by Syntaz from its configured engine) and reads the result links. */
   async search(p, id) {
     const url = checkUrl(str(p.url, 2048));
     let tab;
@@ -1102,7 +1102,7 @@ const COMMANDS = {
     } catch {
       throw new BridgeError(
         "needs_screen_permission",
-        "Nova can't see this tab yet. Click the Nova icon while on this tab (or turn on ⚙ → \"Let Nova see the page\"), then try again.",
+        "Syntaz can't see this tab yet. Click the Syntaz icon while on this tab (or turn on ⚙ → \"Let Syntaz see the page\"), then try again.",
       );
     }
     // Scale down: a smaller picture is faster for the model and fits its context.
@@ -1181,7 +1181,7 @@ const COMMANDS = {
       const data_url = await chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" });
       return { tab_id: tab.id, data_url };
     } catch {
-      throw new BridgeError("permission_required", "Chrome only allows a screenshot right after you click the Nova icon on this tab (or with access to all sites).");
+      throw new BridgeError("permission_required", "Chrome only allows a screenshot right after you click the Syntaz icon on this tab (or with access to all sites).");
     }
   },
 };
@@ -1191,7 +1191,7 @@ const COMMANDS = {
 // ---------------------------------------------------------------------------
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-  // Only Nova's own pages (side panel) may control the bridge; page watchers are for the panel.
+  // Only Syntaz's own pages (side panel) may control the bridge; page watchers are for the panel.
   if (sender.id !== chrome.runtime.id || sender.tab || !msg || typeof msg.cmd !== "string") return false;
   (async () => {
     if (msg.cmd === "state") {
@@ -1246,11 +1246,11 @@ PROTOCOL.then((p) => {
   if (missing.length || extra.length) console.error("[nova] protocol mismatch inside the extension", { missing, extra });
 });
 
-// Right-click: "Ask Nova about …" opens the side panel with a question ready to edit (never sent by itself).
+// Right-click: "Ask Syntaz about …" opens the side panel with a question ready to edit (never sent by itself).
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({ id: "nova-ask-selection", title: "Ask Nova about “%s”", contexts: ["selection"] });
-    chrome.contextMenus.create({ id: "nova-ask-page", title: "Ask Nova about this page", contexts: ["page"] });
+    chrome.contextMenus.create({ id: "nova-ask-selection", title: "Ask Syntaz about “%s”", contexts: ["selection"] });
+    chrome.contextMenus.create({ id: "nova-ask-page", title: "Ask Syntaz about this page", contexts: ["page"] });
   });
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => askFromMenu(info, tab));
@@ -1263,7 +1263,7 @@ function askFromMenu(info, tab) {
   return chrome.storage.session.set({ pendingAsk: { prompt, at: Date.now() } });
 }
 
-// Clicking the toolbar icon opens Nova's side panel (it stays open while switching tabs).
+// Clicking the toolbar icon opens Syntaz's side panel (it stays open while switching tabs).
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 
 // On service-worker start: reconnect only if the user connected during this browser session.

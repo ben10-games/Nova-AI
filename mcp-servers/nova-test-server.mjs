@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Nova test MCP server (stdio). Deliberately harmless: no filesystem, network,
-// shell or environment access. Nova starts it with a fixed command and an empty
+// Syntaz test MCP server (stdio). Deliberately harmless: no filesystem, network,
+// shell or environment access. Syntaz starts it with a fixed command and an empty
 // environment when MCP_SERVERS=nova-test is set.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";

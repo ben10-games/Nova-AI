@@ -1,4 +1,4 @@
-// Nova Lite (lite/Nova Lite.html) in real Chrome, opened as a local file. Google's Gemini API is a local
+// Syntaz Lite (lite/Syntaz Lite.html) in real Chrome, opened as a local file. Google's Gemini API is a local
 // stand-in: Chrome maps generativelanguage.googleapis.com to it (HTTPS with a throwaway certificate), so the
 // page's real request code, CORS and its Content-Security-Policy all apply.
 import { after, before, test } from "node:test";
@@ -56,7 +56,7 @@ after(async () => {
   if (tmp) rmSync(tmp, { recursive: true, force: true });
 });
 
-const lite = () => `file://${path.join(root, "lite", "Nova Lite.html")}`;
+const lite = () => `file://${path.join(root, "lite", "Syntaz Lite.html")}`;
 const visible = (sel) => page.$eval(sel, (e) => !e.hidden);
 const lastAnswer = () => page.evaluate(() => [...document.querySelectorAll(".msg.ai .b")].pop()?.innerHTML ?? "");
 async function waitFor(fn, ms = 15_000) {
@@ -109,7 +109,7 @@ test("answers stream in, Markdown is shown, and the AI's text can't run code in 
   assert.equal(await page.evaluate(() => window.hacked), undefined);
   const req = JSON.parse(seen.filter((s) => s.url.includes("streamGenerateContent")).at(-1).body);
   assert.equal(req.contents.at(-1).parts[0].text, "hi");
-  assert.match(req.systemInstruction.parts[0].text, /You are Nova/);
+  assert.match(req.systemInstruction.parts[0].text, /You are Syntaz/);
   assert.deepEqual(req.generationConfig.thinkingConfig, { thinkingBudget: 0 }, "Flash-Lite: thinking off (fast)");
   assert.match(seen.at(-1).url, /gemini-3\.1-flash-lite:streamGenerateContent\?alt=sse/);
 });
@@ -134,7 +134,7 @@ test("a picture goes to Gemini (made smaller, JPEG) and shows in the chat", asyn
   assert.equal(await page.$$eval(".msg.user img", (i) => i.length), 1);
 });
 
-test("free-tier limits: Nova waits when Google asks, and says plainly when today's limit is used up", async () => {
+test("free-tier limits: Syntaz waits when Google asks, and says plainly when today's limit is used up", async () => {
   next.push({ status: 429, body: JSON.stringify({ error: { message: "Resource exhausted", details: [{ retryDelay: "1s" }] } }) }, { chunks: ["After waiting."] });
   await say("again");
   await waitFor(async () => /wait 1 seconds/.test(await lastAnswer()));

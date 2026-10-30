@@ -22,7 +22,7 @@ export function isSameOrigin(req: Request): boolean {
 }
 
 /**
- * Requests from the Nova Browser Bridge side panel: the extension's exact origin AND the
+ * Requests from the Syntaz Browser Bridge side panel: the extension's exact origin AND the
  * pairing code (Authorization: Bearer <code>), which only the paired extension holds.
  */
 export function extensionRequest(req: Request): "none" | "authorized" | "unauthorized" {
@@ -44,7 +44,7 @@ export function extensionRequest(req: Request): "none" | "authorized" | "unautho
 export function checkClient(req: Request): Response | null {
   const ext = extensionRequest(req);
   if (ext === "authorized") return null;
-  if (ext === "unauthorized") return jsonError("This Nova extension is not paired with this Nova server (pairing code missing or wrong).", 401);
+  if (ext === "unauthorized") return jsonError("This Syntaz extension is not paired with this Syntaz server (pairing code missing or wrong).", 401);
   if (!isSameOrigin(req)) return jsonError("Cross-origin requests are not allowed.", 403);
   return null;
 }

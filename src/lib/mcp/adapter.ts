@@ -6,7 +6,7 @@ import { ToolError, type ObjectSchema, type PropertySchema } from "../agent/sche
 import type { ToolDefinition } from "../agent/tools";
 import { callTool, discoverTools, McpUnavailableError, type McpCallResult } from "./client";
 
-/** Converts discovered MCP tools into Nova tools. Everything from the server is treated as untrusted input. */
+/** Converts discovered MCP tools into Syntaz tools. Everything from the server is treated as untrusted input. */
 
 const TOOL_NAME = /^[A-Za-z0-9_-]{1,32}$/;
 const MAX_TOOLS_PER_SERVER = 20;
@@ -128,7 +128,7 @@ function adapt(server: TrustedMcpServer, tool: Tool, config: McpConfig): ToolDef
   const converted = convertSchema(tool.inputSchema);
   if (!converted.ok) return { skipped: `"${tool.name}" (${converted.reason})` };
   const description = clean(tool.description || tool.title, MAX_DESCRIPTION) || "No description provided.";
-  // Only Nova's own code can mark a tool as safe to run without approval; server hints never do.
+  // Only Syntaz's own code can mark a tool as safe to run without approval; server hints never do.
   const readOnly = server.readOnlyTools?.includes(tool.name) ?? false;
   const timeoutMs = server.toolTimeoutMs ?? config.toolTimeoutMs;
   const hints = tool.annotations
@@ -168,7 +168,7 @@ function adapt(server: TrustedMcpServer, tool: Tool, config: McpConfig): ToolDef
         }
         const text = result && Array.isArray(result.content) ? resultToText(result) : "The check returned nothing.";
         if (!result || result.isError) throw new ToolError(`Not asked and not done: ${text}`);
-        described = `Nova will: ${text.split("\n")[0].slice(0, 300)}\n\n`;
+        described = `Syntaz will: ${text.split("\n")[0].slice(0, 300)}\n\n`;
       }
       return (
         described +
@@ -208,7 +208,7 @@ export async function loadMcpTools(config: McpConfig): Promise<{ tools: ToolDefi
       const skipped: string[] = [];
       let accepted = 0;
       for (const [i, tool] of discovered.entries()) {
-        if (server.internalTools?.includes(tool.name)) continue; // used by Nova itself, never offered to the model
+        if (server.internalTools?.includes(tool.name)) continue; // used by Syntaz itself, never offered to the model
         if (accepted >= MAX_TOOLS_PER_SERVER) {
           skipped.push(`${discovered.length - i} more (limit ${MAX_TOOLS_PER_SERVER} tools per server)`);
           break;

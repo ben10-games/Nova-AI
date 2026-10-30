@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Builds the downloads for a GitHub release, one per system, from the committed project (git HEAD):
-  dist/Nova-for-Mac.zip      Nova Setup.app (no Windows files)
-  dist/Nova-for-Windows.zip  Nova Setup (Windows).bat (no Mac app)
-  dist/Nova-for-Linux.zip    for `node setup/nova-app.mjs`
-  dist/Nova-Lite.html        Nova Lite: chat in one file, nothing to install
-Each unzips to a "Nova AI" folder. The names never change, so the Nova window's Update button and the
+  dist/Syntaz-for-Mac.zip      Syntaz Setup.app (no Windows files)
+  dist/Syntaz-for-Windows.zip  Syntaz Setup (Windows).bat (no Mac app)
+  dist/Syntaz-for-Linux.zip    for `node setup/nova-app.mjs`
+  dist/Syntaz-Lite.html        Syntaz Lite: chat in one file, nothing to install
+  dist/Nova-for-*.zip          the same ZIPs under the old names: Syntaz used to be "Nova AI", and older
+                               installs look for these names when they check for updates
+Each unzips to a "Syntaz AI" folder. The names never change, so the Syntaz window's Update button and the
 README link (releases/latest/download/...) always find the newest one.
 Run from the project folder: python3 scripts/make-release.py [--out DIR]"""
 import io
 import json
+import shutil
 import os
 import stat
 import subprocess
@@ -17,14 +20,14 @@ import tarfile
 import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TOP = "Nova AI"
-EVERYWHERE = ("test/",)  # not needed to run Nova
-ONLY_WINDOWS = ("Nova Setup (Windows).bat", "setup/windows/")
-ONLY_MAC = ("Nova Setup.app/",)
+TOP = "Syntaz AI"
+EVERYWHERE = ("test/",)  # not needed to run Syntaz
+ONLY_WINDOWS = ("Syntaz Setup (Windows).bat", "setup/windows/")
+ONLY_MAC = ("Syntaz Setup.app/",)
 TARGETS = {
-    "Nova-for-Mac.zip": EVERYWHERE + ONLY_WINDOWS,
-    "Nova-for-Windows.zip": EVERYWHERE + ONLY_MAC,
-    "Nova-for-Linux.zip": EVERYWHERE + ONLY_WINDOWS + ONLY_MAC,
+    "Syntaz-for-Mac.zip": EVERYWHERE + ONLY_WINDOWS,
+    "Syntaz-for-Windows.zip": EVERYWHERE + ONLY_MAC,
+    "Syntaz-for-Linux.zip": EVERYWHERE + ONLY_WINDOWS + ONLY_MAC,
 }
 
 
@@ -58,11 +61,14 @@ def main():
                 info.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(info, data)
         print(f"{zip_name}: {os.path.getsize(path) // 1024} KB")
-    # Nova Lite on its own: one file, nothing to install.
-    lite = next(d for n, _, d in members if n == "lite/Nova Lite.html")
-    with open(os.path.join(out, "Nova-Lite.html"), "wb") as f:
+    # Older installs (from before the rename to Syntaz) look for the old names: same files, old names.
+    for zip_name in TARGETS:
+        shutil.copyfile(os.path.join(out, zip_name), os.path.join(out, zip_name.replace("Syntaz-", "Nova-")))
+    # Syntaz Lite on its own: one file, nothing to install.
+    lite = next(d for n, _, d in members if n == "lite/Syntaz Lite.html")
+    with open(os.path.join(out, "Syntaz-Lite.html"), "wb") as f:
         f.write(lite)
-    print(f"Nova-Lite.html: {len(lite) // 1024} KB")
+    print(f"Syntaz-Lite.html: {len(lite) // 1024} KB")
     print(f"Version {version}. Upload these as a GitHub release tagged v{version}.")
 
 

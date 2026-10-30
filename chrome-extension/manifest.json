@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Nova AI",
-  "version": "1.2.0",
-  "description": "Nova AI in Chrome's side panel: chat with your local Nova and let it inspect and (with your approval) operate tabs. Connects only to Nova on 127.0.0.1.",
+  "name": "Syntaz AI",
+  "version": "1.3.0",
+  "description": "Syntaz AI in Chrome's side panel: chat with your local Syntaz and let it inspect and (with your approval) operate tabs. Connects only to Syntaz on 127.0.0.1.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1oiRTU3LAK2Lu/EuNbAWmHXGt7m7N4ltKKZyZJF7fwSY7oXiIHRkMwWbPqRcpt1UGzJzOg0bJPFo36sPWde/B30MimYx7WFz2UCpwl+MBtsi8oBtzIgQuZoaqJzHwbIJF0YBlDxkfWSvOjhc8b5O9/98Wj5GSqfAXheuT+4bNKE1wpfNhd+d5AR0qMU/PyveTLP4iMOtlTMQQN0DRRWQ3IXMEuYZjJV5IYcy7+4SOA6hc1udLv7kf7ozGC43jNIXy1n2CfqHURB8+ZqNiXfveHYXnbtrmY3aANJabFyVw+hT44If5HzxTM8w20cKSymSnd6gPPS9fhpbYF+1ZcplVQIDAQAB",
   "minimum_chrome_version": "116",
   "permissions": [
@@ -24,7 +24,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Open Nova",
+    "default_title": "Open Syntaz",
     "default_icon": {
       "16": "icons/nova-16.png",
       "32": "icons/nova-32.png"
@@ -38,7 +38,7 @@
       "suggested_key": {
         "default": "Alt+N"
       },
-      "description": "Open Nova"
+      "description": "Open Syntaz"
     }
   },
   "icons": {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Conversation } from "@/lib/types";
-import { CheckIcon, NovaLogo, PencilIcon, PlusIcon, SettingsIcon, SidebarIcon, TrashIcon, XIcon } from "./Icons";
+import { CheckIcon, SyntazLogo, PencilIcon, PlusIcon, SettingsIcon, SidebarIcon, TrashIcon, XIcon } from "./Icons";
 
 export type Status =
   | { state: "checking" }
@@ -227,8 +227,8 @@ export default function Sidebar({
       >
         <div className="flex h-14 items-center justify-between gap-2 px-3">
           <div className="flex items-center gap-2.5 px-1">
-            <NovaLogo className="h-7 w-7" />
-            <span className="text-[15px] font-semibold tracking-tight text-zinc-50">Nova AI</span>
+            <SyntazLogo className="h-7 w-7" />
+            <span className="text-[15px] font-semibold tracking-tight text-zinc-50">Syntaz AI</span>
           </div>
           <button
             type="button"

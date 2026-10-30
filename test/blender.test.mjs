@@ -1,6 +1,6 @@
 // Blender MCP integration tests. The production build talks to the REAL
 // nova-blender MCP server (stdio), which talks to either:
-//  - a mock Nova Blender Bridge (Node TCP server speaking the same protocol), or
+//  - a mock Syntaz Blender Bridge (Node TCP server speaking the same protocol), or
 //  - a real headless Blender running blender-addon/nova_blender_bridge.py,
 //    when NOVA_TEST_BLENDER_BIN points to a Blender executable (optional).
 import assert from "node:assert/strict";
@@ -266,7 +266,7 @@ describe("Blender MCP: failures are reported honestly", () => {
     try {
       await mock.script([PLAN, step(B("scene_info"), {}), finish()]);
       const { events } = await run(app, "Scene?");
-      assert.match(resultsFor(events, B("scene_info"))[0].output, /rejected Nova's token/);
+      assert.match(resultsFor(events, B("scene_info"))[0].output, /rejected Syntaz's token/);
     } finally {
       writeFileSync(path.join(tmp, "token"), TOKEN);
     }

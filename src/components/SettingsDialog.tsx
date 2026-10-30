@@ -216,7 +216,7 @@ export default function SettingsDialog({
               maxLength={4000}
               rows={4}
               onChange={(e) => set({ systemPrompt: e.target.value })}
-              placeholder="Leave empty to use Nova's default instructions. Example: You are a senior game developer. Answer briefly and prefer C# examples."
+              placeholder="Leave empty to use Syntaz's default instructions. Example: You are a senior game developer. Answer briefly and prefer C# examples."
               className="w-full resize-y rounded-xl border border-ink-600 bg-ink-850 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-nova-500 focus:outline-none"
             />
             <p className="mt-1 text-right text-xs tabular-nums text-zinc-500">{settings.systemPrompt.length} / 4000</p>

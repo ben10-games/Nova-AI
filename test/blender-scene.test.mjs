@@ -247,7 +247,7 @@ describe("scene planning and layout", () => {
     for (const m of writes().filter((w) => w.command === "set_material")) assert.ok(["Sofa", "Coffee Table", "Floor Lamp", "Wooden Floor"].includes(m.params.object));
   });
 
-  test("lights are aimed at the design with exposure set by Nova, not the model's watts", async () => {
+  test("lights are aimed at the design with exposure set by Syntaz, not the model's watts", async () => {
     fake.reset();
     await mock.script([PLAN, BUILD(), { json: goodSpec() }, finish()]);
     await run("Build a living room");
@@ -320,7 +320,7 @@ describe("design validation and repair", () => {
     assert.match(r.output, /could not produce a valid scene design after 3 attempts/);
     assert.equal(writes().length, 0, "no scene modification");
     const answer = of(events, "final")[0].answer;
-    assert.match(answer, /Checked by Nova \(from the actual tool results\):\*\*\n- ✘ blender_build_scene: not run/);
+    assert.match(answer, /Checked by Syntaz \(from the actual tool results\):\*\*\n- ✘ blender_build_scene: not run/);
   });
 
   test("an oversize object on top of a small one is rejected", async () => {
@@ -382,7 +382,7 @@ describe("execution reliability and honest reporting", () => {
     const r = buildResult(events);
     assert.equal(r.ok, false);
     assert.match(r.output, /DIFFERENCES from the design found when inspecting Blender:\n- Warp Table: size is \[2,1\.2,0\.9\] m, designed \[1,0\.6,0\.45\] m/);
-    assert.match(r.output, /Visual check: Nova did not look at the render image/);
+    assert.match(r.output, /Visual check: Syntaz did not look at the render image/);
     assert.match(of(events, "final")[0].answer, /✘ blender_build_scene/);
   });
 

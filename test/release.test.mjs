@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-test("release ZIPs: Mac gets the Mac app (executable), Windows the .bat (CRLF), no tests, all in a 'Nova AI' folder", () => {
+test("release ZIPs: Mac gets the Mac app (executable), Windows the .bat (CRLF), no tests, all in a 'Syntaz AI' folder", () => {
   const out = mkdtempSync(path.join(os.tmpdir(), "nova-release-"));
   try {
     const r = spawnSync("python3", ["-I", path.join(root, "scripts", "make-release.py"), "--out", out], { cwd: root, encoding: "utf8" });
@@ -19,27 +19,29 @@ test("release ZIPs: Mac gets the Mac app (executable), Windows the .bat (CRLF), 
       JSON.parse(
         spawnSync("python3", ["-I", "-c", "import json,sys,zipfile; z=zipfile.ZipFile(sys.argv[1]); print(json.dumps([[i.filename, (i.external_attr>>16)&0o777, b'\\r\\n' in z.read(i)] for i in z.infolist()]))", path.join(out, zip)], { encoding: "utf8" }).stdout,
       );
-    const mac = list("Nova-for-Mac.zip");
-    const windows = list("Nova-for-Windows.zip");
-    const linux = list("Nova-for-Linux.zip");
+    const mac = list("Syntaz-for-Mac.zip");
+    const windows = list("Syntaz-for-Windows.zip");
+    const linux = list("Syntaz-for-Linux.zip");
     for (const entries of [mac, windows, linux]) {
-      assert.ok(entries.every(([n]) => n.startsWith("Nova AI/")), "everything is inside the Nova AI folder");
-      assert.ok(!entries.some(([n]) => n.startsWith("Nova AI/test/")), "no tests");
-      assert.ok(entries.some(([n]) => n === "Nova AI/setup/nova-app.mjs"));
-      assert.ok(entries.some(([n]) => n === "Nova AI/chrome-extension/manifest.json"));
+      assert.ok(entries.every(([n]) => n.startsWith("Syntaz AI/")), "everything is inside the Syntaz AI folder");
+      assert.ok(!entries.some(([n]) => n.startsWith("Syntaz AI/test/")), "no tests");
+      assert.ok(entries.some(([n]) => n === "Syntaz AI/setup/nova-app.mjs"));
+      assert.ok(entries.some(([n]) => n === "Syntaz AI/chrome-extension/manifest.json"));
     }
-    const launcher = mac.find(([n]) => n === "Nova AI/Nova Setup.app/Contents/MacOS/nova-setup");
+    const launcher = mac.find(([n]) => n === "Syntaz AI/Syntaz Setup.app/Contents/MacOS/nova-setup");
     assert.ok(launcher, "the Mac app is in the Mac download");
     assert.ok(launcher[1] & 0o100, "its launcher is executable");
     assert.equal(launcher[2], false, "with Unix line endings");
     assert.ok(!mac.some(([n]) => n.endsWith(".bat") || n.includes("setup/windows/")), "no Windows files for Mac");
-    const bat = windows.find(([n]) => n === "Nova AI/Nova Setup (Windows).bat");
+    const bat = windows.find(([n]) => n === "Syntaz AI/Syntaz Setup (Windows).bat");
     assert.ok(bat && bat[2], "the Windows setup is there, with Windows line endings");
-    assert.ok(windows.find(([n]) => n === "Nova AI/setup/windows/launch.ps1")[2]);
-    assert.ok(!windows.some(([n]) => n.includes("Nova Setup.app/")), "no Mac app for Windows");
+    assert.ok(windows.find(([n]) => n === "Syntaz AI/setup/windows/launch.ps1")[2]);
+    assert.ok(!windows.some(([n]) => n.includes("Syntaz Setup.app/")), "no Mac app for Windows");
     assert.ok(!linux.some(([n]) => n.endsWith(".bat") || n.includes(".app/")));
-    const lite = readFileSync(path.join(out, "Nova-Lite.html"), "utf8");
-    assert.match(lite, /<title>Nova Lite<\/title>/, "Nova Lite as its own download");
+    // Old installs (from when it was called Nova) find their update under the old names.
+    for (const sys of ["Mac", "Windows", "Linux"]) assert.deepEqual(readFileSync(path.join(out, `Nova-for-${sys}.zip`)), readFileSync(path.join(out, `Syntaz-for-${sys}.zip`)));
+    const lite = readFileSync(path.join(out, "Syntaz-Lite.html"), "utf8");
+    assert.match(lite, /<title>Syntaz Lite<\/title>/, "Syntaz Lite as its own download");
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

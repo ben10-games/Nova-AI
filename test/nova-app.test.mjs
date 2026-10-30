@@ -1,5 +1,5 @@
-// The Nova window (setup/nova-app.mjs) in real Chrome, on a fresh copy of Nova (as GitHub's ZIP has it):
-// install with a (stand-in) Gemini key, Nova running, shortcuts with the logo, stop/start, update, uninstall.
+// The Syntaz window (setup/nova-app.mjs) in real Chrome, on a fresh copy of Syntaz (as GitHub's ZIP has it):
+// install with a (stand-in) Gemini key, Syntaz running, shortcuts with the logo, stop/start, update, uninstall.
 // Slow (installs and builds twice): npm run test:installer
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
@@ -27,7 +27,7 @@ before(async () => {
   home = path.join(tmp, "home");
   mkdirSync(path.join(home, "Desktop"), { recursive: true });
   for (const f of files) if (existsSync(path.join(root, f))) cpSync(path.join(root, f), path.join(app, f), { recursive: true });
-  // A newer Nova for the update test, as GitHub would serve it.
+  // A newer Syntaz for the update test, as GitHub would serve it.
   const zipDir = path.join(tmp, "zip", "Nova-AI-main");
   cpSync(app, zipDir, { recursive: true });
   const pkg = JSON.parse(readFileSync(path.join(zipDir, "package.json"), "utf8"));
@@ -62,7 +62,7 @@ before(async () => {
       const m = /NOVA_APP_URL=(\S+)/.exec(out);
       if (m) resolve(m[1]);
     });
-    appProc.on("close", () => reject(new Error(`the Nova window program ended: ${out}`)));
+    appProc.on("close", () => reject(new Error(`the Syntaz window program ended: ${out}`)));
   });
   const { default: puppeteer } = await import("puppeteer-core");
   browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ["--no-first-run"] });
@@ -93,7 +93,7 @@ async function waitFor(fn, ms = 20_000) {
   throw new Error("timed out waiting");
 }
 
-test("only Nova's own window can use it: the secret and the exact address are required", async () => {
+test("only Syntaz's own window can use it: the secret and the exact address are required", async () => {
   const u = new URL(url);
   const noSecret = await fetch(`${u.origin}/api/state`, { method: "POST" });
   assert.equal(noSecret.status, 403);
@@ -103,10 +103,10 @@ test("only Nova's own window can use it: the secret and the exact address are re
   assert.equal(wrongHost, 403, "other host names (DNS rebinding) are refused");
 });
 
-test("install with buttons: welcome → key check → progress → Nova running, shortcuts with the Nova logo", { timeout: 900_000 }, async () => {
+test("install with buttons: welcome → key check → progress → Syntaz running, shortcuts with the Syntaz logo", { timeout: 900_000 }, async () => {
   await page.goto(url);
   await waitFor(() => visible("welcome"));
-  assert.equal(await page.$eval("header img", (i) => i.naturalWidth > 0), true, "the Nova logo shows");
+  assert.equal(await page.$eval("header img", (i) => i.naturalWidth > 0), true, "the Syntaz logo shows");
   await page.click("#startSetup");
   await waitFor(() => visible("choose"));
   assert.equal(await page.$eval("#install", (b) => b.disabled), true, "can't install before the check");
@@ -117,47 +117,47 @@ test("install with buttons: welcome → key check → progress → Nova running,
   await page.$eval("#key", (i) => (i.value = ""));
   await page.type("#key", KEY);
   await page.click("#check");
-  await waitFor(async () => /✓ The key works\. Nova will use gemini-3\.1-flash-lite\./.test(await text("#checkMsg")));
+  await waitFor(async () => /✓ The key works\. Syntaz will use gemini-3\.1-flash-lite\./.test(await text("#checkMsg")));
   await page.click("#install");
   await waitFor(() => visible("working"));
-  await waitFor(async () => /Building Nova/.test(await text("#steps")));
-  await waitFor(async () => /Nova is installed ✓/.test(await text("#workTitle")), 600_000);
+  await waitFor(async () => /Building Syntaz/.test(await text("#steps")));
+  await waitFor(async () => /Syntaz is installed ✓/.test(await text("#workTitle")), 600_000);
   assert.equal((await text("#steps")).split("\n").filter((l) => l.startsWith("✓")).length, 5, await text("#steps"));
   await page.click("#workContinue");
-  await waitFor(async () => (await visible("home")) && /Nova is running/.test(await text("#runText")), 60_000);
+  await waitFor(async () => (await visible("home")) && /Syntaz is running/.test(await text("#runText")), 60_000);
   assert.match(await text("#aiText"), /Google Gemini · gemini-3\.1-flash-lite/);
   assert.equal(await text("#extFolder"), path.join(app, "chrome-extension"));
-  // Nova itself answers, with the key from the window's check (never shown on the page).
+  // Syntaz itself answers, with the key from the window's check (never shown on the page).
   const status = await (await fetch(`http://127.0.0.1:${novaPort}/api/pair`)).status;
-  assert.equal(status, 403, "Nova is up (pairing only for the extension)");
+  assert.equal(status, 403, "Syntaz is up (pairing only for the extension)");
   assert.ok(readFileSync(path.join(app, ".env.local"), "utf8").includes(`AI_API_KEY=${KEY}`));
   assert.ok(!(await page.content()).includes(KEY), "the key is not in the page");
-  // Shortcuts (Linux: menu entry, desktop, start at login) with the Nova logo.
+  // Shortcuts (Linux: menu entry, desktop, start at login) with the Syntaz logo.
   for (const f of [path.join(home, ".local", "share", "applications", "nova-ai.desktop"), path.join(home, "Desktop", "nova-ai.desktop"), path.join(home, ".config", "autostart", "nova-ai.desktop")]) {
     const d = readFileSync(f, "utf8");
     assert.match(d, new RegExp(`Icon=${path.join(app, "setup", "assets", "nova-256.png").replace(/[.]/g, "\\.")}`));
-    assert.match(d, /Name=Nova AI/);
+    assert.match(d, /Name=Syntaz AI/);
   }
   assert.match(readFileSync(path.join(home, ".config", "autostart", "nova-ai.desktop"), "utf8"), /--background/);
   await page.screenshot({ path: path.join(os.tmpdir(), "nova-window-home.png") });
 });
 
-test("stop and start Nova with the button", { timeout: 120_000 }, async () => {
+test("stop and start Syntaz with the button", { timeout: 120_000 }, async () => {
   await page.click("#startStop");
-  await waitFor(async () => /Nova is stopped/.test(await text("#runText")), 30_000);
+  await waitFor(async () => /Syntaz is stopped/.test(await text("#runText")), 30_000);
   await page.click("#startStop");
-  await waitFor(async () => /Nova is running/.test(await text("#runText")), 60_000);
+  await waitFor(async () => /Syntaz is running/.test(await text("#runText")), 60_000);
 });
 
 test("update: a newer version is offered and installed; settings are kept", { timeout: 900_000 }, async () => {
   await waitFor(async () => /A new version is ready: 9\.9\.9 \(you have \d+\.\d+\.\d+\)/.test(await text("#updText")));
   await page.click("#update");
   await waitFor(() => visible("working"));
-  await waitFor(async () => /Nova is up to date ✓/.test(await text("#workTitle")), 600_000);
+  await waitFor(async () => /Syntaz is up to date ✓/.test(await text("#workTitle")), 600_000);
   assert.equal(readFileSync(path.join(app, "UPDATED.txt"), "utf8"), "new version");
   assert.ok(readFileSync(path.join(app, ".env.local"), "utf8").includes(`AI_API_KEY=${KEY}`), "the key survived the update");
   await page.click("#workContinue");
-  await waitFor(async () => /You have the newest version \(9\.9\.9\)/.test(await text("#updText")) && /Nova is running/.test(await text("#runText")), 60_000);
+  await waitFor(async () => /You have the newest version \(9\.9\.9\)/.test(await text("#updText")) && /Syntaz is running/.test(await text("#runText")), 60_000);
 });
 
 test("uninstall: shortcuts, start-at-login, pairing code and (if chosen) the files are removed", { timeout: 120_000 }, async () => {

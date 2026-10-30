@@ -14,7 +14,7 @@ next-env.d.ts
 __pycache__/
 *.pyc
 
-# Nova window runtime files (process id, log, window profile)
+# Syntaz window runtime files (process id, log, window profile)
 .nova/
 
 # Release downloads (scripts/make-release.py)

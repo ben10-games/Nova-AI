@@ -1,5 +1,5 @@
 {
-  "$comment": "Nova browser bridge protocol: the ONLY commands the browser MCP server may send and the extension may run, with their parameters. Both sides validate every request against this file. Bump version on any incompatible change.",
+  "$comment": "Syntaz browser bridge protocol: the ONLY commands the browser MCP server may send and the extension may run, with their parameters. Both sides validate every request against this file. Bump version on any incompatible change.",
   "version": 10,
   "commands": {
     "status": {},

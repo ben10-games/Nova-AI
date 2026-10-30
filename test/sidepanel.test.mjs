@@ -1,8 +1,8 @@
 // Side panel tests.
-//  - Always: Nova's API accepts the side panel (extension origin + pairing code) and
+//  - Always: Syntaz's API accepts the side panel (extension origin + pairing code) and
 //    nothing else; streaming, approvals and errors work through that path.
 //  - Optional (NOVA_TEST_CHROME_BIN): the REAL Chrome side panel of the real extension,
-//    talking to a real Nova server (with a scripted model so answers are deterministic).
+//    talking to a real Syntaz server (with a scripted model so answers are deterministic).
 import assert from "node:assert/strict";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import http from "node:http";
@@ -52,7 +52,7 @@ after(() => {
   if (tmp) rmSync(tmp, { recursive: true, force: true });
 });
 
-describe("side panel → Nova API (extension origin + pairing code)", () => {
+describe("side panel → Syntaz API (extension origin + pairing code)", () => {
   test("CORS is granted only to the extension's origin", async () => {
     const pre = await fetch(app.base + "/api/chat", { method: "OPTIONS", headers: { Origin: EXT, "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "authorization,content-type" } });
     assert.equal(pre.status, 204);
@@ -170,7 +170,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.type("#input", msg);
     await panel.keyboard.press("Enter");
   };
-  /** Sends a chat message and waits until the model received it; returns what Nova sent. */
+  /** Sends a chat message and waits until the model received it; returns what Syntaz sent. */
   const chat = async (msg) => {
     const before = mock.seen.chatBodies.length;
     await sendInPanel(msg);
@@ -198,8 +198,8 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
       }
     });
     await new Promise((r) => site.listen(0, "127.0.0.1", r));
-    siteBase = `http://localhost:${site.address().port}`; // allowed for Nova (see host_permissions below)
-    lockedBase = `http://127.0.0.1:${site.address().port}`; // the same site under a host Nova was NOT allowed on
+    siteBase = `http://localhost:${site.address().port}`; // allowed for Syntaz (see host_permissions below)
+    lockedBase = `http://127.0.0.1:${site.address().port}`; // the same site under a host Syntaz was NOT allowed on
     tokenFile = path.join(realTmp, "token");
     bridgePort = await freePort();
     real = await startNova(siteBase);
@@ -215,7 +215,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.equal(await browser.installExtension(extDir), EXT_ID);
     sw = await (await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().startsWith(`${EXT}/`))).worker();
     await waitFor(() => sw.evaluate(() => typeof chrome !== "undefined" && !!chrome.storage?.local));
-    // Point the panel at this Nova. No pairing code is stored: opening the panel pairs by itself.
+    // Point the panel at this Syntaz. No pairing code is stored: opening the panel pairs by itself.
     await sw.evaluate(async (novaUrl, port) => chrome.storage.local.set({ novaUrl, port }), real.base, bridgePort);
     page = await browser.newPage();
     await page.setViewport({ width: 1000, height: 700 });
@@ -248,14 +248,14 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.reload();
     await helper.close();
     await show(page);
-    await waitFor(async () => (await text("#novaStatus")) === "Nova ready");
-    // Nothing to paste or press: the panel fetched the pairing code from Nova and the browser bridge connected.
+    await waitFor(async () => (await text("#novaStatus")) === "Syntaz ready");
+    // Nothing to paste or press: the panel fetched the pairing code from Syntaz and the browser bridge connected.
     await waitFor(async () => (await text("#bridgeStatus")) === "Browser on");
     assert.equal(await sw.evaluate(async () => (await chrome.storage.local.get("token")).token), readFileSync(tokenFile, "utf8").trim());
     assert.deepEqual(logs.filter((l) => /^(error|pageerror)/.test(l)), [], "the panel loads without script errors");
   });
 
-  test("automatic pairing gives the code only to the Nova extension on this computer", async () => {
+  test("automatic pairing gives the code only to the Syntaz extension on this computer", async () => {
     const code = readFileSync(tokenFile, "utf8").trim();
     const ok = await fetch(real.base + "/api/pair", { headers: { Origin: EXT } });
     assert.equal(ok.status, 200);
@@ -266,7 +266,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
       assert.equal(res.status, 403, `origin ${Origin}`);
       assert.ok(!(await res.text()).includes(code));
     }
-    // Asked under another address (e.g. Nova reachable from the network): refused.
+    // Asked under another address (e.g. Syntaz reachable from the network): refused.
     const { request } = await import("node:http");
     const lan = await new Promise((resolve, reject) => {
       const u = new URL(real.base + "/api/pair");
@@ -297,14 +297,14 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
   });
 
   test("watches the current tab automatically (no button) and answers about it", async () => {
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
     assert.equal(await panel.$("#usePage"), null, "the manual button is gone");
     const body = await chat("What is the best seller?");
     const sent = body.messages.at(-1).content;
-    assert.match(sent, /UNTRUSTED website content[\s\S]*Title: Nova Test Shop[\s\S]*Blue Mug[\s\S]*User request: What is the best seller\?/);
+    assert.match(sent, /UNTRUSTED website content[\s\S]*Title: Syntaz Test Shop[\s\S]*Blue Mug[\s\S]*User request: What is the best seller\?/);
     assert.ok(!sent.includes("hunter2") && !sent.includes("4111 1111") && !sent.includes("me@example.com"), "no password, card number or field value");
     assert.match(await lastAssistant(), /Hello from mock/);
-    assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.user")].pop().innerText), /📄 Nova Test Shop/);
+    assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.user")].pop().innerText), /📄 Syntaz Test Shop/);
     // A follow-up on the same page does not resend the page; the earlier copy stays in the history once.
     const follow = await chat("And the price?");
     assert.match(follow.messages.at(-1).content, /still on the same page/);
@@ -322,7 +322,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.user")].pop().innerText), /🎧 what the video says/);
     // A question that isn't about the video, on a page without one: nothing extra.
     await page.goto(`${siteBase}/index.html`);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
     const plain = (await chat("What is the best seller?")).messages.at(-1).content;
     assert.ok(!plain.includes("<<video words>>"));
   });
@@ -342,7 +342,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     const ideas = await panel.evaluate(() => ideasFor({ state: "ready", snap: { url: "https://www.youtube.com/watch?v=abc", title: "A video" } }).map((i) => i.t));
     assert.deepEqual(ideas, ["Summarize this video", "What are they saying?", "Play something on YouTube"]);
     const none = await panel.evaluate(() => ideasFor({ state: "noaccess", action: "Allow" }).map((i) => i.t));
-    assert.deepEqual(none, ["Allow: let Nova see this page", "Play something on YouTube", "Search the web"]);
+    assert.deepEqual(none, ["Allow: let Syntaz see this page", "Play something on YouTube", "Search the web"]);
     // Tapping a card sends it (here: a summary, in Chat).
     const sent = mock.seen.chatBodies.length;
     await panel.evaluate(() => [...document.querySelectorAll("#ideas .idea")].find((b) => b.textContent.includes("Summarize this page")).click());
@@ -353,20 +353,20 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.evaluate(() => ideasFor({ state: "ready", snap: { url: "https://www.youtube.com/watch?v=abc" } }));
     assert.equal(await panel.$eval("#quick", (q) => getComputedStyle(q).display), "none");
     await page.goto(`${siteBase}/index.html`);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
   });
 
   test("switching tabs updates the indicator and the context", async () => {
     const other = await browser.newPage();
     await other.goto(`${siteBase}/about.html`);
     await show(other);
-    await waitFor(async () => (await ctx()) === "Watching: About Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: About Syntaz Test Shop");
     const body = await chat("Who are they?");
-    assert.match(body.messages.at(-1).content, /Title: About Nova Test Shop/);
+    assert.match(body.messages.at(-1).content, /Title: About Syntaz Test Shop/);
     assert.ok(!JSON.stringify(body.messages).includes("Blue Mug"), "the previous page's text is no longer sent");
     await other.close();
     await show(page);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
   });
 
   test("navigating refreshes the snapshot; long pages are cut to the main content", async () => {
@@ -397,7 +397,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.ok(reads < 25, `too many reads: ${reads}`);
   });
 
-  test("no page context is attached where Nova has no permission", async () => {
+  test("no page context is attached where Syntaz has no permission", async () => {
     await page.goto(`${lockedBase}/index.html`);
     await waitFor(async () => /can't read/.test(await ctx()));
     assert.equal(await panel.$eval("#ctx", (e) => e.dataset.state), "noaccess");
@@ -411,13 +411,13 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
 
   test("page awareness can be paused", async () => {
     await page.goto(`${siteBase}/index.html`);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
     await panel.click("#ctxToggle");
     await waitFor(async () => /paused/.test(await ctx()));
     const sent = (await chat("hello")).messages.at(-1).content;
     assert.equal(sent, "hello", "nothing attached while paused");
     await panel.click("#ctxToggle");
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
   });
 
   test("the bridge is on after opening the panel; a real multi-step web task runs with approvals and verified results", async () => {
@@ -473,7 +473,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.equal(await lastRunState(), "Completed");
     const out = await lastAssistant();
     assert.match(out, /Doing this with Actions/);
-    assert.match(out, /Checked by Nova \(from the actual tool results\)[\s\S]*Entered "12" into "e1" \(x =\) — verified/);
+    assert.match(out, /Checked by Syntaz \(from the actual tool results\)[\s\S]*Entered "12" into "e1" \(x =\) — verified/);
     assert.equal(await page.$eval("#x", (e) => e.value), "12", "the answer is in the real page");
     const statuses = await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps .st")].map((x) => x.textContent));
     assert.deepEqual(statuses, ["done", "done", "done", "done", "done", "verified ✓"], "first looks, the worked-out answer and the reads done; the typing step verified by the extension");
@@ -489,7 +489,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await sw.evaluate(() => chrome.storage.local.set({ cursor: true, cursorMs: 900, cursorIdleMs: 60000 }));
     await page.goto(`${siteBase}/cursor.html`);
     await show(page);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Cursor Test");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Cursor Test");
     await panel.click("#modeActions");
     await mock.script([PLAN, step("mcp__browser__click", { target: "Show details" }), finish("Clicked it.")]);
     await sendInPanel("Click the Show details button");
@@ -507,7 +507,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.equal(await lastRunState(), "Completed");
     assert.equal(await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps .st")].pop().textContent), "done");
     assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps .arg")].pop().textContent), /“Show details”/);
-    assert.match(await lastAssistant(), /Checked by Nova[\s\S]*✔ mcp__browser__click: Clicked "Show details" — the page changed\./);
+    assert.match(await lastAssistant(), /Checked by Syntaz[\s\S]*✔ mcp__browser__click: Clicked "Show details" — the page changed\./);
     assert.equal(await page.$eval("#status", (e) => e.textContent), "Details shown");
     assert.equal(await page.evaluate(() => document.querySelectorAll("nova-cursor").length), 1);
     // Header Pause / Resume.
@@ -557,7 +557,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     const why = await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .steps details pre")].map((p) => p.textContent).join("\n"));
     assert.ok(!/undefined/.test(out + why), "no 'Click undefined'");
     assert.match(why, /say which element to use \(element_id or target\)/);
-    assert.match(why, /Not asked and not done: That is a CAPTCHA[\s\S]*Nova never clicks or solves CAPTCHAs: please complete it yourself/);
+    assert.match(why, /Not asked and not done: That is a CAPTCHA[\s\S]*Syntaz never clicks or solves CAPTCHAs: please complete it yourself/);
     assert.match(out, /✘ mcp__browser__click: not run\. Not asked and not done: That is a CAPTCHA/);
     assert.ok(!/workspace is read-only/i.test(out), "no workspace noise in a browser task");
     const frame = page.frames().find((f) => f.url().endsWith("/captcha-frame.html"));
@@ -597,7 +597,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await sw.evaluate(() => chrome.storage.local.set({ cursorMs: 0 }));
     await page.goto(`${siteBase}/cursor.html`);
     await show(page);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Cursor Test");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Cursor Test");
     await panel.click("#modeActions");
     const host = new URL(siteBase).host;
     const runTask = async (calls, msg) => {
@@ -656,10 +656,10 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.click("#modeAuto");
   });
 
-  test("extras: /shortcuts, opt-in saved chats, right-click 'Ask Nova', and an honest 📷 when Nova can't see", async () => {
+  test("extras: /shortcuts, opt-in saved chats, right-click 'Ask Syntaz', and an honest 📷 when Syntaz can't see", async () => {
     await page.goto(`${siteBase}/index.html`);
     await show(page);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Test Shop");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Test Shop");
     await panel.click("#modeChat");
     // /summarize: the menu shows it, and sending expands it.
     await panel.click("#input");
@@ -691,7 +691,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.click("#toggleSettings");
     await panel.click("#saveChats");
     await panel.click("#closeSettings");
-    // Right-click "Ask Nova about …": the question is put in the box, not sent.
+    // Right-click "Ask Syntaz about …": the question is put in the box, not sent.
     const sentBefore = mock.seen.chatBodies.length;
     await sw.evaluate(() => askFromMenu({ menuItemId: "nova-ask-selection", selectionText: "photosynthesis" }, null));
     await waitFor(async () => (await panel.$eval("#input", (e) => e.value)) === "Explain this: “photosynthesis”");
@@ -701,7 +701,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.click("#see");
     body = await chat("What colour is the logo?");
     assert.equal(body.messages.at(-1).images, undefined);
-    assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.user")].pop().innerText), /📷 no screenshot[\s\S]*Nova couldn't see this tab/);
+    assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.user")].pop().innerText), /📷 no screenshot[\s\S]*Syntaz couldn't see this tab/);
     await panel.click("#modeAuto");
   });
 
@@ -709,7 +709,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await sw.evaluate(() => chrome.storage.local.set({ cursorMs: 0 }));
     await page.goto(`${siteBase}/cursor.html`);
     await show(page);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Cursor Test");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Cursor Test");
     await panel.click("#modeAuto");
     const settle = () => waitFor(async () => /Completed|Failed|Not completed|Stopped/.test(await lastRunState()), 30_000);
     const newReply = async (msg, script) => {
@@ -728,8 +728,8 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await settle();
     assert.equal(await page.$eval("#status", (e) => e.textContent), "Details shown");
     assert.match(await panel.evaluate(() => [...document.querySelectorAll(".msg.assistant:last-child .approval")].map((c) => c.innerText).join(" ")), /Allowed automatically \(hands-off\)/);
-    assert.match(await lastAssistant(), /hands-off — Nova asks only before submitting/);
-    assert.match(JSON.stringify(mock.seen.agentBodies.at(-1).messages[0].content), /Hands-off mode: the user is not watching/, "Nova runs the task hands-off (longer, keeps going)");
+    assert.match(await lastAssistant(), /hands-off — Syntaz asks only before submitting/);
+    assert.match(JSON.stringify(mock.seen.agentBodies.at(-1).messages[0].content), /Hands-off mode: the user is not watching/, "Syntaz runs the task hands-off (longer, keeps going)");
     // A consequential one still asks.
     await newReply("Click Delete account (I confirm)", [PLAN, step("mcp__browser__click", { target: "Delete account", confirm_consequential: true }), finish("x")]);
     await waitFor(async () => panel.evaluate(() => !!document.querySelector(".msg.assistant:last-child .approval button.primary")));
@@ -757,7 +757,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.equal(await page.$eval("#st", (e) => e.textContent), "-", "not submitted");
     const out = await lastAssistant();
     assert.match(out, /Doing this with Actions/);
-    assert.match(out, /Nova understood: Answer the current question/);
+    assert.match(out, /Syntaz understood: Answer the current question/);
     assert.equal(await panel.evaluate(() => [...[...document.querySelectorAll(".msg.user")].pop().childNodes].find((n) => n.nodeType === 3).textContent), "finish this for me");
     await sw.evaluate(() => chrome.storage.local.set({ cursorMs: 300 }));
   });
@@ -816,7 +816,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     // 2. Deleting is never automatic, even when asked.
     await page.goto(`${siteBase}/cursor.html`);
     await show(page);
-    await waitFor(async () => (await ctx()) === "Watching: Nova Cursor Test");
+    await waitFor(async () => (await ctx()) === "Watching: Syntaz Cursor Test");
     await task("Click Delete account and submit (I confirm)", [step("mcp__browser__click", { target: "Delete account", confirm_consequential: true }), finish("x")]);
     await waitFor(async () => panel.evaluate(() => !!document.querySelector(".msg.assistant:last-child .approval button.primary")));
     await panel.click(".msg.assistant:last-child .approval .row button:not(.primary)");
@@ -843,7 +843,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.click(".msg.assistant:last-child .approval button.primary");
     await waitFor(async () => /Completed|Failed|Stopped/.test(await lastRunState()), 30_000);
     const out = await lastAssistant();
-    assert.match(out, /CAPTCHA\. Nova does not solve those/);
+    assert.match(out, /CAPTCHA\. Syntaz does not solve those/);
     assert.match(out, /Stopped because a step failed[\s\S]*No results were gathered/, "it stops at once, without a write-up of the first look");
   });
 
@@ -860,7 +860,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await waitFor(async () => /Completed|Stopped|Failed|Not completed/.test(await lastRunState()));
     assert.equal(await lastRunState(), "Not completed — no browser action succeeded", "a denied action is not reported as completed");
     assert.match(await lastAssistant(), /not run/);
-    assert.equal(await page.title(), "Nova Test Shop", "the tab was not navigated");
+    assert.equal(await page.title(), "Syntaz Test Shop", "the tab was not navigated");
   });
 
   test("Stop ends a running task before the action happens", async () => {
@@ -872,7 +872,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     assert.match(await lastAssistant(), /Not decided: the task ended/);
     assert.equal(await panel.$(".approval button.primary"), null, "no Allow button is left to click");
     await sleep(500);
-    assert.equal(await page.title(), "Nova Test Shop");
+    assert.equal(await page.title(), "Syntaz Test Shop");
     assert.equal(await panel.$eval("#send", (e) => e.hidden), false);
   });
 
@@ -889,7 +889,7 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.click(".msg.assistant:last-child .approval button.primary");
     await waitFor(async () => /Completed|Stopped|Failed/.test(await lastRunState()));
     assert.match(await lastAssistant(), /paused/);
-    assert.equal(await page.title(), "Nova Test Shop");
+    assert.equal(await page.title(), "Syntaz Test Shop");
     await panel.click("#toggleSettings");
     await panel.click("#pause");
     await panel.click("#disconnect");
@@ -898,22 +898,22 @@ describe("real Chrome side panel", { timeout: 180_000, skip: !CHROME || !existsS
     await panel.click("#modeAuto");
     // Reopening the panel does not reconnect behind the user's back after Disconnect.
     await panel.reload();
-    await waitFor(async () => (await text("#novaStatus")) === "Nova ready");
+    await waitFor(async () => (await text("#novaStatus")) === "Syntaz ready");
     await sleep(2500);
     assert.equal(await text("#bridgeStatus"), "Browser off");
   });
 
-  test("Nova unreachable shows an error with Retry, which works once Nova is back", async () => {
+  test("Syntaz unreachable shows an error with Retry, which works once Syntaz is back", async () => {
     await sw.evaluate(() => chrome.storage.local.set({ novaUrl: "http://127.0.0.1:9" }));
     await sendInPanel("are you there?");
-    await waitFor(async () => /Nova isn't running at http:\/\/127\.0\.0\.1:9/.test(await lastAssistant()));
+    await waitFor(async () => /Syntaz isn't running at http:\/\/127\.0\.0\.1:9/.test(await lastAssistant()));
     assert.ok(await panel.$(".msg.assistant:last-child .retry"));
     await sw.evaluate((u) => chrome.storage.local.set({ novaUrl: u }), real.base);
     await panel.click(".msg.assistant:last-child .retry");
     await waitFor(async () => /Hello from mock/.test(await lastAssistant()));
   });
 
-  test("Nova and the browser bridge restart cleanly", async () => {
+  test("Syntaz and the browser bridge restart cleanly", async () => {
     await panel.click("#bridgeConnect");
     await waitFor(async () => (await text("#bridgeStatus")) === "Browser on");
     real.child.kill();

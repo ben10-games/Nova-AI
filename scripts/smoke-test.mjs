@@ -1,4 +1,4 @@
-// Smoke test for a running Nova AI instance (uses the real configured provider).
+// Smoke test for a running Syntaz AI instance (uses the real configured provider).
 // Usage: node scripts/smoke-test.mjs [baseUrl]   (default http://127.0.0.1:3000)
 // If BASIC_AUTH_USER/BASIC_AUTH_PASSWORD are set in your shell, they are used.
 const base = (process.argv[2] ?? "http://127.0.0.1:3000").replace(/\/$/, "");

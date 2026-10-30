@@ -4,7 +4,7 @@ import http from "node:http";
 export const MOCK_KEY = "sk-test-mock-key-0123456789abcdef";
 
 /**
- * Non-streaming completions (used by Nova Actions) are answered from a script:
+ * Non-streaming completions (used by Syntaz Actions) are answered from a script:
  * POST /__script with { responses: [...] }. Each response is one of
  *   { content: string }                      plain assistant text (e.g. a JSON step)
  *   { json: object }                         assistant text = JSON.stringify(json)
@@ -13,8 +13,8 @@ export const MOCK_KEY = "sk-test-mock-key-0123456789abcdef";
  *   { delayMs: number, ... }                 wait before answering (for cancellation tests)
  * When the script is empty, the mock finishes the task.
  * "__SNAPSHOT__" anywhere in a scripted reply is replaced with the newest snapshot_id from list_elements.
- * { interpret: "..." } answers Nova's "what does this short request mean" call.
- * { workOut: "..." } answers Nova's "work it out first" request (otherwise a neutral default is used).
+ * { interpret: "..." } answers Syntaz's "what does this short request mean" call.
+ * { workOut: "..." } answers Syntaz's "work it out first" request (otherwise a neutral default is used).
  */
 export function startMockProvider() {
   const seen = { auth: [], chatBodies: [], aborted: 0, agentBodies: [], agentAborted: 0 };
@@ -49,9 +49,9 @@ export function startMockProvider() {
         // Browser tasks skip the planning call: a scripted plan is then not consumed as a step.
         const asksForPlan = JSON.stringify(body.response_format ?? "").includes('"plan"');
         if (!asksForPlan && script[0]?.json?.steps && !("action" in script[0].json)) script.shift();
-        // Nova's "work it out first" request (solving tasks): answered from a scripted { workOut } entry if the
+        // Syntaz's "work it out first" request (solving tasks): answered from a scripted { workOut } entry if the
         // test gives one, otherwise with a neutral default, so the scripted steps stay in order.
-        // Nova's "what does this short request mean here" call: { interpret } entry, or a neutral default.
+        // Syntaz's "what does this short request mean here" call: { interpret } entry, or a neutral default.
         if (String(body.messages?.[0]?.content ?? "").startsWith("The user gave a short request")) {
           const text = script[0]?.interpret !== undefined ? script.shift().interpret : "Do what the page asks.";
           res.writeHead(200, { "Content-Type": "application/json" });

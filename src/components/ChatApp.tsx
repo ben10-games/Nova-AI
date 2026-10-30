@@ -25,7 +25,7 @@ import {
   ChartIcon,
   CodeIcon,
   EraserIcon,
-  NovaLogo,
+  SyntazLogo,
   PenLineIcon,
   PlusIcon,
   SidebarIcon,
@@ -151,7 +151,7 @@ export default function ChatApp() {
         setStatus({ state: "offline", error: data.error ?? `HTTP ${res.status}` });
       }
     } catch {
-      setStatus({ state: "offline", error: "Could not reach the Nova AI server. Check your connection and try again." });
+      setStatus({ state: "offline", error: "Could not reach the Syntaz AI server. Check your connection and try again." });
     }
   }, []);
 
@@ -280,7 +280,7 @@ export default function ChatApp() {
     [updateConversation, updateMessage, refreshStatus, settings],
   );
 
-  /** Runs a Nova Action for the goal in the last (user) message of `history`. */
+  /** Runs a Syntaz Action for the goal in the last (user) message of `history`. */
   const runAction = useCallback(
     async (convId: string, history: ChatMessage[]) => {
       const goal = history[history.length - 1].content;
@@ -545,18 +545,18 @@ export default function ChatApp() {
         <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto" aria-live="off">
           {!hydrated ? (
             <div className="grid h-full place-items-center" role="status" aria-label="Loading">
-              <NovaLogo className="h-10 w-10 animate-pulse" />
+              <SyntazLogo className="h-10 w-10 animate-pulse" />
             </div>
           ) : messages.length === 0 ? (
             <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-10">
-              <NovaLogo className="mb-6 h-12 w-12 animate-fade-in" />
+              <SyntazLogo className="mb-6 h-12 w-12 animate-fade-in" />
               <h2 className="animate-fade-in-up text-center text-2xl font-semibold tracking-tight text-zinc-50 sm:text-[32px]">
-                {mode === "actions" ? "What should Nova get done?" : "What can I help you with?"}
+                {mode === "actions" ? "What should Syntaz get done?" : "What can I help you with?"}
               </h2>
               <p className="mt-3 max-w-md animate-fade-in-up text-center text-sm text-zinc-400">
                 {mode === "actions" ? (
                   <>
-                    Describe a goal. Nova plans the steps and uses tools
+                    Describe a goal. Syntaz plans the steps and uses tools
                     {actionsInfo?.workspace ? (actionsInfo.writes ? " on your workspace; any change needs your approval." : " to read your workspace (read-only).") : ". No workspace folder is connected yet."}
                   </>
                 ) : (

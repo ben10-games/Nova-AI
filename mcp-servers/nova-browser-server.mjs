@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// Nova browser MCP server (stdio). Hosts a WebSocket on 127.0.0.1 that ONLY the
-// Nova Browser Bridge Chrome extension may connect to (fixed extension origin +
-// pairing token), and exposes a fixed set of typed browser tools to Nova.
+// Syntaz browser MCP server (stdio). Hosts a WebSocket on 127.0.0.1 that ONLY the
+// Syntaz Browser Bridge Chrome extension may connect to (fixed extension origin +
+// pairing token), and exposes a fixed set of typed browser tools to Syntaz.
 //
-// Nova starts it with an empty environment plus:
+// Syntaz starts it with an empty environment plus:
 //   NOVA_BROWSER_PORT          WebSocket port (default 9895)
 //   NOVA_BROWSER_TOKEN_FILE    pairing token file (created with mode 0600 if missing)
 //   NOVA_BROWSER_EXTENSION_ID  allowed extension id (origin chrome-extension://<id>)
 //   NOVA_BROWSER_SHOT_DIR      folder for screenshots
-//   NOVA_BROWSER_SEARCH_URL    search page the query is appended to (from Nova's config)
+//   NOVA_BROWSER_SEARCH_URL    search page the query is appended to (from Syntaz's config)
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -75,7 +75,7 @@ let client = null; // the single authenticated extension socket
 let clientCommands = null;
 let clientVersion = "";
 const OUTDATED = (command) =>
-  `The Nova Chrome extension that is connected (version ${clientVersion || "unknown"}) is out of date and cannot do "${command}". Reload it: open chrome://extensions, find Nova AI, click the reload arrow, then press Connect in Nova's side panel. Nothing was done in the page.`;
+  `The Syntaz Chrome extension that is connected (version ${clientVersion || "unknown"}) is out of date and cannot do "${command}". Reload it: open chrome://extensions, find Syntaz AI, click the reload arrow, then press Connect in Syntaz's side panel. Nothing was done in the page.`;
 const pending = new Map();
 let nextId = 1;
 
@@ -102,7 +102,7 @@ wss.on("connection", (ws) => {
       const token = Buffer.from(typeof msg?.token === "string" ? msg.token : "");
       if (msg?.type !== "hello" || token.length !== TOKEN.length || !timingSafeEqual(token, TOKEN)) return ws.close(4001, "bad pairing code");
       if (msg.protocol !== PROTOCOL.version) {
-        // Different builds (extension not reloaded, or Nova not restarted): say which, then refuse.
+        // Different builds (extension not reloaded, or Syntaz not restarted): say which, then refuse.
         console.error(`[nova-browser] extension protocol ${msg.protocol ?? "none (old build)"} != server protocol ${PROTOCOL.version}`);
         ws.send(JSON.stringify({ type: "incompatible", protocol: PROTOCOL.version }));
         return ws.close(4004, "protocol version mismatch");
@@ -135,7 +135,7 @@ wss.on("connection", (ws) => {
 });
 setInterval(() => client?.send(JSON.stringify({ type: "ping" })), 20_000).unref();
 
-/** A browser failure with a short machine-readable code (shown as "[code]"; Nova decides from it whether the task can continue). */
+/** A browser failure with a short machine-readable code (shown as "[code]"; Syntaz decides from it whether the task can continue). */
 class BrowserError extends Error {
   constructor(message, code = "") {
     super(message);
@@ -144,14 +144,14 @@ class BrowserError extends Error {
 }
 
 const NOT_CONNECTED =
-  "Chrome is not connected. Open Chrome, click the Nova icon in the toolbar (the side panel connects by itself).";
+  "Chrome is not connected. Open Chrome, click the Syntaz icon in the toolbar (the side panel connects by itself).";
 
 /** Sends one command to the extension and waits for its answer. */
 function request(command, params, { timeoutMs = 20_000, signal } = {}) {
   if (!client) return Promise.reject(new BrowserError(NOT_CONNECTED, "not_connected"));
   params = cleanParams(params);
   const invalid = checkRequest(PROTOCOL, command, params);
-  if (invalid) return Promise.reject(new BrowserError(`Nova built an invalid browser request (${invalid}). This is a bug in Nova; nothing was sent to Chrome.`, "protocol_error"));
+  if (invalid) return Promise.reject(new BrowserError(`Syntaz built an invalid browser request (${invalid}). This is a bug in Syntaz; nothing was sent to Chrome.`, "protocol_error"));
   // Never send a command the extension doesn't know (e.g. an old copy that was not reloaded).
   if (clientCommands && !clientCommands.has(command)) return Promise.reject(new BrowserError(OUTDATED(command), "outdated_extension"));
   const id = String(nextId++);
@@ -186,7 +186,7 @@ function request(command, params, { timeoutMs = 20_000, signal } = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// Validation helpers (Nova validated types already; these check meaning)
+// Validation helpers (Syntaz validated types already; these check meaning)
 // ---------------------------------------------------------------------------
 function checkUrl(raw) {
   let u;
@@ -248,7 +248,7 @@ function tool(name, description, inputSchema, handler, { readOnly = false } = {}
 
 const tabId = z.number().int().min(0).max(2 ** 31).optional().describe("Tab id from list_tabs (default: the active tab)");
 
-tool("browser_status", "Whether Chrome is connected and paused, and the active tab's title and URL (if Nova may access it).", {}, async (_a, signal) => {
+tool("browser_status", "Whether Chrome is connected and paused, and the active tab's title and URL (if Syntaz may access it).", {}, async (_a, signal) => {
   if (!client) return text({ connected: false, message: NOT_CONNECTED });
   return text(await request("status", {}, { signal }));
 }, { readOnly: true });
@@ -261,7 +261,7 @@ tool(
   { tab_id: tabId },
   async (args, signal) => {
     const r = await request("get_page", args, { signal });
-    return text(`Title: ${r.title}\nURL: ${r.url}${r.visuals ? `\nPictures or graphs on screen: ${r.visuals} (their content is not in this text; look_at_page can see them)` : ""}${r.captcha_detected ? "\nNote: this page shows a CAPTCHA. Nova cannot solve it; the user must." : ""}\n\n${UNTRUSTED}\n<<page text>>\n${r.text}\n<</page text>>${r.truncated ? `\n[Showing ${r.text.length} of ${r.total_chars} characters]${r.headings?.length ? `\nSections of the full page: ${r.headings.join(" | ")}` : ""}` : ""}`);
+    return text(`Title: ${r.title}\nURL: ${r.url}${r.visuals ? `\nPictures or graphs on screen: ${r.visuals} (their content is not in this text; look_at_page can see them)` : ""}${r.captcha_detected ? "\nNote: this page shows a CAPTCHA. Syntaz cannot solve it; the user must." : ""}\n\n${UNTRUSTED}\n<<page text>>\n${r.text}\n<</page text>>${r.truncated ? `\n[Showing ${r.text.length} of ${r.total_chars} characters]${r.headings?.length ? `\nSections of the full page: ${r.headings.join(" | ")}` : ""}` : ""}`);
   },
   { readOnly: true },
 );
@@ -308,11 +308,11 @@ tool("screenshot", "Capture the visible tab as a PNG saved on this computer (the
   mkdirSync(shotDir, { recursive: true, mode: 0o700 });
   const file = path.join(shotDir, `nova-browser-${Date.now()}.png`);
   writeFileSync(file, Buffer.from(m[1], "base64"), { mode: 0o600 });
-  return text({ saved: file, bytes: Buffer.byteLength(m[1], "base64"), note: "Nova did not look at the image; open the file to see it." });
+  return text({ saved: file, bytes: Buffer.byteLength(m[1], "base64"), note: "Syntaz did not look at the image; open the file to see it." });
 });
 
 // ---------------------------------------------------------------------------
-// Interaction (phase 2). Every call needs the user's approval in Nova; risky targets
+// Interaction (phase 2). Every call needs the user's approval in Syntaz; risky targets
 // are refused here before they reach Chrome, and checked again inside the page.
 // ---------------------------------------------------------------------------
 const interaction = {
@@ -325,7 +325,7 @@ const interaction = {
 };
 
 function guard(el, { submit = false, confirmed = false } = {}) {
-  if (el.sensitive) throw new BrowserError(`"${el.label}" is a password, payment or security field. Nova never reads or fills those; the user must do it.`, "sensitive_field");
+  if (el.sensitive) throw new BrowserError(`"${el.label}" is a password, payment or security field. Syntaz never reads or fills those; the user must do it.`, "sensitive_field");
   if (el.disabled) throw new BrowserError(`"${el.label}" is disabled: the page does not accept input there right now.`, "disabled");
   if ((el.consequential || submit) && !confirmed) {
     throw new BrowserError(
@@ -344,7 +344,7 @@ function clickSummary(where, r) {
 
 tool(
   "click",
-  "Click a link, button, checkbox or tab: by element_id from list_elements, OR by `target` (its exact visible label, e.g. \"Settings\"). Nova's cursor moves there first. Consequential ones (submit, send, buy, delete, next, ...) need confirm_consequential=true and the user's explicit agreement. Reports whether the page changed.",
+  "Click a link, button, checkbox or tab: by element_id from list_elements, OR by `target` (its exact visible label, e.g. \"Settings\"). Syntaz's cursor moves there first. Consequential ones (submit, send, buy, delete, next, ...) need confirm_consequential=true and the user's explicit agreement. Reports whether the page changed.",
   {
     ...interaction,
     snapshot_id: interaction.snapshot_id.optional(),
@@ -388,7 +388,7 @@ tool(
   },
 );
 
-// Used by Nova itself (never offered to the model): checks an action against the live page BEFORE the
+// Used by Syntaz itself (never offered to the model): checks an action against the live page BEFORE the
 // user is asked to approve it, and describes it in plain words for the approval card.
 /** What to look for when choosing by name: the option, plus the list's name if one was given separately. */
 function optionHint({ option, target }) {
@@ -465,7 +465,7 @@ tool(
 
 tool(
   "select_option",
-  "Choose an option in a drop-down list (a select from list_elements) by its visible text or value. Nova's cursor moves there first; the choice is checked afterwards.",
+  "Choose an option in a drop-down list (a select from list_elements) by its visible text or value. Syntaz's cursor moves there first; the choice is checked afterwards.",
   {
     tab_id: tabId,
     snapshot_id: interaction.snapshot_id.optional(),
@@ -549,7 +549,7 @@ tool(
     guard(el, { submit: args.submit === true, confirmed: args.confirm_consequential === true });
     const { snapshot_id, element_id, text: typed, tab_id, submit, confirm_consequential, expect_url_contains, expect_text } = args;
     const r = await request("type_text", { snapshot_id, element_id, text: typed, tab_id, submit, confirm_consequential, expect_url_contains, expect_text }, { signal, timeoutMs: 45_000 });
-    // First line: the verified outcome in words (Nova shows it under the final answer).
+    // First line: the verified outcome in words (Syntaz shows it under the final answer).
     const where = el.context && el.context !== el.label ? `"${el.label || el.id}" (${el.context.slice(0, 80)})` : `"${el.label || el.id}"`;
     const summary = `Entered "${r.typed ?? args.text}" into ${where}${r.adjusted ? ` (${r.adjusted})` : ""} — verified: the ${r.field ?? "field"} shows it${r.read_back ? `; ${r.read_back}` : ""}.${r.submitted ? " The form was submitted." : " Not submitted."}`;
     return text(`${summary}\n${JSON.stringify(r, null, 2)}`);
@@ -571,7 +571,7 @@ tool(
     if (args.element_id) {
       snapshot_id = snapshot_id ?? latestSnapshotWith(args.element_id);
       const el = elementFor(snapshot_id, args.element_id);
-      if (el.sensitive) throw new BrowserError(`"${el.label}" is a password, payment or security field. Nova never uses those.`, "sensitive_field");
+      if (el.sensitive) throw new BrowserError(`"${el.label}" is a password, payment or security field. Syntaz never uses those.`, "sensitive_field");
     }
     const r = await request("press_key", { key: args.key === "Space" ? " " : args.key, snapshot_id, element_id: args.element_id, tab_id: args.tab_id, confirm_consequential: args.confirm_consequential }, { signal, timeoutMs: 30_000 });
     const what = r.effect ? `; ${r.effect}` : r.navigated ? `; the page changed to "${r.page?.title ?? "a new page"}"` : r.page_changed ? "; the page changed" : "; no visible change on the page";
@@ -598,7 +598,7 @@ tool(
 
 tool(
   "video_transcript",
-  "Read what is SAID in the video on the current tab (YouTube: its transcript, with timestamps, or the captions on screen) and the video's current time. Use it for questions about what a video says, the words of a song, or to summarize a video. Nova can't hear sounds or music without words.",
+  "Read what is SAID in the video on the current tab (YouTube: its transcript, with timestamps, or the captions on screen) and the video's current time. Use it for questions about what a video says, the words of a song, or to summarize a video. Syntaz can't hear sounds or music without words.",
   { tab_id: tabId },
   async (args, signal) => {
     const r = await request("transcript", { tab_id: args.tab_id, max_chars: 6000 }, { signal, timeoutMs: 20_000 });
@@ -614,12 +614,12 @@ tool(
 
 tool(
   "read_field",
-  "Read a field back after typing, to check it: shows the value only for fields Nova typed into on this page (otherwise only whether it has content). Never for password/payment fields.",
+  "Read a field back after typing, to check it: shows the value only for fields Syntaz typed into on this page (otherwise only whether it has content). Never for password/payment fields.",
   { tab_id: tabId, snapshot_id: interaction.snapshot_id.optional(), element_id: interaction.element_id },
   async (args, signal) => {
     const snapshot_id = args.snapshot_id ?? latestSnapshotWith(args.element_id);
     const el = elementFor(snapshot_id, args.element_id);
-    if (el.sensitive) throw new BrowserError(`"${el.label}" is a password, payment or security field. Nova never reads those.`, "sensitive_field");
+    if (el.sensitive) throw new BrowserError(`"${el.label}" is a password, payment or security field. Syntaz never reads those.`, "sensitive_field");
     return text(await request("read_field", { snapshot_id, element_id: args.element_id, tab_id: args.tab_id }, { signal }));
   },
   { readOnly: true },
@@ -640,8 +640,8 @@ tool(
 // Research: real searches and pages opened in the user's Chrome (each needs approval)
 // ---------------------------------------------------------------------------
 function pageText(p) {
-  if (!p?.access) return `(Nova could not read this page: ${p?.note ?? "no access"})`;
-  return `Title: ${p.title}\nURL: ${p.url}${p.captcha ? "\nNote: this page shows a CAPTCHA. Nova cannot solve it; the user must." : ""}\n\n${UNTRUSTED}\n<<page text>>\n${p.text}\n<</page text>>${p.truncated ? `\n[Showing ${p.text.length} of ${p.total_chars} characters; use get_page with this tab_id for more]` : ""}`;
+  if (!p?.access) return `(Syntaz could not read this page: ${p?.note ?? "no access"})`;
+  return `Title: ${p.title}\nURL: ${p.url}${p.captcha ? "\nNote: this page shows a CAPTCHA. Syntaz cannot solve it; the user must." : ""}\n\n${UNTRUSTED}\n<<page text>>\n${p.text}\n<</page text>>${p.truncated ? `\n[Showing ${p.text.length} of ${p.total_chars} characters; use get_page with this tab_id for more]` : ""}`;
 }
 
 tool(
@@ -654,7 +654,7 @@ tool(
   async (args, signal) => {
     const url = checkUrl(searchUrl + encodeURIComponent(args.query.trim()));
     const r = await request("search", { url, new_tab: args.new_tab === true, max_results: 8 }, { signal, timeoutMs: 45_000 });
-    if (r.captcha) throw new BrowserError("The search engine is showing a CAPTCHA. Nova does not solve those; the user must, or try again later.", "captcha");
+    if (r.captcha) throw new BrowserError("The search engine is showing a CAPTCHA. Syntaz does not solve those; the user must, or try again later.", "captcha");
     if (!r.results?.length) throw new BrowserError(`The search page loaded (${r.url}) but no results could be read from it.`, "no_results");
     return text({ searched_for: args.query, results_page: r.url, tab_id: r.tab_id, note: UNTRUSTED, results: r.results });
   },
@@ -672,7 +672,7 @@ tool(
     const base = SITE_SEARCH_BASE ? `${SITE_SEARCH_BASE}?site=${args.site}&q=` : SITE_SEARCH[args.site];
     const url = checkUrl(base + encodeURIComponent(args.query.trim()));
     const r = await request("search", { url, new_tab: args.new_tab === true, max_results: 8, same_site: true }, { signal, timeoutMs: 45_000 });
-    if (r.captcha) throw new BrowserError(`${args.site} is showing a CAPTCHA. Nova does not solve those; the user must.`, "captcha");
+    if (r.captcha) throw new BrowserError(`${args.site} is showing a CAPTCHA. Syntaz does not solve those; the user must.`, "captcha");
     if (!r.results?.length) {
       // Some sites jump straight to the page (e.g. a Wikipedia article): that is the result.
       if (!/search|results|\/s\?|sch\//i.test(r.url)) return text(`${args.site} opened "${r.title}" directly (${r.url}). Read it with get_page.`);
@@ -696,6 +696,6 @@ tool(
 );
 
 await server.connect(new StdioServerTransport());
-// When Nova exits, stdin closes: stop too, so the bridge port is free for the next Nova.
+// When Syntaz exits, stdin closes: stop too, so the bridge port is free for the next Syntaz.
 process.stdin.on("end", () => process.exit(0));
 process.stdin.on("close", () => process.exit(0));

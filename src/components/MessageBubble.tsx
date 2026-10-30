@@ -4,7 +4,7 @@ import { memo, useState } from "react";
 import { formatBytes } from "@/lib/attachments";
 import type { ChatMessage } from "@/lib/types";
 import ActionRunView from "./ActionRunView";
-import { AlertIcon, BoltIcon, CheckIcon, CopyIcon, FileIcon, NovaLogo, RetryIcon } from "./Icons";
+import { AlertIcon, BoltIcon, CheckIcon, CopyIcon, FileIcon, SyntazLogo, RetryIcon } from "./Icons";
 import Markdown from "./Markdown";
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
 
 function TypingDots() {
   return (
-    <div className="flex h-6 items-center gap-1.5" role="status" aria-label="Nova is thinking">
+    <div className="flex h-6 items-center gap-1.5" role="status" aria-label="Syntaz is thinking">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
@@ -94,7 +94,7 @@ function MessageBubble({ message, streaming, isLast, canRegenerate, onRegenerate
 
   return (
     <div className="flex animate-fade-in-up gap-3 sm:gap-4">
-      <NovaLogo className="mt-0.5 h-8 w-8 shrink-0" />
+      <SyntazLogo className="mt-0.5 h-8 w-8 shrink-0" />
       <div className="min-w-0 flex-1">
         <div className="rounded-[20px] rounded-tl-md border border-ink-700/80 bg-ink-850/80 px-4 py-3 sm:px-5 sm:py-4">
           {message.run ? (
