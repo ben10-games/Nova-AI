@@ -1,6 +1,6 @@
 import "server-only";
 import type { AiConfig } from "../config";
-import { describeUpstreamError, fetchWithRetry, providerHeaders, UpstreamError } from "../provider";
+import { chatCompletions, describeUpstreamError, UpstreamError } from "../provider";
 import type { ToolDefinition } from "./tools";
 
 /** Text, or text plus images, for models that can see (OpenAI-style content parts). */
@@ -27,12 +27,7 @@ async function post(config: AiConfig, body: Record<string, unknown>, signal: Abo
   let res: Response;
   const started = Date.now();
   try {
-    res = await fetchWithRetry(`${config.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...providerHeaders(config) },
-      body: JSON.stringify({ ...body, ...(config.reasoningEffort ? { reasoning_effort: config.reasoningEffort } : {}), stream: false }),
-      signal,
-    });
+    res = await chatCompletions(config, { ...body, ...(config.reasoningEffort ? { reasoning_effort: config.reasoningEffort } : {}), stream: false }, signal);
   } catch (err) {
     if (signal.aborted) throw err;
     throw new UpstreamError(`Cannot reach ${config.providerName}.`, 503);

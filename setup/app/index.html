@@ -43,6 +43,8 @@
   .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
   .choice input { margin-right: 8px; accent-color: var(--accent); }
   .tag { font-size: 11px; background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
+  .tag.paid { background: var(--raise); color: var(--muted); border: 1px solid var(--line); }
+  select { font: inherit; color: var(--text); background: var(--raise); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; }
   input[type=password], input[type=text] { width: 100%; font: inherit; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
   input[type=password]:focus, input[type=text]:focus { border-color: var(--accent); outline: none; }
   /* On/off switches */
@@ -94,14 +96,22 @@
       <h2 id="chooseTitle">Which AI should Syntaz use?</h2>
       <label class="choice"><input type="radio" name="ai" value="gemini" checked><b>Google Gemini</b><span class="tag">Free · recommended</span>
         <div class="muted small" style="margin:4px 0 0 26px">Fast on any computer. Needs internet and a free key from Google (2 minutes). What you ask, and the page you're on, go to Google's AI.</div></label>
+      <label class="choice"><input type="radio" name="ai" value="openai"><b>OpenAI (ChatGPT's models)</b><span class="tag paid">You pay</span>
+        <div class="muted small" style="margin:4px 0 0 26px">Needs your own OpenAI API key with credit on it.</div></label>
+      <label class="choice"><input type="radio" name="ai" value="anthropic"><b>Anthropic (Claude)</b><span class="tag paid">You pay</span>
+        <div class="muted small" style="margin:4px 0 0 26px">Needs your own Anthropic API key with credit on it.</div></label>
+      <label class="choice"><input type="radio" name="ai" value="xai"><b>xAI (Grok)</b><span class="tag paid">You pay</span>
+        <div class="muted small" style="margin:4px 0 0 26px">Needs your own xAI API key with credit on it.</div></label>
       <label class="choice"><input type="radio" name="ai" value="lmstudio"><b>LM Studio on this computer</b>
         <div class="muted small" style="margin:4px 0 0 26px">Private and offline, but needs a strong graphics card and LM Studio running with a model loaded.</div></label>
       <div id="keyBox">
-        <p class="small muted" style="margin:12px 0 6px">1. Get your free key: click the button, sign in with Google, click <b>Create API key</b> and copy it.</p>
+        <p class="small muted" style="margin:12px 0 6px" id="keyStep1">1. Get your free key: click the button, sign in with Google, click <b>Create API key</b> and copy it.</p>
         <button id="getKey">Get a free key from Google</button>
         <p class="small muted" style="margin:12px 0 6px">2. Paste it here:</p>
         <input type="password" id="key" placeholder="Paste your Gemini API key" autocomplete="off" spellcheck="false">
+        <p class="small muted" id="payNote" style="margin:10px 0 0" hidden>You pay this company for what Syntaz uses (usually a few cents per task, more with the biggest models). Syntaz is free and never sees your bill. Tip: set a monthly spending limit in your account.</p>
       </div>
+      <div id="modelBox" class="row" style="margin-top:12px" hidden><label for="modelPick" class="small" style="font-weight:600">Model</label><select id="modelPick" style="flex:1;min-width:0"></select></div>
       <div class="row" style="margin-top:12px"><button id="check">Check</button><span id="checkMsg" class="msg"></span></div>
     </div>
     <div class="card" id="optCard">
@@ -253,10 +263,26 @@ function openChoose(m) {
   go("choose");
   updateChoice();
 }
+// What the key box says for each AI (LM Studio needs no key).
+const PROVIDERS = {
+  gemini: { name: "Google", step: "1. Get your free key: click the button, sign in with Google, click <b>Create API key</b> and copy it.", button: "Get a free key from Google", placeholder: "Paste your Gemini API key" },
+  openai: { name: "OpenAI", step: "1. Get your key: click the button, sign in to OpenAI, click <b>Create new secret key</b> and copy it. Your account needs credit (Billing).", button: "Open OpenAI's key page", placeholder: "Paste your OpenAI API key (sk-…)" },
+  anthropic: { name: "Anthropic", step: "1. Get your key: click the button, sign in to the Claude Console, click <b>Create Key</b> and copy it. Your account needs credit (Billing).", button: "Open Anthropic's key page", placeholder: "Paste your Anthropic API key (sk-ant-…)" },
+  xai: { name: "xAI", step: "1. Get your key: click the button, sign in to the xAI Console, open <b>API Keys</b>, create one and copy it. Your account needs credit.", button: "Open xAI's key page", placeholder: "Paste your xAI API key (xai-…)" },
+};
+const chosen = () => document.querySelector("input[name=ai]:checked").value;
 function updateChoice() {
-  const gem = document.querySelector("input[name=ai]:checked").value === "gemini";
-  $("keyBox").hidden = !gem;
-  $("check").textContent = gem ? "Check the key" : "Check LM Studio";
+  const p = PROVIDERS[chosen()];
+  $("keyBox").hidden = !p;
+  if (p) {
+    $("keyStep1").innerHTML = p.step;
+    $("getKey").textContent = p.button;
+    $("key").placeholder = p.placeholder;
+    $("payNote").hidden = chosen() === "gemini";
+  }
+  $("key").value = "";
+  $("modelBox").hidden = true;
+  $("check").textContent = p ? "Check the key" : "Check LM Studio";
   $("install").disabled = true;
   $("checkMsg").textContent = "";
 }
@@ -277,21 +303,32 @@ $("key").oninput = () => {
 };
 $("startSetup").onclick = () => openChoose("install");
 $("chooseBack").onclick = () => { go("loading"); refresh(); };
-$("getKey").onclick = () => call("open", { what: "key" });
-$("check").onclick = async () => {
-  const provider = document.querySelector("input[name=ai]:checked").value;
+$("getKey").onclick = () => call("open", { what: "key", provider: chosen() });
+async function check(model = "") {
+  const provider = chosen();
   $("check").disabled = true;
+  $("install").disabled = true;
   $("checkMsg").className = "msg";
   $("checkMsg").innerHTML = '<span class="spin"></span> Checking…';
   try {
-    const r = await call("check", { provider, key: $("key").value });
+    const r = await call("check", { provider, key: $("key").value, model });
     $("checkMsg").className = `msg ${r.ok ? "ok" : "bad"}`;
-    $("checkMsg").textContent = r.ok ? (provider === "gemini" ? `✓ The key works. Syntaz will use ${r.model}.` : "✓ LM Studio is running.") : r.error;
+    $("checkMsg").textContent = r.ok ? (provider === "lmstudio" ? "✓ LM Studio is running." : `✓ The key works. Syntaz will use ${r.model}.`) : r.error;
     $("install").disabled = !r.ok;
+    // Paid AIs: pick the model (the list is what this key may use; the first is the suggestion).
+    const paid = provider !== "gemini" && provider !== "lmstudio";
+    $("modelBox").hidden = !(paid && r.models && r.models.length);
+    if (paid && r.models && r.models.length) {
+      $("modelPick").replaceChildren(...r.models.map((id) => Object.assign(document.createElement("option"), { value: id, textContent: id })));
+      $("modelPick").value = r.model || r.models[0];
+    }
   } finally {
     $("check").disabled = false;
   }
-};
+}
+$("check").onclick = () => check();
+// Another model: checked again with that one, so Install only uses a model that answered.
+$("modelPick").onchange = () => check($("modelPick").value);
 $("install").onclick = async () => {
   $("install").disabled = true;
   if (mode === "change") {

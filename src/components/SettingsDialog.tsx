@@ -12,7 +12,7 @@ type Props = {
   models: ModelSummary[];
   autoModel: string | null;
   modelLocked: boolean;
-  provider: { name: string; kind: "lmstudio" | "openai-compatible" };
+  provider: { name: string; kind: "lmstudio" | "openai-compatible" | "anthropic" };
   onClearAll: () => void;
   conversationCount: number;
 };

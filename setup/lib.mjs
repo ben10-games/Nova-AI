@@ -92,6 +92,84 @@ export async function checkGemini(rawKey) {
   };
 }
 
+// Providers you pay for yourself (your own API key and billing). Tests point the addresses at stand-ins.
+export const PAID = {
+  openai: { name: "OpenAI", base: process.env.NOVA_SETUP_OPENAI_BASE || "https://api.openai.com/v1", keys: "https://platform.openai.com/api-keys", billing: "https://platform.openai.com/settings/organization/billing/overview", chat: /^(gpt-|o\d|chatgpt-)/i },
+  anthropic: { name: "Anthropic (Claude)", base: process.env.NOVA_SETUP_ANTHROPIC_BASE || "https://api.anthropic.com", keys: "https://platform.claude.com/settings/keys", billing: "https://platform.claude.com/settings/billing", chat: /^claude-/i },
+  xai: { name: "xAI (Grok)", base: process.env.NOVA_SETUP_XAI_BASE || "https://api.x.ai/v1", keys: "https://console.x.ai/", billing: "https://console.x.ai/", chat: /^grok-/i },
+};
+const released = (m) => (typeof m.created === "number" ? m.created : Date.parse(m.created_at ?? "") / 1000 || 0);
+const NOT_CHAT = /embed|whisper|tts|dall-e|moderation|rerank|transcribe|image|imagine|audio|realtime|search|vision-preview|computer-use/i;
+// Claude: the current models, best first (the list you pick from keeps any others the key offers).
+const CLAUDE_FIRST = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"];
+
+async function paidHttp(provider, pathPart, key, body) {
+  const p = PAID[provider];
+  const headers = provider === "anthropic"
+    ? { "x-api-key": key, "anthropic-version": "2023-06-01", ...(body ? { "Content-Type": "application/json" } : {}) }
+    : { Authorization: `Bearer ${key}`, ...(body ? { "Content-Type": "application/json" } : {}) };
+  try {
+    const res = await fetch(`${p.base}${provider === "anthropic" ? "/v1" : ""}${pathPart}`, { method: body ? "POST" : "GET", headers, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(30_000) });
+    const text = await res.text();
+    let json = null;
+    try { json = JSON.parse(text); } catch { /* not JSON */ }
+    return { status: res.status, json, text };
+  } catch {
+    return { status: 0, json: null, text: "" };
+  }
+}
+
+function paidProblem(provider, r) {
+  const p = PAID[provider];
+  if (r.status === 0) return `Can't reach ${p.name}. Check your internet connection and try again.`;
+  if (r.status === 401 || r.status === 403 || (r.status === 400 && /api.?key|incorrect|invalid/i.test(r.text))) return `${p.name} says this key doesn't work. Copy the whole key again and paste it.`;
+  if (r.status === 402 || /insufficient_quota|credit balance|billing|exceeded your current quota|spending limit/i.test(r.text)) return `The key works, but this ${p.name} account has no credit. Add a payment method or buy credits (${p.billing}), then try again.`;
+  if (r.status === 429) return `${p.name} says: too many requests right now. Wait a minute and try again.`;
+  return `${p.name} answered with an error (HTTP ${r.status}). Try again in a moment.`;
+}
+
+/**
+ * Checks a paid key: lists the models it may use, best first, and asks the first one a tiny question (a
+ * fraction of a cent) so a key without credit is caught now. { ok, model, models, values } or { ok: false, error }.
+ */
+export async function checkPaid(provider, rawKey, wantModel = "") {
+  const p = PAID[provider];
+  if (!p) return { ok: false, error: "Unknown AI provider." };
+  const key = String(rawKey || "").replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9_.\-]{20,300}$/.test(key)) return { ok: false, error: `That doesn't look like a ${p.name} API key. Copy the whole key and paste it.` };
+  const list = await paidHttp(provider, provider === "anthropic" ? "/models?limit=100" : "/models", key);
+  if (list.status !== 200) return { ok: false, error: paidProblem(provider, list) };
+  let models = (list.json?.data ?? [])
+    .filter((m) => typeof m?.id === "string" && p.chat.test(m.id) && !NOT_CHAT.test(m.id) && !m.deprecated_at)
+    .sort((a, b) => released(b) - released(a)) // newest first
+    .map((m) => m.id);
+  if (provider === "anthropic") models = [...CLAUDE_FIRST.filter((m) => models.includes(m)), ...models.filter((m) => !CLAUDE_FIRST.includes(m))];
+  if (!models.length) return { ok: false, error: `The key works, but ${p.name} offers it no chat models.` };
+  const model = models.includes(wantModel) ? wantModel : models[0];
+  const test = provider === "anthropic"
+    ? await paidHttp(provider, "/messages", key, { model, max_tokens: 1024, messages: [{ role: "user", content: "Reply with: OK" }] })
+    : await paidHttp(provider, "/chat/completions", key, { model, messages: [{ role: "user", content: "Reply with: OK" }] });
+  if (test.status !== 200) return { ok: false, error: paidProblem(provider, test), models };
+  return {
+    ok: true,
+    model,
+    models: models.slice(0, 20),
+    values: {
+      AI_BASE_URL: p.base,
+      AI_API_KEY: key,
+      AI_PROVIDER: provider === "anthropic" ? "anthropic" : "openai-compatible",
+      AI_PROVIDER_NAME: p.name,
+      AI_MODEL: "",
+      // The chosen model first (Syntaz's default), then a few others to switch to in the side panel.
+      AI_MODELS: [model, ...models.filter((m) => m !== model)].slice(0, 6).join(","),
+      // Bounded on purpose: you pay per token, and Syntaz's pages fit well in this.
+      AI_CONTEXT_LENGTH: "32768",
+      AI_MAX_OUTPUT_TOKENS: provider === "anthropic" ? "16000" : "4096",
+      AI_REASONING_EFFORT: "",
+    },
+  };
+}
+
 export async function checkLmStudio() {
   const r = await http(`${LMSTUDIO}/models`, { timeoutMs: 5_000 });
   if (r.status !== 200) return { ok: false, error: "LM Studio isn't answering. Open LM Studio → Developer → Start Server, load a model, and try again." };

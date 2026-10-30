@@ -68,9 +68,12 @@ async function api(route, body) {
     case "state":
       return state();
     case "check": {
-      const r = body.provider === "lmstudio" ? await lib.checkLmStudio() : await lib.checkGemini(body.key);
+      const r =
+        body.provider === "lmstudio" ? await lib.checkLmStudio()
+        : lib.PAID[body.provider] ? await lib.checkPaid(body.provider, body.key, body.model)
+        : await lib.checkGemini(body.key);
       pending = r.ok ? r.values : null;
-      return { ok: r.ok, error: r.error || "", model: r.model || "" };
+      return { ok: r.ok, error: r.error || "", model: r.model || "", models: r.models || [] };
     }
     case "install":
       if (!pending) return { ok: false, error: "Check the AI first." };
@@ -122,7 +125,14 @@ async function api(route, body) {
       setTimeout(() => process.exit(0), 1500); // the window shows "Removed" first
       return { ok: true, filesRemoved: body.removeFiles === true && !lib.isDevCopy() };
     case "open":
-      return { ok: lib.open(body.what === "key" ? "https://aistudio.google.com/apikey" : body.what === "node" ? "https://nodejs.org/en/download" : body.what === "folder" ? "folder" : "extensions") };
+      return {
+        ok: lib.open(
+          body.what === "key" ? (lib.PAID[body.provider]?.keys ?? "https://aistudio.google.com/apikey")
+          : body.what === "node" ? "https://nodejs.org/en/download"
+          : body.what === "folder" ? "folder"
+          : "extensions",
+        ),
+      };
     case "bye":
       setTimeout(() => (job?.status === "running" ? null : process.exit(0)), 300);
       return { ok: true };

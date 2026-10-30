@@ -12,7 +12,8 @@ const joinPath = (base: string, ...parts: string[]) => [base.replace(/[\\/]+$/, 
  * that are never prefixed with NEXT_PUBLIC_, so none of it reaches the browser.
  */
 
-export type ProviderKind = "lmstudio" | "openai-compatible";
+/** "anthropic": Claude through the official Anthropic SDK (src/lib/anthropic.ts); the others speak the OpenAI format. */
+export type ProviderKind = "lmstudio" | "openai-compatible" | "anthropic";
 
 export type AiConfig = {
   kind: ProviderKind;
@@ -108,8 +109,8 @@ export function getAiConfig(): AiConfig {
   }
 
   const explicitKind = env("AI_PROVIDER");
-  if (explicitKind && explicitKind !== "lmstudio" && explicitKind !== "openai-compatible") {
-    throw new ConfigError('AI_PROVIDER must be "lmstudio" or "openai-compatible".');
+  if (explicitKind && explicitKind !== "lmstudio" && explicitKind !== "openai-compatible" && explicitKind !== "anthropic") {
+    throw new ConfigError('AI_PROVIDER must be "lmstudio", "openai-compatible" or "anthropic".');
   }
   const kind: ProviderKind =
     (explicitKind as ProviderKind | null) ??
@@ -122,7 +123,7 @@ export function getAiConfig(): AiConfig {
 
   return {
     kind,
-    providerName: env("AI_PROVIDER_NAME") ?? (kind === "lmstudio" ? "LM Studio" : "AI provider"),
+    providerName: env("AI_PROVIDER_NAME") ?? (kind === "lmstudio" ? "LM Studio" : kind === "anthropic" ? "Anthropic" : "AI provider"),
     baseUrl: url.toString().replace(/\/+$/, ""),
     apiKey,
     model: env("AI_MODEL", "LMSTUDIO_MODEL"),
@@ -348,10 +349,10 @@ export function configWarnings(): string[] {
     if (isProduction && isPrivateHost(host)) {
       warnings.push(`AI_BASE_URL points to a local/private address (${host}). That only works if the AI server runs on the same machine or network as this app.`);
     }
-    if (ai.kind === "openai-compatible" && !ai.model && !ai.allowedModels) {
+    if (ai.kind !== "lmstudio" && !ai.model && !ai.allowedModels) {
       warnings.push("Neither AI_MODEL nor AI_MODELS is set; the first model reported by the provider will be used and users can pick any listed model.");
     }
-    if (ai.kind === "openai-compatible" && !ai.maxOutputTokens) {
+    if (ai.kind !== "lmstudio" && !ai.maxOutputTokens) {
       warnings.push("AI_MAX_OUTPUT_TOKENS is not set; replies are only limited by the provider.");
     }
   } catch (err) {

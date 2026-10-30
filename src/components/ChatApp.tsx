@@ -60,7 +60,7 @@ export default function ChatApp() {
   const [status, setStatus] = useState<Status>({ state: "checking" });
   const [models, setModels] = useState<ModelSummary[]>([]);
   const [modelLocked, setModelLocked] = useState(false);
-  const [provider, setProvider] = useState<{ name: string; kind: "lmstudio" | "openai-compatible" }>({
+  const [provider, setProvider] = useState<{ name: string; kind: "lmstudio" | "openai-compatible" | "anthropic" }>({
     name: "AI provider",
     kind: "openai-compatible",
   });
@@ -131,7 +131,7 @@ export default function ChatApp() {
         contextLength?: number | null;
         models?: ModelSummary[];
         modelLocked?: boolean;
-        provider?: { name: string; kind: "lmstudio" | "openai-compatible" };
+        provider?: { name: string; kind: "lmstudio" | "openai-compatible" | "anthropic" };
         warning?: string | null;
         actions?: { enabled: boolean; workspace: boolean; writes: boolean; tools: ToolSummary[] };
         error?: string;

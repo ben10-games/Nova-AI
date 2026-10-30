@@ -7,5 +7,5 @@
 <key>CFBundleExecutable</key><string>nova-setup</string>
 <key>CFBundleIconFile</key><string>nova</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.3.0</string>
+<key>CFBundleShortVersionString</key><string>1.4.0</string>
 </dict></plist>

@@ -33,6 +33,8 @@ You need **Google Chrome** and a **Google account**.
 
 **If something's wrong:** "Syntaz isn't running" → open the **Syntaz AI** app and click **Start Syntaz**. "Daily limit used up" → Google's free tier allows a limited number of requests per day (with the model setup picks, Gemini 3.1 Flash-Lite, roughly 100 tasks a day; one task uses about 3–6 requests); it resets the next day. If Syntaz seems to pause for up to a minute, it is waiting for Google's per-minute limit (about 15 requests a minute) and then carries on. After an update, press ↻ on Syntaz AI in `chrome://extensions`.
 
+**Use ChatGPT, Claude or Grok instead (you pay):** in the setup, or later with **Change AI** in the Syntaz window, choose **OpenAI**, **Anthropic (Claude)** or **xAI (Grok)** and paste your own API key from that company (your account needs credit). Syntaz checks the key, tells you if the account has no credit, and lets you pick the model; the side panel's model menu can switch between a few of them. You pay the company for what Syntaz uses (usually a few cents per task, more with the biggest models), so set a monthly spending limit in your account. Syntaz Lite and the website chat stay Gemini-only.
+
 **Privacy:** with Gemini, what you ask and the page you're on (text, and screenshots when Syntaz looks at the page) go to Google's AI. Syntaz never reads passwords or payment fields. Don't use it on pages with private information you don't want to share with Google. Your key is saved only on your computer (in `.env.local`).
 
 ---

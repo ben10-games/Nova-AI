@@ -43,7 +43,7 @@ function ask(question, { hidden = false } = {}) {
 }
 
 async function chooseGemini() {
-  say("\nNova uses Google's free Gemini AI. You need a free API key (takes 2 minutes):");
+  say("\nSyntaz uses Google's free Gemini AI. You need a free API key (takes 2 minutes):");
   say("  1. A page opens: sign in with your Google account.");
   say('  2. Click "Create API key", then copy the key.');
   say("  3. Paste it here (it is saved only on this computer).");
@@ -67,6 +67,38 @@ async function chooseGemini() {
   fail("The key didn't work three times. Make a new key on the page that opened, then run the setup again.");
 }
 
+/** OpenAI, Anthropic or xAI: the user's own key (they pay the company), then the model. */
+async function choosePaid(provider) {
+  const p = lib.PAID[provider];
+  say(`\nSyntaz will use ${p.name} with your own API key. You pay ${p.name} for what Syntaz uses`);
+  say("(usually a few cents per task). Your account needs credit; set a spending limit there if you like.");
+  say(`Get a key here: ${p.keys}`);
+  if (!configureOnly) lib.open(p.keys);
+  for (let tries = 0; tries < 3; tries++) {
+    const key = (await ask(`\nPaste your ${p.name} API key and press Enter: `, { hidden: true })).replace(/\s+/g, "");
+    if (!key) fail("No key entered. Run the setup again when you have your key.");
+    say("Checking the key…");
+    let r = await lib.checkPaid(provider, key);
+    if (!r.ok) {
+      if (/Can't reach|no credit/.test(r.error)) fail(r.error);
+      say(r.error);
+      continue;
+    }
+    say(`✔ The key works. Models you can use:`);
+    r.models.slice(0, 9).forEach((m, i) => say(`  ${i + 1} = ${m}${i === 0 ? " (suggested)" : ""}`));
+    const pick = Number(await ask(`Type a number and press Enter [1]: `)) || 1;
+    const model = r.models[Math.min(Math.max(pick, 1), Math.min(r.models.length, 9)) - 1];
+    if (model !== r.model) {
+      say(`Checking ${model}…`);
+      r = await lib.checkPaid(provider, key, model);
+      if (!r.ok) fail(r.error);
+    }
+    say(`✔ Syntaz will use ${r.model}.`);
+    return r.values;
+  }
+  fail("The key didn't work three times. Make a new key, then run the setup again.");
+}
+
 async function main() {
   say("==============================");
   say("  Syntaz AI setup");
@@ -77,9 +109,14 @@ async function main() {
   step(1, "Which AI should Syntaz use?");
   say("  1 = Google Gemini, free (recommended: fast on any computer, needs internet)");
   say("  2 = LM Studio on this computer (private, needs a strong graphics card)");
-  const choice = (await ask("Type 1 or 2 and press Enter [1]: ")) || "1";
+  say("  3 = OpenAI, with your own paid API key");
+  say("  4 = Anthropic (Claude), with your own paid API key");
+  say("  5 = xAI (Grok), with your own paid API key");
+  const choice = (await ask("Type 1 to 5 and press Enter [1]: ")) || "1";
   let ai;
-  if (choice === "2") {
+  const paid = { 3: "openai", 4: "anthropic", 5: "xai" }[choice];
+  if (paid) ai = await choosePaid(paid);
+  else if (choice === "2") {
     say("\nChecking LM Studio on this computer…");
     const r = await lib.checkLmStudio();
     if (!r.ok) fail(r.error);

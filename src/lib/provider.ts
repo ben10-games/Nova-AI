@@ -1,4 +1,5 @@
 import "server-only";
+import { anthropicChat, anthropicModels } from "./anthropic";
 import { getAiConfig, type AiConfig } from "./config";
 
 export type ModelInfo = {
@@ -123,7 +124,50 @@ type V0Model = { id?: string; type?: string; state?: string; loaded_context_leng
 
 const NON_CHAT_MODEL = /embed|whisper|tts|dall-e|moderation|rerank|transcribe|image/i;
 
+/**
+ * POST /chat/completions with an OpenAI-format body. Anthropic is answered through its SDK in the same shape;
+ * every other provider is called directly (waiting and retrying when it says "slow down").
+ */
+export async function chatCompletions(config: AiConfig, body: Record<string, unknown>, signal: AbortSignal): Promise<Response> {
+  if (config.kind === "anthropic") return anthropicChat(config, body as Parameters<typeof anthropicChat>[1], signal);
+  const key = `${config.baseUrl}|${String(body.model)}`;
+  for (let attempt = 0; ; attempt++) {
+    const rejected = rejectedParams.get(key);
+    const send: Record<string, unknown> = { ...body };
+    for (const p of rejected ?? []) delete send[p];
+    if (rejected?.has("max_tokens") && body.max_tokens !== undefined) send.max_completion_tokens = body.max_tokens;
+    const res = await fetchWithRetry(`${config.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...providerHeaders(config) },
+      body: JSON.stringify(send),
+      signal,
+    });
+    if (res.status !== 400 || attempt >= OPTIONAL_PARAMS.length) return res;
+    const text = await res.clone().text();
+    const bad = OPTIONAL_PARAMS.find((p) => send[p] !== undefined && text.includes(p) && UNSUPPORTED.test(text));
+    if (!bad) return res;
+    console.warn(`[provider] ${config.providerName} doesn't accept "${bad}" for this model; sending without it`);
+    rejectedParams.set(key, new Set([...(rejected ?? []), bad]));
+  }
+}
+
+// Newer models reject some settings (OpenAI's reasoning models: temperature, top_p, and max_tokens, which
+// they call max_completion_tokens). Such a setting is left out from then on for that model.
+const OPTIONAL_PARAMS = ["temperature", "top_p", "max_tokens", "reasoning_effort"] as const;
+const UNSUPPORTED = /unsupported|not supported|does not support|isn't supported|only the default|unrecognized|unknown (?:parameter|field)|not allowed/i;
+const rejectedParams = new Map<string, Set<string>>();
+
 async function fetchModels(config: AiConfig): Promise<ModelInfo[]> {
+  if (config.kind === "anthropic") {
+    try {
+      // Claude reports up to 1M tokens; Syntaz uses AI_CONTEXT_LENGTH instead, since every token is paid for.
+      return (await anthropicModels(config)).map((m) => ({ id: m.id, type: "unknown" as const, loaded: null, contextLength: null }));
+    } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (typeof status !== "number") throw new UpstreamError(unreachableMessage(config), 503);
+      throw describeUpstreamError(config, status, JSON.stringify({ error: { message: (err as Error).message } }));
+    }
+  }
   // LM Studio's native REST API reports type and load state.
   if (config.kind === "lmstudio") {
     try {

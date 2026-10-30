@@ -1,6 +1,6 @@
 import { ConfigError, getAiConfig, getRateLimitConfig, limits, type AiConfig } from "@/lib/config";
 import { BodyTooLargeError, clientKey, checkClient, jsonError, readBodyText } from "@/lib/http";
-import { describeUpstreamError, fetchWithRetry, providerHeaders, redact, resolveModel, UpstreamError } from "@/lib/provider";
+import { chatCompletions, describeUpstreamError, redact, resolveModel, UpstreamError } from "@/lib/provider";
 import { acquireSlot, checkRateLimit } from "@/lib/ratelimit";
 import type { StreamEvent } from "@/lib/types";
 import { fitToContext, validateChatBody } from "@/lib/validate";
@@ -97,10 +97,9 @@ export async function POST(req: Request) {
 
   let upstream: Response;
   try {
-    upstream = await fetchWithRetry(`${config.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...providerHeaders(config) },
-      body: JSON.stringify({
+    upstream = await chatCompletions(
+      config,
+      {
         model: model.id,
         messages: [
           { role: "system", content: systemPrompt },
@@ -116,9 +115,9 @@ export async function POST(req: Request) {
         top_p: options.topP,
         ...(maxTokens ? { max_tokens: maxTokens } : {}),
         ...(config.reasoningEffort ? { reasoning_effort: config.reasoningEffort } : {}),
-      }),
-      signal: upstreamAbort.signal,
-    });
+      },
+      upstreamAbort.signal,
+    );
   } catch {
     cleanup();
     if (req.signal.aborted) return new Response(null, { status: 499 });

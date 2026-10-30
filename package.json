@@ -1,6 +1,6 @@
 {
   "name": "nova-ai",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 3000",
@@ -8,7 +8,7 @@
     "start": "next start",
     "start:local": "next start -H 127.0.0.1 -p 3000",
     "lint": "tsc --noEmit",
-    "test": "node --test test/api.test.mjs test/agent.test.mjs test/mcp.test.mjs test/blender.test.mjs test/blender-scene.test.mjs test/browser.test.mjs test/sidepanel.test.mjs test/dev-approval.test.mjs test/setup.test.mjs test/release.test.mjs test/lite.test.mjs test/website.test.mjs",
+    "test": "node --test test/api.test.mjs test/agent.test.mjs test/mcp.test.mjs test/blender.test.mjs test/blender-scene.test.mjs test/browser.test.mjs test/sidepanel.test.mjs test/dev-approval.test.mjs test/setup.test.mjs test/release.test.mjs test/lite.test.mjs test/website.test.mjs test/providers.test.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
     "blender:check": "node scripts/blender-check.mjs",
     "browser:token": "node scripts/browser-token.mjs",
@@ -21,6 +21,7 @@
     "node": ">=18.18.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.3.0",
     "@modelcontextprotocol/sdk": "1.32.1",
     "highlight.js": "^11.12.0",
     "next": "^15.5.27",
